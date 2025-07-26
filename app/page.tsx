@@ -8,62 +8,100 @@ import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Search, Calendar, FileText, MessageSquare, ExternalLink, Settings, RefreshCw } from "lucide-react"
-import Link from "next/link"
-import { fetchNostrPosts, fetchNostrProfile, type NostrPost, type NostrProfile } from "@/lib/nostr"
+import { Search, FileText, MessageSquare, Calendar, ExternalLink, RefreshCw } from "lucide-react"
+import { fetchNostrProfile, fetchNostrPosts } from "@/lib/nostr"
 import { getSettings } from "@/lib/settings"
+import Link from "next/link"
+
+interface NostrProfile {
+  name?: string
+  display_name?: string
+  about?: string
+  picture?: string
+  banner?: string
+  nip05?: string
+  lud16?: string
+  website?: string
+}
+
+interface NostrPost {
+  id: string
+  pubkey: string
+  created_at: number
+  kind: number
+  tags: string[][]
+  content: string
+  sig: string
+  profile?: NostrProfile
+  type: "note" | "article"
+  title?: string
+  summary?: string
+  image?: string
+  published_at?: number
+}
 
 export default function HomePage() {
-  const [posts, setPosts] = useState<NostrPost[]>([])
   const [profile, setProfile] = useState<NostrProfile | null>(null)
+  const [posts, setPosts] = useState<NostrPost[]>([])
+  const [filteredPosts, setFilteredPosts] = useState<NostrPost[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
-  const [npub, setNpub] = useState<string>("")
+  const [selectedType, setSelectedType] = useState<"all" | "note" | "article">("all")
 
-  useEffect(() => {
-    const settings = getSettings()
-    if (settings.npub) {
-      setNpub(settings.npub)
-      loadData(settings.npub)
-    } else {
-      setLoading(false)
-      setError("No Nostr public key configured. Please go to Settings to configure your npub.")
-    }
-  }, [])
-
-  const loadData = async (userNpub: string) => {
+  const loadData = async () => {
     try {
       setLoading(true)
       setError(null)
 
-      const [profileData, postsData] = await Promise.all([fetchNostrProfile(userNpub), fetchNostrPosts(userNpub)])
+      const settings = getSettings()
+      if (!settings.npub) {
+        setError("No Nostr public key configured. Please go to Settings to configure your npub.")
+        return
+      }
+
+      // Fetch profile and posts
+      const [profileData, postsData] = await Promise.all([
+        fetchNostrProfile(settings.npub),
+        fetchNostrPosts(settings.npub, 50),
+      ])
 
       setProfile(profileData)
       setPosts(postsData)
+      setFilteredPosts(postsData)
     } catch (err) {
       console.error("Error loading data:", err)
-      setError("Failed to load data from Nostr relays. Please try again.")
+      setError("Failed to load data. Please try again.")
     } finally {
       setLoading(false)
     }
   }
 
-  const handleRefresh = () => {
-    if (npub) {
-      loadData(npub)
-    }
-  }
+  useEffect(() => {
+    loadData()
+  }, [])
 
-  const filteredPosts = posts.filter((post) => {
-    if (!searchTerm) return true
-    const searchLower = searchTerm.toLowerCase()
-    return (
-      post.content.toLowerCase().includes(searchLower) ||
-      post.title?.toLowerCase().includes(searchLower) ||
-      post.summary?.toLowerCase().includes(searchLower)
-    )
-  })
+  useEffect(() => {
+    let filtered = posts
+
+    // Filter by type
+    if (selectedType !== "all") {
+      filtered = filtered.filter((post) => post.type === selectedType)
+    }
+
+    // Filter by search term
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase()
+      filtered = filtered.filter(
+        (post) =>
+          post.content.toLowerCase().includes(term) ||
+          post.title?.toLowerCase().includes(term) ||
+          post.summary?.toLowerCase().includes(term),
+      )
+    }
+
+    setFilteredPosts(filtered)
+  }, [posts, searchTerm, selectedType])
 
   const formatDate = (timestamp: number) => {
     return new Date(timestamp * 1000).toLocaleDateString("en-US", {
@@ -82,21 +120,21 @@ export default function HomePage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
         <div className="container mx-auto px-4 py-8">
-          {/* Profile Skeleton */}
+          {/* Profile skeleton */}
           <Card className="mb-8 border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
-            <CardHeader className="text-center">
-              <div className="flex flex-col items-center space-y-4">
+            <CardContent className="p-8">
+              <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
                 <Skeleton className="h-32 w-32 rounded-full" />
-                <div className="space-y-2">
-                  <Skeleton className="h-8 w-48" />
-                  <Skeleton className="h-4 w-32" />
-                  <Skeleton className="h-4 w-64" />
+                <div className="flex-1 space-y-4 text-center md:text-left">
+                  <Skeleton className="h-8 w-48 mx-auto md:mx-0" />
+                  <Skeleton className="h-4 w-full max-w-md mx-auto md:mx-0" />
+                  <Skeleton className="h-4 w-3/4 max-w-sm mx-auto md:mx-0" />
                 </div>
               </div>
-            </CardHeader>
+            </CardContent>
           </Card>
 
-          {/* Posts Skeleton */}
+          {/* Posts skeleton */}
           <div className="space-y-6">
             {[...Array(3)].map((_, i) => (
               <Card key={i} className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
@@ -126,24 +164,20 @@ export default function HomePage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
         <div className="container mx-auto px-4 py-8">
-          <Alert className="mb-8 border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20">
-            <AlertDescription className="text-red-800 dark:text-red-200">{error}</AlertDescription>
-          </Alert>
-
-          <div className="text-center space-y-4">
-            <Button onClick={handleRefresh} className="bg-blue-600 hover:bg-blue-700">
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Try Again
-            </Button>
-            <div>
-              <Link href="/settings">
-                <Button variant="outline" className="ml-2 bg-transparent">
-                  <Settings className="w-4 h-4 mr-2" />
-                  Go to Settings
+          <Alert className="max-w-2xl mx-auto">
+            <AlertDescription className="flex items-center justify-between">
+              <span>{error}</span>
+              <div className="flex gap-2">
+                <Button onClick={loadData} size="sm" variant="outline">
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Retry
                 </Button>
-              </Link>
-            </div>
-          </div>
+                <Button asChild size="sm">
+                  <Link href="/settings">Go to Settings</Link>
+                </Button>
+              </div>
+            </AlertDescription>
+          </Alert>
         </div>
       </div>
     )
@@ -155,8 +189,8 @@ export default function HomePage() {
         {/* Profile Section */}
         {profile && (
           <Card className="mb-8 border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:shadow-xl transition-all duration-300">
-            <CardHeader className="text-center">
-              <div className="flex flex-col items-center space-y-4">
+            <CardContent className="p-8">
+              <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
                 <Avatar className="h-32 w-32 border-4 border-white dark:border-slate-700 shadow-lg">
                   <AvatarImage
                     src={profile.picture || "/placeholder.svg"}
@@ -167,136 +201,137 @@ export default function HomePage() {
                     {(profile.name || profile.display_name || "U")[0].toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                <div className="space-y-2">
-                  <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-600 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
+                <div className="flex-1 text-center md:text-left">
+                  <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-slate-900 to-slate-600 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
                     {profile.display_name || profile.name || "Anonymous"}
                   </h1>
-                  {profile.name && profile.display_name && profile.name !== profile.display_name && (
-                    <p className="text-slate-600 dark:text-slate-400">@{profile.name}</p>
-                  )}
                   {profile.about && (
-                    <p className="text-slate-700 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
-                      {profile.about}
-                    </p>
+                    <p className="text-slate-600 dark:text-slate-300 mb-4 leading-relaxed">{profile.about}</p>
                   )}
-                  {profile.website && (
-                    <a
-                      href={profile.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
-                    >
-                      <ExternalLink className="w-4 h-4 mr-1" />
-                      {profile.website}
-                    </a>
-                  )}
+                  <div className="flex flex-wrap gap-4 justify-center md:justify-start">
+                    {profile.website && (
+                      <Button variant="outline" size="sm" asChild>
+                        <a href={profile.website} target="_blank" rel="noopener noreferrer">
+                          <ExternalLink className="h-4 w-4 mr-2" />
+                          Website
+                        </a>
+                      </Button>
+                    )}
+                    {profile.nip05 && (
+                      <Badge variant="secondary" className="px-3 py-1">
+                        ✓ {profile.nip05}
+                      </Badge>
+                    )}
+                  </div>
                 </div>
               </div>
-            </CardHeader>
+            </CardContent>
           </Card>
         )}
 
         {/* Search and Filter */}
-        <div className="mb-8 flex flex-col sm:flex-row gap-4 items-center justify-between">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
-            <Input
-              placeholder="Search posts..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-slate-200 dark:border-slate-700"
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <Button onClick={handleRefresh} variant="outline" size="sm">
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Refresh
-            </Button>
-            <Badge variant="secondary" className="bg-slate-100 dark:bg-slate-700">
-              {filteredPosts.length} posts
-            </Badge>
-          </div>
-        </div>
+        <Card className="mb-6 border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
+          <CardContent className="p-6">
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
+                <Input
+                  placeholder="Search posts..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 border-0 bg-slate-100 dark:bg-slate-700"
+                />
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant={selectedType === "all" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSelectedType("all")}
+                >
+                  All
+                </Button>
+                <Button
+                  variant={selectedType === "note" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSelectedType("note")}
+                >
+                  <MessageSquare className="h-4 w-4 mr-2" />
+                  Notes
+                </Button>
+                <Button
+                  variant={selectedType === "article" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSelectedType("article")}
+                >
+                  <FileText className="h-4 w-4 mr-2" />
+                  Articles
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Posts */}
-        {filteredPosts.length === 0 ? (
-          <Card className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
-            <CardContent className="text-center py-12">
-              <MessageSquare className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300 mb-2">No posts found</h3>
-              <p className="text-slate-500 dark:text-slate-400">
-                {searchTerm ? "Try adjusting your search terms." : "No posts available yet."}
-              </p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="space-y-6">
-            {filteredPosts.map((post) => (
+        <div className="space-y-6">
+          {filteredPosts.length === 0 ? (
+            <Card className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
+              <CardContent className="p-8 text-center">
+                <p className="text-slate-600 dark:text-slate-300">
+                  {posts.length === 0 ? "No posts found." : "No posts match your search criteria."}
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            filteredPosts.map((post) => (
               <Card
                 key={post.id}
                 className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
               >
                 <CardHeader>
-                  <div className="flex items-center justify-between mb-2">
-                    <Badge
-                      variant={post.kind === 30023 ? "default" : "secondary"}
-                      className={
-                        post.kind === 30023 ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200" : ""
-                      }
-                    >
-                      {post.kind === 30023 ? (
+                  <div className="flex items-center justify-between">
+                    <Badge variant={post.type === "article" ? "default" : "secondary"}>
+                      {post.type === "article" ? (
                         <>
-                          <FileText className="w-3 h-3 mr-1" />
+                          <FileText className="h-3 w-3 mr-1" />
                           Article
                         </>
                       ) : (
                         <>
-                          <MessageSquare className="w-3 h-3 mr-1" />
+                          <MessageSquare className="h-3 w-3 mr-1" />
                           Note
                         </>
                       )}
                     </Badge>
                     <div className="flex items-center text-sm text-slate-500 dark:text-slate-400">
-                      <Calendar className="w-4 h-4 mr-1" />
+                      <Calendar className="h-4 w-4 mr-1" />
                       {formatDate(post.published_at || post.created_at)}
                     </div>
                   </div>
-
                   {post.title && (
-                    <CardTitle className="text-xl font-bold text-slate-900 dark:text-slate-100 leading-tight">
+                    <CardTitle className="text-xl bg-gradient-to-r from-slate-900 to-slate-600 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
                       {post.title}
                     </CardTitle>
                   )}
-
                   {post.summary && (
-                    <CardDescription className="text-slate-600 dark:text-slate-400 leading-relaxed">
-                      {post.summary}
-                    </CardDescription>
+                    <CardDescription className="text-slate-600 dark:text-slate-300">{post.summary}</CardDescription>
                   )}
                 </CardHeader>
-
                 <CardContent>
                   <div className="prose prose-slate dark:prose-invert max-w-none">
                     <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
                       {truncateContent(post.content)}
                     </p>
                   </div>
-
-                  {post.content.length > 200 && (
-                    <Link href={`/blog/${post.id}`}>
-                      <Button
-                        variant="ghost"
-                        className="mt-4 p-0 h-auto text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-                      >
-                        Read more →
-                      </Button>
-                    </Link>
-                  )}
+                  <div className="mt-4 flex justify-between items-center">
+                    <Button variant="outline" size="sm" asChild>
+                      <Link href={`/blog/${post.id}`}>Read More</Link>
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
-            ))}
-          </div>
-        )}
+            ))
+          )}
+        </div>
       </div>
     </div>
   )

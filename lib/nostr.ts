@@ -1,37 +1,4 @@
 import { SimplePool, type Event, type Filter, nip19 } from "nostr-tools"
-import { bech32Decode } from "./bech32"
-
-// Define interfaces for our data structures
-export interface NostrProfile {
-  name?: string
-  display_name?: string
-  about?: string
-  picture?: string
-  banner?: string
-  nip05?: string
-  lud16?: string
-  website?: string
-}
-
-export interface NostrPost {
-  id: string
-  pubkey: string
-  created_at: number
-  kind: number
-  tags: string[][]
-  content: string
-  sig: string
-  profile?: NostrProfile
-  title?: string
-  summary?: string
-  image?: string
-  published_at?: number
-}
-
-// Cache for profiles and posts
-const profileCache = new Map<string, NostrProfile>()
-const postCache = new Map<string, NostrPost[]>()
-const singlePostCache = new Map<string, NostrPost>()
 
 // Default relays
 const DEFAULT_RELAYS = [
@@ -42,7 +9,38 @@ const DEFAULT_RELAYS = [
   "wss://nostr.wine",
 ]
 
-// Create a simple pool for managing relay connections
+// Cache for storing fetched data
+const cache = new Map<string, any>()
+const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
+
+interface NostrProfile {
+  name?: string
+  display_name?: string
+  about?: string
+  picture?: string
+  banner?: string
+  nip05?: string
+  lud16?: string
+  website?: string
+}
+
+interface NostrPost {
+  id: string
+  pubkey: string
+  created_at: number
+  kind: number
+  tags: string[][]
+  content: string
+  sig: string
+  profile?: NostrProfile
+  type: "note" | "article"
+  title?: string
+  summary?: string
+  image?: string
+  published_at?: number
+}
+
+// Initialize pool
 let pool: SimplePool | null = null
 
 function getPool(): SimplePool {
@@ -52,29 +50,25 @@ function getPool(): SimplePool {
   return pool
 }
 
-// Helper function to get cached data from localStorage
-function getCachedData<T>(key: string): T | null {
-  if (typeof window === "undefined") return null
+function getCacheKey(type: string, identifier: string): string {
+  return `${type}:${identifier}`
+}
 
-  try {
-    const cached = localStorage.getItem(key)
-    if (cached) {
-      const parsed = JSON.parse(cached)
-      // Check if cache is less than 1 hour old
-      if (Date.now() - parsed.timestamp < 3600000) {
-        return parsed.data
-      }
-    }
-  } catch (error) {
-    console.error("Error reading from cache:", error)
+function getCachedData(key: string): any | null {
+  const cached = cache.get(key)
+  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+    return cached.data
   }
   return null
 }
 
-// Helper function to set cached data in localStorage
-function setCachedData<T>(key: string, data: T): void {
-  if (typeof window === "undefined") return
+function setCachedData(key: string, data: any): void {
+  cache.set(key, {
+    data,
+    timestamp: Date.now(),
+  })
 
+  // Also store in localStorage for persistence
   try {
     localStorage.setItem(
       key,
@@ -84,261 +78,294 @@ function setCachedData<T>(key: string, data: T): void {
       }),
     )
   } catch (error) {
-    console.error("Error writing to cache:", error)
+    console.warn("Failed to store in localStorage:", error)
   }
 }
 
-// Convert npub to hex pubkey
-function npubToHex(npub: string): string {
+function getStoredData(key: string): any | null {
   try {
-    if (npub.startsWith("npub1")) {
-      const decoded = nip19.decode(npub)
-      if (decoded.type === "npub") {
-        return decoded.data
+    const stored = localStorage.getItem(key)
+    if (stored) {
+      const parsed = JSON.parse(stored)
+      if (Date.now() - parsed.timestamp < CACHE_DURATION) {
+        return parsed.data
       }
     }
-    // Fallback to custom bech32 decoder
-    return bech32Decode(npub)
   } catch (error) {
-    console.error("Error decoding npub:", error)
-    throw new Error("Invalid npub format")
+    console.warn("Failed to retrieve from localStorage:", error)
   }
+  return null
 }
 
-// Fetch profile information for a given npub
 export async function fetchNostrProfile(npub: string): Promise<NostrProfile | null> {
   try {
-    // Check memory cache first
-    if (profileCache.has(npub)) {
-      return profileCache.get(npub) || null
-    }
+    const cacheKey = getCacheKey("profile", npub)
 
-    // Check localStorage cache
-    const cacheKey = `nostr_profile_${npub}`
-    const cached = getCachedData<NostrProfile>(cacheKey)
+    // Check cache first
+    let cached = getCachedData(cacheKey)
+    if (!cached && typeof window !== "undefined") {
+      cached = getStoredData(cacheKey)
+      if (cached) {
+        setCachedData(cacheKey, cached) // Restore to memory cache
+      }
+    }
     if (cached) {
-      profileCache.set(npub, cached)
       return cached
     }
 
-    const pubkey = npubToHex(npub)
+    // Decode npub to hex
+    let pubkeyHex: string
+    try {
+      if (npub.startsWith("npub")) {
+        const decoded = nip19.decode(npub)
+        if (decoded.type === "npub") {
+          pubkeyHex = decoded.data
+        } else {
+          throw new Error("Invalid npub format")
+        }
+      } else {
+        // Assume it's already hex
+        pubkeyHex = npub
+      }
+    } catch (error) {
+      console.error("Failed to decode npub:", error)
+      return null
+    }
+
     const currentPool = getPool()
 
+    // Fetch profile metadata (kind 0)
     const filter: Filter = {
       kinds: [0],
-      authors: [pubkey],
+      authors: [pubkeyHex],
       limit: 1,
     }
 
-    return new Promise((resolve) => {
-      const timeout = setTimeout(() => {
-        resolve(null)
-      }, 10000) // 10 second timeout
+    const events = await currentPool.querySync(DEFAULT_RELAYS, filter)
 
-      const sub = currentPool.subscribeMany(DEFAULT_RELAYS, [filter], {
-        onevent(event: Event) {
-          try {
-            const profile: NostrProfile = JSON.parse(event.content)
-            profileCache.set(npub, profile)
-            setCachedData(cacheKey, profile)
-            clearTimeout(timeout)
-            sub.close()
-            resolve(profile)
-          } catch (error) {
-            console.error("Error parsing profile:", error)
-          }
-        },
-        oneose() {
-          clearTimeout(timeout)
-          sub.close()
-          resolve(null)
-        },
-      })
-    })
+    if (events.length === 0) {
+      return null
+    }
+
+    const profileEvent = events[0]
+    let profile: NostrProfile = {}
+
+    try {
+      profile = JSON.parse(profileEvent.content)
+    } catch (error) {
+      console.error("Failed to parse profile content:", error)
+      profile = {}
+    }
+
+    setCachedData(cacheKey, profile)
+    return profile
   } catch (error) {
     console.error("Error fetching Nostr profile:", error)
     return null
   }
 }
 
-// Fetch posts for a given npub
-export async function fetchNostrPosts(npub: string): Promise<NostrPost[]> {
+export async function fetchNostrPosts(npub: string, limit = 50): Promise<NostrPost[]> {
   try {
-    // Check memory cache first
-    if (postCache.has(npub)) {
-      return postCache.get(npub) || []
-    }
+    const cacheKey = getCacheKey("posts", `${npub}:${limit}`)
 
-    // Check localStorage cache
-    const cacheKey = `nostr_posts_${npub}`
-    const cached = getCachedData<NostrPost[]>(cacheKey)
+    // Check cache first
+    let cached = getCachedData(cacheKey)
+    if (!cached && typeof window !== "undefined") {
+      cached = getStoredData(cacheKey)
+      if (cached) {
+        setCachedData(cacheKey, cached) // Restore to memory cache
+      }
+    }
     if (cached) {
-      postCache.set(npub, cached)
       return cached
     }
 
-    const pubkey = npubToHex(npub)
+    // Decode npub to hex
+    let pubkeyHex: string
+    try {
+      if (npub.startsWith("npub")) {
+        const decoded = nip19.decode(npub)
+        if (decoded.type === "npub") {
+          pubkeyHex = decoded.data
+        } else {
+          throw new Error("Invalid npub format")
+        }
+      } else {
+        // Assume it's already hex
+        pubkeyHex = npub
+      }
+    } catch (error) {
+      console.error("Failed to decode npub:", error)
+      return []
+    }
+
     const currentPool = getPool()
 
-    // Fetch both short notes (kind 1) and long-form articles (kind 30023)
+    // Fetch both notes (kind 1) and long-form articles (kind 30023)
     const filters: Filter[] = [
       {
-        kinds: [1],
-        authors: [pubkey],
-        limit: 50,
+        kinds: [1], // Notes
+        authors: [pubkeyHex],
+        limit: Math.ceil(limit / 2),
       },
       {
-        kinds: [30023],
-        authors: [pubkey],
-        limit: 20,
+        kinds: [30023], // Long-form articles
+        authors: [pubkeyHex],
+        limit: Math.ceil(limit / 2),
       },
     ]
 
-    return new Promise((resolve) => {
-      const posts: NostrPost[] = []
-      const timeout = setTimeout(() => {
-        const sortedPosts = posts.sort((a, b) => b.created_at - a.created_at)
-        postCache.set(npub, sortedPosts)
-        setCachedData(cacheKey, sortedPosts)
-        resolve(sortedPosts)
-      }, 10000) // 10 second timeout
+    const allEvents: Event[] = []
 
-      const sub = currentPool.subscribeMany(DEFAULT_RELAYS, filters, {
-        onevent(event: Event) {
-          try {
-            const post: NostrPost = {
-              id: event.id,
-              pubkey: event.pubkey,
-              created_at: event.created_at,
-              kind: event.kind,
-              tags: event.tags,
-              content: event.content,
-              sig: event.sig,
-            }
+    for (const filter of filters) {
+      try {
+        const events = await currentPool.querySync(DEFAULT_RELAYS, filter)
+        allEvents.push(...events)
+      } catch (error) {
+        console.error("Error fetching events with filter:", filter, error)
+      }
+    }
 
-            // For long-form articles (kind 30023), extract metadata
-            if (event.kind === 30023) {
-              const titleTag = event.tags.find((tag) => tag[0] === "title")
-              const summaryTag = event.tags.find((tag) => tag[0] === "summary")
-              const imageTag = event.tags.find((tag) => tag[0] === "image")
-              const publishedAtTag = event.tags.find((tag) => tag[0] === "published_at")
+    // Get profile for the author
+    const profile = await fetchNostrProfile(npub)
 
-              if (titleTag && titleTag[1]) post.title = titleTag[1]
-              if (summaryTag && summaryTag[1]) post.summary = summaryTag[1]
-              if (imageTag && imageTag[1]) post.image = imageTag[1]
-              if (publishedAtTag && publishedAtTag[1]) {
-                post.published_at = Number.parseInt(publishedAtTag[1])
-              }
-            }
+    // Convert events to posts
+    const posts: NostrPost[] = allEvents.map((event) => {
+      const post: NostrPost = {
+        id: event.id,
+        pubkey: event.pubkey,
+        created_at: event.created_at,
+        kind: event.kind,
+        tags: event.tags,
+        content: event.content,
+        sig: event.sig,
+        profile,
+        type: event.kind === 30023 ? "article" : "note",
+      }
 
-            posts.push(post)
-          } catch (error) {
-            console.error("Error processing post:", error)
-          }
-        },
-        oneose() {
-          clearTimeout(timeout)
-          sub.close()
-          const sortedPosts = posts.sort((a, b) => b.created_at - a.created_at)
-          postCache.set(npub, sortedPosts)
-          setCachedData(cacheKey, sortedPosts)
-          resolve(sortedPosts)
-        },
-      })
+      // For long-form articles, extract metadata from tags
+      if (event.kind === 30023) {
+        const titleTag = event.tags.find((tag) => tag[0] === "title")
+        const summaryTag = event.tags.find((tag) => tag[0] === "summary")
+        const imageTag = event.tags.find((tag) => tag[0] === "image")
+        const publishedAtTag = event.tags.find((tag) => tag[0] === "published_at")
+
+        if (titleTag && titleTag[1]) {
+          post.title = titleTag[1]
+        }
+        if (summaryTag && summaryTag[1]) {
+          post.summary = summaryTag[1]
+        }
+        if (imageTag && imageTag[1]) {
+          post.image = imageTag[1]
+        }
+        if (publishedAtTag && publishedAtTag[1]) {
+          post.published_at = Number.parseInt(publishedAtTag[1])
+        }
+      }
+
+      return post
     })
+
+    // Sort by creation time (newest first)
+    posts.sort((a, b) => b.created_at - a.created_at)
+
+    // Limit results
+    const limitedPosts = posts.slice(0, limit)
+
+    setCachedData(cacheKey, limitedPosts)
+    return limitedPosts
   } catch (error) {
     console.error("Error fetching Nostr posts:", error)
     return []
   }
 }
 
-// Fetch a single post by ID
 export async function fetchNostrPost(id: string): Promise<NostrPost | null> {
   try {
-    // Check memory cache first
-    if (singlePostCache.has(id)) {
-      return singlePostCache.get(id) || null
-    }
+    const cacheKey = getCacheKey("post", id)
 
-    // Check localStorage cache
-    const cacheKey = `nostr_post_${id}`
-    const cached = getCachedData<NostrPost>(cacheKey)
+    // Check cache first
+    let cached = getCachedData(cacheKey)
+    if (!cached && typeof window !== "undefined") {
+      cached = getStoredData(cacheKey)
+      if (cached) {
+        setCachedData(cacheKey, cached) // Restore to memory cache
+      }
+    }
     if (cached) {
-      singlePostCache.set(id, cached)
       return cached
     }
 
     const currentPool = getPool()
 
+    // Try to fetch by event ID
     const filter: Filter = {
       ids: [id],
       limit: 1,
     }
 
-    return new Promise((resolve) => {
-      const timeout = setTimeout(() => {
-        resolve(null)
-      }, 10000) // 10 second timeout
+    const events = await currentPool.querySync(DEFAULT_RELAYS, filter)
 
-      const sub = currentPool.subscribeMany(DEFAULT_RELAYS, [filter], {
-        onevent(event: Event) {
-          try {
-            const post: NostrPost = {
-              id: event.id,
-              pubkey: event.pubkey,
-              created_at: event.created_at,
-              kind: event.kind,
-              tags: event.tags,
-              content: event.content,
-              sig: event.sig,
-            }
+    if (events.length === 0) {
+      return null
+    }
 
-            // For long-form articles (kind 30023), extract metadata
-            if (event.kind === 30023) {
-              const titleTag = event.tags.find((tag) => tag[0] === "title")
-              const summaryTag = event.tags.find((tag) => tag[0] === "summary")
-              const imageTag = event.tags.find((tag) => tag[0] === "image")
-              const publishedAtTag = event.tags.find((tag) => tag[0] === "published_at")
+    const event = events[0]
 
-              if (titleTag && titleTag[1]) post.title = titleTag[1]
-              if (summaryTag && summaryTag[1]) post.summary = summaryTag[1]
-              if (imageTag && imageTag[1]) post.image = imageTag[1]
-              if (publishedAtTag && publishedAtTag[1]) {
-                post.published_at = Number.parseInt(publishedAtTag[1])
-              }
-            }
+    // Get profile for the author
+    const profile = await fetchNostrProfile(event.pubkey)
 
-            singlePostCache.set(id, post)
-            setCachedData(cacheKey, post)
-            clearTimeout(timeout)
-            sub.close()
-            resolve(post)
-          } catch (error) {
-            console.error("Error processing post:", error)
-            resolve(null)
-          }
-        },
-        oneose() {
-          clearTimeout(timeout)
-          sub.close()
-          resolve(null)
-        },
-      })
-    })
+    const post: NostrPost = {
+      id: event.id,
+      pubkey: event.pubkey,
+      created_at: event.created_at,
+      kind: event.kind,
+      tags: event.tags,
+      content: event.content,
+      sig: event.sig,
+      profile,
+      type: event.kind === 30023 ? "article" : "note",
+    }
+
+    // For long-form articles, extract metadata from tags
+    if (event.kind === 30023) {
+      const titleTag = event.tags.find((tag) => tag[0] === "title")
+      const summaryTag = event.tags.find((tag) => tag[0] === "summary")
+      const imageTag = event.tags.find((tag) => tag[0] === "image")
+      const publishedAtTag = event.tags.find((tag) => tag[0] === "published_at")
+
+      if (titleTag && titleTag[1]) {
+        post.title = titleTag[1]
+      }
+      if (summaryTag && summaryTag[1]) {
+        post.summary = summaryTag[1]
+      }
+      if (imageTag && imageTag[1]) {
+        post.image = imageTag[1]
+      }
+      if (publishedAtTag && publishedAtTag[1]) {
+        post.published_at = Number.parseInt(publishedAtTag[1])
+      }
+    }
+
+    setCachedData(cacheKey, post)
+    return post
   } catch (error) {
     console.error("Error fetching Nostr post:", error)
     return null
   }
 }
 
-// NostrClient class for the required export
+// NostrClient class for compatibility
 export class NostrClient {
   async fetchProfile(npub: string): Promise<NostrProfile | null> {
     return fetchNostrProfile(npub)
   }
 
-  async fetchPosts(npub: string): Promise<NostrPost[]> {
-    return fetchNostrPosts(npub)
+  async fetchPosts(npub: string, limit?: number): Promise<NostrPost[]> {
+    return fetchNostrPosts(npub, limit)
   }
 
   async fetchPost(id: string): Promise<NostrPost | null> {
@@ -346,26 +373,26 @@ export class NostrClient {
   }
 
   clearCache(): void {
-    profileCache.clear()
-    postCache.clear()
-    singlePostCache.clear()
-
+    cache.clear()
     if (typeof window !== "undefined") {
-      // Clear localStorage cache
-      const keys = Object.keys(localStorage)
-      keys.forEach((key) => {
-        if (key.startsWith("nostr_")) {
-          localStorage.removeItem(key)
-        }
-      })
+      try {
+        const keys = Object.keys(localStorage)
+        keys.forEach((key) => {
+          if (key.startsWith("profile:") || key.startsWith("posts:") || key.startsWith("post:")) {
+            localStorage.removeItem(key)
+          }
+        })
+      } catch (error) {
+        console.warn("Failed to clear localStorage:", error)
+      }
     }
   }
 }
 
-// Export the client instance
+// Export singleton instance
 export const nostrClient = new NostrClient()
 
-// Cleanup function to close connections
+// Cleanup function
 export function cleanup(): void {
   if (pool) {
     pool.close(DEFAULT_RELAYS)

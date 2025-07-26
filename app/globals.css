@@ -29,14 +29,6 @@
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.75rem;
-    --sidebar-background: 220 13% 97%;
-    --sidebar-foreground: 220 9% 46%;
-    --sidebar-primary: 220 9% 9%;
-    --sidebar-primary-foreground: 220 13% 97%;
-    --sidebar-accent: 220 13% 91%;
-    --sidebar-accent-foreground: 220 9% 15%;
-    --sidebar-border: 220 13% 87%;
-    --sidebar-ring: 221.2 83.2% 53.3%;
   }
 
   .dark {
@@ -64,14 +56,6 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
-    --sidebar-background: 220 13% 9%;
-    --sidebar-foreground: 220 9% 65%;
-    --sidebar-primary: 220 13% 97%;
-    --sidebar-primary-foreground: 220 13% 9%;
-    --sidebar-accent: 220 13% 15%;
-    --sidebar-accent-foreground: 220 9% 91%;
-    --sidebar-border: 220 13% 15%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
 
@@ -86,7 +70,7 @@
 
 /* Custom styles for better typography and spacing */
 .prose {
-  @apply text-slate-700 dark:text-slate-300;
+  @apply max-w-none text-slate-700 dark:text-slate-300;
 }
 
 .prose h1,
@@ -95,19 +79,19 @@
 .prose h4,
 .prose h5,
 .prose h6 {
-  @apply text-slate-900 dark:text-slate-100 font-bold;
+  @apply font-bold;
 }
 
 .prose h1 {
-  @apply text-3xl mb-6 mt-8;
+  @apply text-3xl mb-4 mt-8 text-slate-900 dark:text-slate-100;
 }
 
 .prose h2 {
-  @apply text-2xl mb-4 mt-6;
+  @apply text-2xl mb-3 mt-6 text-slate-900 dark:text-slate-100;
 }
 
 .prose h3 {
-  @apply text-xl mb-3 mt-5;
+  @apply text-xl mb-2 mt-5 text-slate-900 dark:text-slate-100;
 }
 
 .prose p {
@@ -120,23 +104,40 @@
 }
 
 .prose li {
-  @apply mb-2;
+  @apply mb-1 text-slate-700 dark:text-slate-300;
 }
 
 .prose blockquote {
-  @apply border-l-4 border-slate-300 dark:border-slate-600 pl-4 italic text-slate-600 dark:text-slate-400 my-4;
+  @apply border-l-4 border-slate-300 dark:border-slate-600 pl-4 italic text-slate-600 dark:text-slate-400 mb-4;
 }
 
 .prose code {
-  @apply bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-sm font-mono;
+  @apply bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded text-sm font-mono text-slate-800 dark:text-slate-200;
 }
 
 .prose pre {
-  @apply bg-slate-100 dark:bg-slate-800 p-4 rounded-lg overflow-x-auto my-4;
+  @apply bg-slate-100 dark:bg-slate-800 p-4 rounded-lg overflow-x-auto mb-4;
 }
 
-.prose a {
-  @apply text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline;
+.prose pre code {
+  @apply bg-transparent p-0;
+}
+
+.prose img {
+  @apply rounded-lg shadow-md max-w-full h-auto;
+}
+
+.prose table {
+  @apply w-full border-collapse border border-slate-300 dark:border-slate-600 mb-4;
+}
+
+.prose th,
+.prose td {
+  @apply border border-slate-300 dark:border-slate-600 px-3 py-2 text-left;
+}
+
+.prose th {
+  @apply bg-slate-100 dark:bg-slate-800 font-semibold;
 }
 
 /* Smooth transitions for interactive elements */
@@ -144,43 +145,6 @@
   transition-property: all;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 300ms;
-}
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  @apply bg-slate-100 dark:bg-slate-800;
-}
-
-::-webkit-scrollbar-thumb {
-  @apply bg-slate-300 dark:bg-slate-600 rounded-full;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  @apply bg-slate-400 dark:bg-slate-500;
-}
-
-/* Loading animation */
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
-}
-
-.animate-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-/* Card hover effects */
-.card-hover {
-  @apply hover:shadow-xl hover:-translate-y-1 transition-all duration-300;
 }
 
 /* Gradient text */
