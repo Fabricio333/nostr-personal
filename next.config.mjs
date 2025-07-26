@@ -1,5 +1,20 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  webpack: (config, { isServer }) => {
+    // Polyfill 'buffer' for client-side if needed by nostr-tools or bech32
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        buffer: require.resolve('buffer/'),
+      };
+      config.plugins.push(
+        new (require('webpack').ProvidePlugin)({
+          Buffer: ['buffer', 'Buffer'],
+        })
+      );
+    }
+    return config;
+  },
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -9,6 +24,6 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-}
+};
 
-export default nextConfig
+export default nextConfig;

@@ -1,120 +1,126 @@
-"use client"
-
-import { useState, useEffect } from "react"
-import { useParams } from "next/navigation"
-import { Card, CardContent } from "@/components/ui/card"
+import { CardDescription } from "@/components/ui/card"
+import { notFound } from "next/navigation"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
-import { Calendar, MessageCircle, Eye, ArrowLeft } from "lucide-react"
+import { Calendar, MessageCircle, Eye, ExternalLink } from "lucide-react"
 import Link from "next/link"
-import { type NostrPost, fetchNostrPost } from "@/lib/nostr"
-import { CommentSection } from "@/components/comment-section"
+import { nostrClient, type NostrArticle, npubToHex } from "@/lib/nostr"
+import { getSettings } from "@/lib/settings"
+import { marked } from "marked" // For Markdown rendering
 
-export default function BlogPostPage() {
-  const params = useParams()
-  const [post, setPost] = useState<NostrPost | null>(null)
-  const [loading, setLoading] = useState(true)
+export default async function BlogPostPage({ params }: { params: { id: string } }) {
+  const { id } = params
+  const settings = getSettings()
 
-  useEffect(() => {
-    const loadPost = async () => {
-      if (params.id) {
-        const postData = await fetchNostrPost(params.id as string)
-        setPost(postData)
-      }
-      setLoading(false)
-    }
-
-    loadPost()
-  }, [params.id])
-
-  if (loading) {
+  if (!settings.npub || !settings.npub.startsWith("npub1")) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-3/4 mb-4"></div>
-          <div className="h-4 bg-gray-200 rounded w-1/2 mb-8"></div>
-          <div className="space-y-4">
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="h-4 bg-gray-200 rounded"></div>
-            ))}
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (!post) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <Card>
-          <CardContent className="py-8 text-center">
-            <p className="text-muted-foreground mb-4">Post not found</p>
-            <Link href="/">
-              <Button>
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Home
-              </Button>
-            </Link>
+        <Card className="border-destructive max-w-md mx-auto">
+          <CardContent className="pt-6 text-center">
+            <div className="text-destructive text-4xl mb-4">⚠️</div>
+            <h3 className="text-lg font-semibold text-destructive mb-2">Configuration Required</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              No valid Nostr public key configured. Please go to settings to set it up.
+            </p>
+            <Button asChild>
+              <Link href="/settings">Configure Settings</Link>
+            </Button>
           </CardContent>
         </Card>
       </div>
     )
   }
 
+  let post: NostrArticle | null = null
+  try {
+    await nostrClient.connect()
+    const pubkeyHex = npubToHex(settings.npub)
+    if (pubkeyHex) {
+      const event = await nostrClient.fetchEventById(id, pubkeyHex)
+      if (event) {
+        post = nostrClient.parseArticleMetadata(event)
+      }
+    }
+  } catch (error) {
+    console.error("Error fetching blog post:", error)
+  } finally {
+    nostrClient.disconnect()
+  }
+
+  if (!post) {
+    notFound()
+  }
+
+  const formatDate = (timestamp: number) => {
+    return new Date(timestamp * 1000).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    })
+  }
+
+  // Render markdown content
+  const renderedContent = marked.parse(post.content || "")
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-6">
-        <Link href="/">
-          <Button variant="ghost" size="sm">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Posts
-          </Button>
-        </Link>
-      </div>
+      <Card className="max-w-3xl mx-auto">
+        <CardHeader>
+          <div className="flex items-center justify-between mb-2">
+            <Badge variant={post.kind === 30023 ? "default" : "secondary"}>
+              {post.kind === 30023 ? "Article" : "Note"}
+            </Badge>
+            <div className="flex items-center text-sm text-muted-foreground">
+              <Calendar className="mr-1 h-3 w-3" />
+              {formatDate(post.created_at)}
+            </div>
+          </div>
+          <CardTitle className="text-3xl font-bold">{post.title || "Untitled Post"}</CardTitle>
+          {post.summary && <CardDescription className="text-lg">{post.summary}</CardDescription>}
+        </CardHeader>
+        <CardContent>
+          {post.image && (
+            <img
+              src={post.image || "/placeholder.png"}
+              alt={post.title || "Post image"}
+              className="w-full h-64 object-cover rounded-md mb-6"
+            />
+          )}
+          <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: renderedContent }} />
 
-      <article className="max-w-4xl mx-auto">
-        <header className="mb-8">
-          <h1 className="text-4xl font-bold mb-4">{post.title || "Untitled Post"}</h1>
-
-          <div className="flex items-center gap-6 text-sm text-muted-foreground mb-6">
-            <span className="flex items-center gap-1">
-              <Calendar className="w-4 h-4" />
-              {new Date(post.created_at * 1000).toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
-            </span>
-            <span className="flex items-center gap-1">
-              <Eye className="w-4 h-4" />
-              {post.views || 0} views
-            </span>
-            <span className="flex items-center gap-1">
-              <MessageCircle className="w-4 h-4" />
-              {post.comments || 0} comments
-            </span>
+          <div className="mt-8 flex items-center justify-between border-t pt-4">
+            <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+              <div className="flex items-center">
+                <Eye className="mr-1 h-4 w-4" />
+                {post.views} views
+              </div>
+              <div className="flex items-center">
+                <MessageCircle className="mr-1 h-4 w-4" />
+                {post.comments} comments
+              </div>
+            </div>
+            {post.url && (
+              <Button variant="outline" size="sm" asChild>
+                <a href={post.url} target="_blank" rel="noopener noreferrer">
+                  View on Nostr
+                  <ExternalLink className="ml-2 h-3 w-3" />
+                </a>
+              </Button>
+            )}
           </div>
 
           {post.tags && post.tags.length > 0 && (
-            <div className="flex gap-2 mb-6">
+            <div className="mt-4 flex flex-wrap gap-2">
               {post.tags.map((tag) => (
-                <Badge key={tag} variant="secondary">
-                  {tag}
+                <Badge key={tag} variant="outline">
+                  #{tag}
                 </Badge>
               ))}
             </div>
           )}
-        </header>
-
-        <div className="prose prose-lg max-w-none mb-12">
-          <div className="whitespace-pre-wrap">{post.content}</div>
-        </div>
-
-        <Separator className="my-8" />
-
-        <CommentSection postId={post.id} />
-      </article>
+        </CardContent>
+      </Card>
     </div>
   )
 }

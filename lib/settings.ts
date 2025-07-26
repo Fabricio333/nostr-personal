@@ -1,43 +1,52 @@
-export interface Settings {
+export interface AppSettings {
   npub: string
-  selectedPosts: string[]
-  postsPerPage: number
-  showComments: boolean
-  autoRefresh: boolean
-  refreshInterval: number
-  theme: string
-  blogTitle: string
-  blogDescription: string
+  relays: string[]
+  maxPosts: number
+  selectedPosts: string[] // For future use, e.g., specific posts to highlight
+  enableComments: boolean
+  enableViews: boolean
 }
 
-const defaultSettings: Settings = {
-  npub: "",
-  selectedPosts: [],
-  postsPerPage: 10,
-  showComments: true,
-  autoRefresh: true,
-  refreshInterval: 30,
-  theme: "system",
-  blogTitle: "My Personal Blog",
-  blogDescription: "Welcome to my personal blog and portfolio",
-}
+const SETTINGS_KEY = "nostr_blog_settings"
 
-export function getSettings(): Settings {
-  if (typeof window === "undefined") return defaultSettings
-
-  const saved = localStorage.getItem("blog_settings")
-  if (saved) {
-    try {
-      return { ...defaultSettings, ...JSON.parse(saved) }
-    } catch (error) {
-      console.error("Failed to parse settings:", error)
-      return defaultSettings
+export function getSettings(): AppSettings {
+  if (typeof window === "undefined") {
+    // Return default settings for server-side rendering
+    return {
+      npub: "",
+      relays: ["wss://relay.damus.io", "wss://relay.snort.social", "wss://nostr.wine"],
+      maxPosts: 10,
+      selectedPosts: [],
+      enableComments: true,
+      enableViews: true,
     }
   }
-  return defaultSettings
+  try {
+    const storedSettings = localStorage.getItem(SETTINGS_KEY)
+    if (storedSettings) {
+      return JSON.parse(storedSettings)
+    }
+  } catch (error) {
+    console.error("Failed to load settings from localStorage:", error)
+  }
+  // Default settings if nothing is found or an error occurs
+  return {
+    npub: "",
+    relays: ["wss://relay.damus.io", "wss://relay.snort.social", "wss://nostr.wine"],
+    maxPosts: 10,
+    selectedPosts: [],
+    enableComments: true,
+    enableViews: true,
+  }
 }
 
-export function saveSettings(settings: Settings): void {
-  if (typeof window === "undefined") return
-  localStorage.setItem("blog_settings", JSON.stringify(settings))
+export function saveSettings(settings: AppSettings): void {
+  if (typeof window === "undefined") {
+    return // Do not save on server
+  }
+  try {
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings))
+  } catch (error) {
+    console.error("Failed to save settings to localStorage:", error)
+  }
 }

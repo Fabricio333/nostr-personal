@@ -1,36 +1,29 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 
-export default function Loading() {
+export default function BlogLoading() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="animate-pulse">
-        <div className="mb-8">
-          <div className="h-8 w-32 bg-muted rounded mb-4"></div>
-          <div className="h-4 w-64 bg-muted rounded"></div>
+        <div className="mb-8 h-10 w-64 rounded bg-muted"></div> {/* Title placeholder */}
+        <div className="mb-6 flex space-x-4">
+          <div className="h-8 w-24 rounded bg-muted"></div> {/* Search input placeholder */}
+          <div className="h-8 w-24 rounded bg-muted"></div> {/* Filter button placeholder */}
         </div>
-        <div className="mb-8 flex flex-col sm:flex-row gap-4">
-          <div className="h-10 flex-1 bg-muted rounded"></div>
-          <div className="h-10 w-48 bg-muted rounded"></div>
-        </div>
-        <div className="space-y-6">
-          {[...Array(5)].map((_, i) => (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {[...Array(6)].map((_, i) => (
             <Card key={i}>
               <CardHeader>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="h-5 w-16 bg-muted rounded"></div>
-                  <div className="h-4 w-24 bg-muted rounded"></div>
-                </div>
-                <div className="h-6 w-3/4 bg-muted rounded"></div>
-                <div className="h-4 w-1/2 bg-muted rounded"></div>
+                <div className="h-4 w-24 rounded bg-muted"></div> {/* Badge placeholder */}
+                <div className="h-6 w-3/4 rounded bg-muted mt-2"></div> {/* Title placeholder */}
+                <div className="h-4 w-1/2 rounded bg-muted mt-1"></div> {/* Description placeholder */}
               </CardHeader>
               <CardContent>
-                <div className="flex gap-4">
-                  <div className="w-48 h-24 bg-muted rounded flex-shrink-0"></div>
-                  <div className="flex-1 space-y-2">
-                    <div className="h-4 bg-muted rounded"></div>
-                    <div className="h-4 bg-muted rounded w-5/6"></div>
-                    <div className="h-4 bg-muted rounded w-4/6"></div>
-                  </div>
+                <div className="h-32 w-full rounded bg-muted mb-3"></div> {/* Image placeholder */}
+                <div className="h-4 w-full rounded bg-muted mb-2"></div> {/* Content line 1 */}
+                <div className="h-4 w-5/6 rounded bg-muted"></div> {/* Content line 2 */}
+                <div className="mt-4 flex justify-between">
+                  <div className="h-4 w-20 rounded bg-muted"></div> {/* Views/Comments placeholder */}
+                  <div className="h-8 w-24 rounded bg-muted"></div> {/* Read More button placeholder */}
                 </div>
               </CardContent>
             </Card>

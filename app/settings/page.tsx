@@ -1,310 +1,129 @@
 "use client"
 
+import type React from "react"
+
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
-import { Save, RefreshCw, Trash2, Plus } from "lucide-react"
-import { getSettings, saveSettings, type Settings } from "@/lib/settings"
-import { fetchNostrPosts, type NostrPost } from "@/lib/nostr"
+import { useToast } from "@/components/ui/use-toast"
+import { getSettings, saveSettings, type AppSettings } from "@/lib/settings"
+import { Textarea } from "@/components/ui/textarea"
 
 export default function SettingsPage() {
-  const [settings, setSettings] = useState<Settings>({
+  const [settings, setSettings] = useState<AppSettings>({
     npub: "",
+    relays: ["wss://relay.damus.io", "wss://relay.snort.social", "wss://nostr.wine"],
+    maxPosts: 10,
     selectedPosts: [],
-    postsPerPage: 10,
-    showComments: true,
-    autoRefresh: true,
-    refreshInterval: 30,
-    theme: "system",
-    blogTitle: "My Personal Blog",
-    blogDescription: "Welcome to my personal blog and portfolio",
+    enableComments: true,
+    enableViews: true,
   })
-  const [availablePosts, setAvailablePosts] = useState<NostrPost[]>([])
-  const [loading, setLoading] = useState(false)
-  const [saving, setSaving] = useState(false)
+  const { toast } = useToast()
 
   useEffect(() => {
-    const loadSettings = () => {
-      const savedSettings = getSettings()
-      setSettings(savedSettings)
-    }
-    loadSettings()
+    const loadedSettings = getSettings()
+    setSettings(loadedSettings)
   }, [])
 
-  const handleFetchPosts = async () => {
-    if (!settings.npub.trim()) {
-      alert("Please enter a valid npub first")
-      return
-    }
-
-    if (!settings.npub.startsWith("npub1")) {
-      alert("Invalid npub format. Must start with 'npub1'")
-      return
-    }
-
-    setLoading(true)
-    try {
-      console.log("Fetching posts for npub:", settings.npub)
-      const posts = await fetchNostrPosts(settings.npub)
-      console.log("Fetched posts:", posts)
-      setAvailablePosts(posts)
-
-      if (posts.length === 0) {
-        alert("No posts found for this npub. Make sure you have published text notes (kind 1 events) to Nostr relays.")
-      } else {
-        alert(`Successfully fetched ${posts.length} posts!`)
-      }
-    } catch (error) {
-      console.error("Error fetching posts:", error)
-      alert(`Failed to fetch posts: ${error.message}. Please check your npub and internet connection.`)
-    }
-    setLoading(false)
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = e.target
+    setSettings((prev) => ({ ...prev, [id]: value }))
   }
 
-  const handleSaveSettings = () => {
-    setSaving(true)
+  const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target
+    setSettings((prev) => ({ ...prev, [id]: Number.parseInt(value, 10) || 0 }))
+  }
+
+  const handleSwitchChange = (id: keyof AppSettings) => (checked: boolean) => {
+    setSettings((prev) => ({ ...prev, [id]: checked }))
+  }
+
+  const handleRelaysChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const relaysArray = e.target.value
+      .split("\n")
+      .map((url) => url.trim())
+      .filter(Boolean)
+    setSettings((prev) => ({ ...prev, relays: relaysArray }))
+  }
+
+  const handleSave = () => {
     saveSettings(settings)
-    setTimeout(() => {
-      setSaving(false)
-      alert("Settings saved successfully!")
-    }, 1000)
-  }
-
-  const togglePostSelection = (postId: string) => {
-    setSettings((prev) => ({
-      ...prev,
-      selectedPosts: prev.selectedPosts.includes(postId)
-        ? prev.selectedPosts.filter((id) => id !== postId)
-        : [...prev.selectedPosts, postId],
-    }))
-  }
-
-  const selectAllPosts = () => {
-    setSettings((prev) => ({
-      ...prev,
-      selectedPosts: availablePosts.map((post) => post.id),
-    }))
-  }
-
-  const clearAllPosts = () => {
-    setSettings((prev) => ({
-      ...prev,
-      selectedPosts: [],
-    }))
+    toast({
+      title: "Settings Saved!",
+      description: "Your preferences have been updated.",
+    })
   }
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-4">Settings</h1>
-          <p className="text-xl text-muted-foreground">
-            Configure your blog, Nostr integration, and content preferences.
-          </p>
-        </div>
-
-        <div className="space-y-8">
-          {/* Blog Configuration */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Blog Configuration</CardTitle>
-              <CardDescription>Basic settings for your blog appearance and behavior</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="blogTitle">Blog Title</Label>
-                  <Input
-                    id="blogTitle"
-                    value={settings.blogTitle}
-                    onChange={(e) => setSettings((prev) => ({ ...prev, blogTitle: e.target.value }))}
-                    placeholder="My Personal Blog"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="postsPerPage">Posts Per Page</Label>
-                  <Select
-                    value={settings.postsPerPage.toString()}
-                    onValueChange={(value) =>
-                      setSettings((prev) => ({ ...prev, postsPerPage: Number.parseInt(value) }))
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="5">5 posts</SelectItem>
-                      <SelectItem value="10">10 posts</SelectItem>
-                      <SelectItem value="20">20 posts</SelectItem>
-                      <SelectItem value="50">50 posts</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="blogDescription">Blog Description</Label>
-                <Textarea
-                  id="blogDescription"
-                  value={settings.blogDescription}
-                  onChange={(e) => setSettings((prev) => ({ ...prev, blogDescription: e.target.value }))}
-                  placeholder="Welcome to my personal blog and portfolio"
-                  className="min-h-[80px]"
-                />
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label>Show Comments</Label>
-                  <p className="text-sm text-muted-foreground">Allow visitors to leave comments on your posts</p>
-                </div>
-                <Switch
-                  checked={settings.showComments}
-                  onCheckedChange={(checked) => setSettings((prev) => ({ ...prev, showComments: checked }))}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Nostr Integration */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Nostr Integration</CardTitle>
-              <CardDescription>Connect your Nostr account to fetch and display your posts</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="npub">Nostr Public Key (npub)</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="npub"
-                    value={settings.npub}
-                    onChange={(e) => setSettings((prev) => ({ ...prev, npub: e.target.value }))}
-                    placeholder="npub1..."
-                    className="flex-1"
-                  />
-                  <Button onClick={handleFetchPosts} disabled={loading}>
-                    <RefreshCw className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`} />
-                    Fetch Posts
-                  </Button>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Enter your Nostr public key to fetch your posts from the network
-                </p>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label>Auto Refresh</Label>
-                  <p className="text-sm text-muted-foreground">Automatically refresh posts from Nostr</p>
-                </div>
-                <Switch
-                  checked={settings.autoRefresh}
-                  onCheckedChange={(checked) => setSettings((prev) => ({ ...prev, autoRefresh: checked }))}
-                />
-              </div>
-
-              {settings.autoRefresh && (
-                <div className="space-y-2">
-                  <Label htmlFor="refreshInterval">Refresh Interval (minutes)</Label>
-                  <Select
-                    value={settings.refreshInterval.toString()}
-                    onValueChange={(value) =>
-                      setSettings((prev) => ({ ...prev, refreshInterval: Number.parseInt(value) }))
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="5">5 minutes</SelectItem>
-                      <SelectItem value="15">15 minutes</SelectItem>
-                      <SelectItem value="30">30 minutes</SelectItem>
-                      <SelectItem value="60">1 hour</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Post Selection */}
-          {availablePosts.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Post Selection</CardTitle>
-                <CardDescription>
-                  Choose which posts to display on your blog ({settings.selectedPosts.length} selected)
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={selectAllPosts}>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Select All
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={clearAllPosts}>
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Clear All
-                  </Button>
-                </div>
-
-                <div className="space-y-3 max-h-96 overflow-y-auto">
-                  {availablePosts.map((post) => (
-                    <div
-                      key={post.id}
-                      className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                        settings.selectedPosts.includes(post.id)
-                          ? "border-primary bg-primary/5"
-                          : "border-border hover:border-primary/50"
-                      }`}
-                      onClick={() => togglePostSelection(post.id)}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h4 className="font-medium mb-1">{post.title || "Untitled Post"}</h4>
-                          <p className="text-sm text-muted-foreground line-clamp-2">
-                            {post.content.substring(0, 150)}...
-                          </p>
-                          <div className="flex items-center gap-2 mt-2">
-                            <Badge variant="outline" className="text-xs">
-                              {new Date(post.created_at * 1000).toLocaleDateString()}
-                            </Badge>
-                            {post.tags?.slice(0, 2).map((tag) => (
-                              <Badge key={tag} variant="secondary" className="text-xs">
-                                {tag}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                        <div className="ml-4">
-                          {settings.selectedPosts.includes(post.id) && (
-                            <Badge className="bg-primary text-primary-foreground">Selected</Badge>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Save Settings */}
-          <div className="flex justify-end">
-            <Button onClick={handleSaveSettings} disabled={saving} size="lg">
-              <Save className={`w-4 h-4 mr-2 ${saving ? "animate-pulse" : ""}`} />
-              {saving ? "Saving..." : "Save Settings"}
-            </Button>
+      <Card className="max-w-2xl mx-auto">
+        <CardHeader>
+          <CardTitle className="text-3xl font-bold">App Settings</CardTitle>
+          <CardDescription>Manage your personal blog preferences and Nostr integration.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Nostr Public Key */}
+          <div>
+            <Label htmlFor="npub" className="mb-2 block">
+              Your Nostr Public Key (npub)
+            </Label>
+            <Input id="npub" placeholder="e.g., npub1..." value={settings.npub} onChange={handleInputChange} />
+            <p className="text-sm text-muted-foreground mt-1">This is used to fetch your Nostr profile and posts.</p>
           </div>
-        </div>
-      </div>
+
+          {/* Nostr Relays */}
+          <div>
+            <Label htmlFor="relays" className="mb-2 block">
+              Nostr Relays (one per line)
+            </Label>
+            <Textarea
+              id="relays"
+              placeholder="wss://relay.damus.io"
+              value={settings.relays.join("\n")}
+              onChange={handleRelaysChange}
+              rows={5}
+            />
+            <p className="text-sm text-muted-foreground mt-1">List of Nostr relays to connect to for fetching data.</p>
+          </div>
+
+          {/* Max Posts on Homepage */}
+          <div>
+            <Label htmlFor="maxPosts" className="mb-2 block">
+              Max Posts on Homepage
+            </Label>
+            <Input id="maxPosts" type="number" value={settings.maxPosts} onChange={handleNumberInputChange} min={1} />
+            <p className="text-sm text-muted-foreground mt-1">Number of latest posts to display on the homepage.</p>
+          </div>
+
+          {/* Enable Comments */}
+          <div className="flex items-center justify-between">
+            <Label htmlFor="enableComments">Enable Comments</Label>
+            <Switch
+              id="enableComments"
+              checked={settings.enableComments}
+              onCheckedChange={handleSwitchChange("enableComments")}
+            />
+          </div>
+
+          {/* Enable Views */}
+          <div className="flex items-center justify-between">
+            <Label htmlFor="enableViews">Enable Views Count</Label>
+            <Switch
+              id="enableViews"
+              checked={settings.enableViews}
+              onCheckedChange={handleSwitchChange("enableViews")}
+            />
+          </div>
+
+          <Button onClick={handleSave} className="w-full">
+            Save Settings
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   )
 }

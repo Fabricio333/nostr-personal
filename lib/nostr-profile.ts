@@ -1,4 +1,5 @@
-import { npubToHex, type NostrProfile } from "./nostr"
+import { hexToNpub } from "./bech32"
+import { nostrClient, type NostrProfile } from "./nostr"
 
 const NOSTR_RELAYS = [
   "wss://relay.damus.io",
@@ -10,56 +11,8 @@ const NOSTR_RELAYS = [
   "wss://relay.nostr.info",
 ]
 
-export async function fetchNostrProfile(pubkey: string): Promise<NostrProfile | null> {
-  console.log("🔍 Fetching profile for pubkey:", pubkey)
-
-  if (!pubkey || !pubkey.startsWith("npub1")) {
-    throw new Error("Invalid pubkey provided")
-  }
-
-  // Check cache first
-  const cacheKey = `nostr_profile_${pubkey}`
-  const cached = localStorage.getItem(cacheKey)
-  const cacheTime = localStorage.getItem(`${cacheKey}_time`)
-
-  if (cached && cacheTime) {
-    const age = Date.now() - Number.parseInt(cacheTime)
-    if (age < 60 * 60 * 1000) {
-      // 1 hour cache
-      console.log("📦 Using cached profile")
-      try {
-        return JSON.parse(cached)
-      } catch (error) {
-        console.warn("⚠️ Failed to parse cached profile")
-        localStorage.removeItem(cacheKey)
-        localStorage.removeItem(`${cacheKey}_time`)
-      }
-    }
-  }
-
-  try {
-    const hexPubkey = npubToHex(pubkey)
-    console.log("🔑 Converted pubkey to hex pubkey:", hexPubkey)
-
-    const profile = await fetchProfileFromRelays(hexPubkey)
-
-    if (profile) {
-      console.log("✅ Found profile:", profile.name || profile.display_name || "Unknown")
-
-      // Cache the result
-      try {
-        localStorage.setItem(cacheKey, JSON.stringify(profile))
-        localStorage.setItem(`${cacheKey}_time`, Date.now().toString())
-      } catch (error) {
-        console.warn("⚠️ Failed to cache profile:", error)
-      }
-    }
-
-    return profile
-  } catch (error) {
-    console.error("❌ Failed to fetch Nostr profile:", error)
-    return null
-  }
+export async function fetchNostrProfile(npub: string): Promise<NostrProfile | null> {
+  return nostrClient.fetchNostrProfile(npub)
 }
 
 async function fetchProfileFromRelays(hexPubkey: string): Promise<NostrProfile | null> {
@@ -195,16 +148,22 @@ async function fetchProfileFromRelay(relayUrl: string, hexPubkey: string): Promi
 }
 
 export function getProfileDisplayName(profile: NostrProfile | null): string {
-  if (!profile) return "Anonymous User"
-  return profile.name || profile.nip05?.split("@")[0] || "Anonymous User"
+  if (!profile) return "Anonymous"
+  return (
+    profile.display_name ||
+    profile.name ||
+    profile.nip05?.split("@")[0] ||
+    hexToNpub(profile.pubkey)?.substring(0, 10) ||
+    "Anonymous"
+  )
 }
 
-export function getProfilePicture(profile: NostrProfile | null): string | null {
-  return profile?.picture || null
+export function getProfilePicture(profile: NostrProfile | null): string | undefined {
+  return profile?.picture
 }
 
 export function getProfileBio(profile: NostrProfile | null): string {
-  return profile?.about || "Welcome to my decentralized blog powered by Nostr!"
+  return profile?.about || "A Nostr user."
 }
 
 export function getProfileWebsite(profile: NostrProfile | null): string | null {
