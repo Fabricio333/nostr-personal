@@ -12,7 +12,7 @@ This is a personal blog website built with Next.js, Tailwind CSS, and Shadcn UI.
 -   **Portfolio Section**: Showcase your projects.
 -   **Resume Section**: Display your professional resume.
 -   **JSON Configuration**: All site and Nostr settings are stored in `settings.json` at the project root.
--   **Lifestyle Tracking**: (Planned/Partial) Sections for workouts, nutrition, biohacks, and routines.
+-   **Lifestyle Tracking**: Sections for workouts, nutrition, biohacks, and routines. Data is loaded from `lib/lifestyle-config.json`.
 
 ## Getting Started
 
@@ -55,6 +55,7 @@ This is a personal blog website built with Next.js, Tailwind CSS, and Shadcn UI.
 -   **Styling**: Modify `app/globals.css` and `tailwind.config.ts` for theme and custom styles.
 -   **Nostr Relays**: Adjust the list of relays in `lib/nostr.ts` to connect to your preferred Nostr relays.
 -   **Content**: Your blog content is fetched directly from your Nostr public key. Publish NIP-23 long-form events or NIP-01 notes to your configured relays.
+-   **Lifestyle Data**: Edit `lib/lifestyle-config.json` to set your own workouts, nutrition entries, biohacks, and routines. These are displayed on the Lifestyle page alongside your latest `#lifestyle` posts.
 
 ## Contributing
 

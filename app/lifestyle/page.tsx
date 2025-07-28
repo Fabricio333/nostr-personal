@@ -74,7 +74,7 @@ export default function LifestylePage() {
   const [newWorkoutName, setNewWorkoutName] = useState("")
 
   const [meals, setMeals] = useState<Meal[]>(
-    lifestyleConfig.meals as Meal[],
+    lifestyleConfig.nutrition as Meal[],
   )
   const [newMeal, setNewMeal] = useState({ name: "", calories: 0, protein: 0, carbs: 0, fat: 0 })
 
@@ -84,10 +84,10 @@ export default function LifestylePage() {
   const [newBiohackName, setNewBiohackName] = useState("")
 
   const [morningRoutine, setMorningRoutine] = useState<RoutineItem[]>(
-    lifestyleConfig.morningRoutine as RoutineItem[],
+    lifestyleConfig.routines.morning as RoutineItem[],
   )
   const [eveningRoutine, setEveningRoutine] = useState<RoutineItem[]>(
-    lifestyleConfig.eveningRoutine as RoutineItem[],
+    lifestyleConfig.routines.evening as RoutineItem[],
   )
   const [newMorningRoutineItem, setNewMorningRoutineItem] = useState("")
   const [newEveningRoutineItem, setNewEveningRoutineItem] = useState("")
