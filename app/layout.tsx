@@ -16,6 +16,20 @@ export const metadata: Metadata = {
   title: settings.siteName,
   description: settings.siteDescription,
   generator: "v0.dev",
+  icons: {
+    icon: "/icon.svg",
+  },
+  openGraph: {
+    title: settings.siteName,
+    description: settings.siteDescription,
+    images: ["/icon.svg"],
+  },
+  twitter: {
+    card: "summary",
+    title: settings.siteName,
+    description: settings.siteDescription,
+    images: ["/icon.svg"],
+  },
 }
 
 export default function RootLayout({
