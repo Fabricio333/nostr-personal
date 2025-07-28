@@ -16,7 +16,6 @@ import Link from "next/link"
 export default function SettingsPage() {
   const [settings, setSettings] = useState<Settings>({
     showResume: true,
-    showEvents: true,
     showLifestyle: true,
     siteName: "My Personal Blog",
     siteDescription: "A personal blog powered by Nostr",
@@ -101,28 +100,19 @@ export default function SettingsPage() {
             )}
           </CardHeader>
           <CardContent className="space-y-8">
-            {/* Nostr Settings Link */}
+            {/* Configuration Info */}
             <Card className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-200 dark:border-purple-700">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-lg font-semibold text-purple-800 dark:text-purple-200 mb-2">
-                      Nostr Configuration
+                      Configuration
                     </h3>
                     <p className="text-purple-600 dark:text-purple-300 text-sm">
-                      Configure your Nostr public key, relays, and content filtering in the dedicated Nostr settings.
+                      Edit <code>settings.json</code> in the project root to change Nostr or site options.
                     </p>
                   </div>
-                  <Button
-                    asChild
-                    variant="outline"
-                    className="border-purple-300 text-purple-700 hover:bg-purple-100 dark:border-purple-600 dark:text-purple-300 dark:hover:bg-purple-900/30 bg-transparent"
-                  >
-                    <Link href="/nostr-settings">
-                      <ExternalLink className="h-4 w-4 mr-2" />
-                      Nostr Settings
-                    </Link>
-                  </Button>
+                  
                 </div>
               </CardContent>
             </Card>
@@ -197,19 +187,6 @@ export default function SettingsPage() {
                   />
                 </div>
 
-                <div className="flex items-center justify-between p-4 rounded-lg bg-slate-50/50 dark:bg-slate-700/30">
-                  <div className="space-y-1">
-                    <Label htmlFor="showEvents" className="text-sm font-medium">
-                      Show Events Page
-                    </Label>
-                    <p className="text-xs text-muted-foreground">Display your events/speaking page in navigation</p>
-                  </div>
-                  <Switch
-                    id="showEvents"
-                    checked={settings.showEvents}
-                    onCheckedChange={handleSwitchChange("showEvents")}
-                  />
-                </div>
 
                 <div className="flex items-center justify-between p-4 rounded-lg bg-slate-50/50 dark:bg-slate-700/30">
                   <div className="space-y-1">
