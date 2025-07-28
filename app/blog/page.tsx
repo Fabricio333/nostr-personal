@@ -9,7 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Search, FileText, MessageSquare, Calendar, RefreshCw } from "lucide-react"
 import { fetchNostrPosts } from "@/lib/nostr"
-import { getSettings } from "@/lib/settings"
+import { getNostrSettings } from "@/lib/nostr-settings"
 import Link from "next/link"
 
 interface NostrProfile {
@@ -52,13 +52,13 @@ export default function BlogPage() {
       setLoading(true)
       setError(null)
 
-      const settings = getSettings()
-      if (!settings.npub) {
-        setError("No Nostr public key configured. Please go to Settings to configure your npub.")
+      const settings = getNostrSettings()
+      if (!settings.ownerNpub) {
+        setError("No Nostr public key configured. Please update settings.json to add your npub.")
         return
       }
 
-      const postsData = await fetchNostrPosts(settings.npub, 100)
+      const postsData = await fetchNostrPosts(settings.ownerNpub, 100)
       setPosts(postsData)
       setFilteredPosts(postsData)
     } catch (err) {
@@ -161,9 +161,6 @@ export default function BlogPage() {
                 <Button onClick={loadPosts} size="sm" variant="outline">
                   <RefreshCw className="h-4 w-4 mr-2" />
                   Retry
-                </Button>
-                <Button asChild size="sm">
-                  <Link href="/settings">Go to Settings</Link>
                 </Button>
               </div>
             </AlertDescription>

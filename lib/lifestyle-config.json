@@ -1,0 +1,24 @@
+{
+  "workouts": [
+    { "id": "1", "name": "Morning Run (30 min)", "completed": false },
+    { "id": "2", "name": "Strength Training (Upper Body)", "completed": true },
+    { "id": "3", "name": "Yoga (20 min)", "completed": false }
+  ],
+  "meals": [
+    { "id": "m1", "name": "Oatmeal with Berries", "calories": 350, "protein": 15, "carbs": 50, "fat": 10 },
+    { "id": "m2", "name": "Chicken Salad", "calories": 450, "protein": 40, "carbs": 20, "fat": 25 }
+  ],
+  "biohacks": [
+    { "id": "b1", "name": "Cold Shower (5 min)", "completed": false },
+    { "id": "b2", "name": "Intermittent Fasting (16/8)", "completed": true }
+  ],
+  "morningRoutine": [
+    { "id": "mr1", "name": "Meditate (10 min)", "completed": false },
+    { "id": "mr2", "name": "Journaling", "completed": false },
+    { "id": "mr3", "name": "Hydrate (500ml water)", "completed": true }
+  ],
+  "eveningRoutine": [
+    { "id": "er1", "name": "Read (30 min)", "completed": false },
+    { "id": "er2", "name": "Prepare for next day", "completed": false }
+  ]
+}

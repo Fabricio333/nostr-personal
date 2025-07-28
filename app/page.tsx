@@ -56,7 +56,7 @@ export default function HomePage() {
 
       const settings = getNostrSettings()
       if (!settings.ownerNpub) {
-        setError("No Nostr public key configured. Please go to Nostr Settings to configure your npub.")
+        setError("No Nostr public key configured. Please update settings.json to add your npub.")
         return
       }
 
@@ -171,9 +171,6 @@ export default function HomePage() {
                 <Button onClick={loadData} size="sm" variant="outline">
                   <RefreshCw className="h-4 w-4 mr-2" />
                   Retry
-                </Button>
-                <Button asChild size="sm">
-                  <Link href="/nostr-settings">Go to Nostr Settings</Link>
                 </Button>
               </div>
             </AlertDescription>

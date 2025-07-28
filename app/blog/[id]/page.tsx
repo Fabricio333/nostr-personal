@@ -3,17 +3,17 @@ import { notFound } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Calendar, MessageCircle, Eye, ExternalLink } from "lucide-react"
+import { Calendar, ExternalLink } from "lucide-react"
 import Link from "next/link"
-import { nostrClient, type NostrArticle, npubToHex } from "@/lib/nostr"
-import { getSettings } from "@/lib/settings"
+import { nostrClient, type NostrPost } from "@/lib/nostr"
+import { getNostrSettings } from "@/lib/nostr-settings"
 import { marked } from "marked" // For Markdown rendering
 
 export default async function BlogPostPage({ params }: { params: { id: string } }) {
   const { id } = params
-  const settings = getSettings()
+  const settings = getNostrSettings()
 
-  if (!settings.npub || !settings.npub.startsWith("npub1")) {
+  if (!settings.ownerNpub || !settings.ownerNpub.startsWith("npub1")) {
     return (
       <div className="container mx-auto px-4 py-8">
         <Card className="border-destructive max-w-md mx-auto">
@@ -21,31 +21,20 @@ export default async function BlogPostPage({ params }: { params: { id: string } 
             <div className="text-destructive text-4xl mb-4">⚠️</div>
             <h3 className="text-lg font-semibold text-destructive mb-2">Configuration Required</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              No valid Nostr public key configured. Please go to settings to set it up.
+              No valid Nostr public key configured. Please update settings.json to set it up.
             </p>
-            <Button asChild>
-              <Link href="/settings">Configure Settings</Link>
-            </Button>
+            
           </CardContent>
         </Card>
       </div>
     )
   }
 
-  let post: NostrArticle | null = null
+  let post: NostrPost | null = null
   try {
-    await nostrClient.connect()
-    const pubkeyHex = npubToHex(settings.npub)
-    if (pubkeyHex) {
-      const event = await nostrClient.fetchEventById(id, pubkeyHex)
-      if (event) {
-        post = nostrClient.parseArticleMetadata(event)
-      }
-    }
+    post = await nostrClient.fetchPost(id)
   } catch (error) {
     console.error("Error fetching blog post:", error)
-  } finally {
-    nostrClient.disconnect()
   }
 
   if (!post) {
@@ -89,26 +78,16 @@ export default async function BlogPostPage({ params }: { params: { id: string } 
           )}
           <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: renderedContent }} />
 
-          <div className="mt-8 flex items-center justify-between border-t pt-4">
-            <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-              <div className="flex items-center">
-                <Eye className="mr-1 h-4 w-4" />
-                {post.views} views
-              </div>
-              <div className="flex items-center">
-                <MessageCircle className="mr-1 h-4 w-4" />
-                {post.comments} comments
-              </div>
-            </div>
-            {post.url && (
+          {post.url && (
+            <div className="mt-8 border-t pt-4 flex justify-end">
               <Button variant="outline" size="sm" asChild>
                 <a href={post.url} target="_blank" rel="noopener noreferrer">
                   View on Nostr
                   <ExternalLink className="ml-2 h-3 w-3" />
                 </a>
               </Button>
-            )}
-          </div>
+            </div>
+          )}
 
           {post.tags && post.tags.length > 0 && (
             <div className="mt-4 flex flex-wrap gap-2">
