@@ -10,7 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Search, FileText, MessageSquare, Calendar, ExternalLink, RefreshCw } from "lucide-react"
 import { fetchNostrProfile, fetchNostrPosts } from "@/lib/nostr"
-import { getSettings } from "@/lib/settings"
+import { getNostrSettings } from "@/lib/nostr-settings"
 import Link from "next/link"
 
 interface NostrProfile {
@@ -54,16 +54,16 @@ export default function HomePage() {
       setLoading(true)
       setError(null)
 
-      const settings = getSettings()
-      if (!settings.npub) {
-        setError("No Nostr public key configured. Please go to Settings to configure your npub.")
+      const settings = getNostrSettings()
+      if (!settings.ownerNpub) {
+        setError("No Nostr public key configured. Please go to Nostr Settings to configure your npub.")
         return
       }
 
       // Fetch profile and posts
       const [profileData, postsData] = await Promise.all([
-        fetchNostrProfile(settings.npub),
-        fetchNostrPosts(settings.npub, 50),
+        fetchNostrProfile(settings.ownerNpub),
+        fetchNostrPosts(settings.ownerNpub, settings.maxPosts),
       ])
 
       setProfile(profileData)
@@ -173,7 +173,7 @@ export default function HomePage() {
                   Retry
                 </Button>
                 <Button asChild size="sm">
-                  <Link href="/settings">Go to Settings</Link>
+                  <Link href="/nostr-settings">Go to Nostr Settings</Link>
                 </Button>
               </div>
             </AlertDescription>
@@ -206,7 +206,9 @@ export default function HomePage() {
                     {profile.display_name || profile.name || "Anonymous"}
                   </h1>
                   {profile.about && (
-                    <p className="text-slate-600 dark:text-slate-300 mb-4 leading-relaxed">{profile.about}</p>
+                    <div className="text-slate-600 dark:text-slate-300 mb-4 leading-relaxed prose prose-slate dark:prose-invert max-w-none">
+                      <p>{profile.about}</p>
+                    </div>
                   )}
                   <div className="flex flex-wrap gap-4 justify-center md:justify-start">
                     {profile.website && (
@@ -313,7 +315,9 @@ export default function HomePage() {
                     </CardTitle>
                   )}
                   {post.summary && (
-                    <CardDescription className="text-slate-600 dark:text-slate-300">{post.summary}</CardDescription>
+                    <CardDescription className="text-slate-600 dark:text-slate-300 leading-relaxed">
+                      {post.summary}
+                    </CardDescription>
                   )}
                 </CardHeader>
                 <CardContent>
