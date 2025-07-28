@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -8,6 +8,8 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { ModeToggle } from "@/components/mode-toggle"
 import { Menu, Home, FileText, User, Coffee, Mail } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { getNostrSettings } from "@/lib/nostr-settings"
+import { fetchNostrProfile } from "@/lib/nostr"
 
 const navigation = [
   { name: "Home", href: "/", icon: Home },
@@ -21,13 +23,28 @@ const navigation = [
 export function Navigation() {
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
+  const [firstName, setFirstName] = useState("Personal Blog")
+
+  useEffect(() => {
+    const settings = getNostrSettings()
+    if (!settings.ownerNpub) return
+
+    fetchNostrProfile(settings.ownerNpub).then((profile) => {
+      const name =
+        profile?.display_name || profile?.name || profile?.nip05?.split("@")[0]
+      if (name) {
+        const first = name.trim().split(/\s+/)[0]
+        if (first) setFirstName(first)
+      }
+    })
+  }, [])
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center">
         <div className="mr-4 hidden md:flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
-            <span className="hidden font-bold sm:inline-block">Personal Blog</span>
+            <span className="hidden font-bold sm:inline-block">{firstName}</span>
           </Link>
           <nav className="flex items-center space-x-6 text-sm font-medium">
             {navigation.map((item) => (
@@ -56,7 +73,7 @@ export function Navigation() {
           </SheetTrigger>
           <SheetContent side="left" className="pr-0">
             <Link href="/" className="flex items-center" onClick={() => setIsOpen(false)}>
-              <span className="font-bold">Personal Blog</span>
+              <span className="font-bold">{firstName}</span>
             </Link>
             <div className="my-4 h-[calc(100vh-8rem)] pb-10 pl-6">
               <div className="flex flex-col space-y-3">
@@ -82,7 +99,7 @@ export function Navigation() {
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
           <div className="w-full flex-1 md:w-auto md:flex-none">
             <Link href="/" className="flex items-center space-x-2 md:hidden">
-              <span className="font-bold">Personal Blog</span>
+              <span className="font-bold">{firstName}</span>
             </Link>
           </div>
           <nav className="flex items-center space-x-2">
