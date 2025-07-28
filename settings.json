@@ -1,7 +1,6 @@
 {
   "site": {
     "showResume": true,
-    "showEvents": true,
     "showLifestyle": true,
     "siteName": "My Personal Blog",
     "siteDescription": "A personal blog powered by Nostr",

@@ -1,6 +1,5 @@
 export interface Settings {
   showResume: boolean;
-  showEvents: boolean;
   showLifestyle: boolean;
   siteName: string;
   siteDescription: string;

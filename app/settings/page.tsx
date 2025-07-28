@@ -16,7 +16,6 @@ import Link from "next/link"
 export default function SettingsPage() {
   const [settings, setSettings] = useState<Settings>({
     showResume: true,
-    showEvents: true,
     showLifestyle: true,
     siteName: "My Personal Blog",
     siteDescription: "A personal blog powered by Nostr",
@@ -188,19 +187,6 @@ export default function SettingsPage() {
                   />
                 </div>
 
-                <div className="flex items-center justify-between p-4 rounded-lg bg-slate-50/50 dark:bg-slate-700/30">
-                  <div className="space-y-1">
-                    <Label htmlFor="showEvents" className="text-sm font-medium">
-                      Show Events Page
-                    </Label>
-                    <p className="text-xs text-muted-foreground">Display your events/speaking page in navigation</p>
-                  </div>
-                  <Switch
-                    id="showEvents"
-                    checked={settings.showEvents}
-                    onCheckedChange={handleSwitchChange("showEvents")}
-                  />
-                </div>
 
                 <div className="flex items-center justify-between p-4 rounded-lg bg-slate-50/50 dark:bg-slate-700/30">
                   <div className="space-y-1">

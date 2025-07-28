@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { ModeToggle } from "@/components/mode-toggle"
-import { Menu, Home, FileText, User, Calendar, Coffee, Mail } from "lucide-react"
+import { Menu, Home, FileText, User, Coffee, Mail } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const navigation = [
@@ -14,7 +14,6 @@ const navigation = [
   { name: "Blog", href: "/blog", icon: FileText },
   { name: "Portfolio", href: "/portfolio", icon: User },
   { name: "Resume", href: "/resume", icon: FileText },
-  { name: "Events", href: "/events", icon: Calendar },
   { name: "Lifestyle", href: "/lifestyle", icon: Coffee },
   { name: "Contact", href: "/contact", icon: Mail },
 ]
