@@ -5,9 +5,8 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { ModeToggle } from "@/components/mode-toggle"
-import { Menu, Home, FileText, User, Calendar, Coffee, Mail, Settings, Zap } from "lucide-react"
+import { Menu, Home, FileText, User, Calendar, Coffee, Mail } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const navigation = [
@@ -76,30 +75,7 @@ export function Navigation() {
                     <span>{item.name}</span>
                   </Link>
                 ))}
-                <div className="pt-4 border-t">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="w-full justify-start px-0">
-                        <Settings className="h-4 w-4 mr-2" />
-                        Settings
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-48">
-                      <DropdownMenuItem asChild>
-                        <Link href="/settings" onClick={() => setIsOpen(false)}>
-                          <Settings className="h-4 w-4 mr-2" />
-                          Site Settings
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href="/nostr-settings" onClick={() => setIsOpen(false)}>
-                          <Zap className="h-4 w-4 mr-2" />
-                          Nostr Settings
-                        </Link>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
+
               </div>
             </div>
           </SheetContent>
@@ -111,28 +87,6 @@ export function Navigation() {
             </Link>
           </div>
           <nav className="flex items-center space-x-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="hidden md:flex">
-                  <Settings className="h-4 w-4 mr-2" />
-                  Settings
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem asChild>
-                  <Link href="/settings">
-                    <Settings className="h-4 w-4 mr-2" />
-                    Site Settings
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/nostr-settings">
-                    <Zap className="h-4 w-4 mr-2" />
-                    Nostr Settings
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
             <ModeToggle />
           </nav>
         </div>

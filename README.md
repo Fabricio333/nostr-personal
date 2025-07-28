@@ -11,7 +11,7 @@ This is a personal blog website built with Next.js, Tailwind CSS, and Shadcn UI.
 -   **Profile Page**: Shows user's Nostr profile information.
 -   **Portfolio Section**: Showcase your projects.
 -   **Resume Section**: Display your professional resume.
--   **Settings Page**: Configure Nostr public key and other preferences.
+-   **JSON Configuration**: All site and Nostr settings are stored in `settings.json` at the project root.
 -   **Lifestyle Tracking**: (Planned/Partial) Sections for workouts, nutrition, biohacks, and routines.
 
 ## Getting Started
@@ -40,7 +40,7 @@ This is a personal blog website built with Next.js, Tailwind CSS, and Shadcn UI.
     Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 4.  **Configure your Nostr npub**:
-    Navigate to the `/settings` page and enter your Nostr public key (npub1...). This is crucial for the blog to fetch your content.
+    Edit the `settings.json` file in the project root and add your Nostr public key (`npub1...`). This is crucial for the blog to fetch your content.
 
 ## Project Structure
 

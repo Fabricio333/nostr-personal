@@ -6,14 +6,14 @@ import { Button } from "@/components/ui/button"
 import { Calendar, MessageCircle, Eye, ExternalLink } from "lucide-react"
 import Link from "next/link"
 import { nostrClient, type NostrArticle, npubToHex } from "@/lib/nostr"
-import { getSettings } from "@/lib/settings"
+import { getNostrSettings } from "@/lib/nostr-settings"
 import { marked } from "marked" // For Markdown rendering
 
 export default async function BlogPostPage({ params }: { params: { id: string } }) {
   const { id } = params
-  const settings = getSettings()
+  const settings = getNostrSettings()
 
-  if (!settings.npub || !settings.npub.startsWith("npub1")) {
+  if (!settings.ownerNpub || !settings.ownerNpub.startsWith("npub1")) {
     return (
       <div className="container mx-auto px-4 py-8">
         <Card className="border-destructive max-w-md mx-auto">
@@ -21,11 +21,9 @@ export default async function BlogPostPage({ params }: { params: { id: string } 
             <div className="text-destructive text-4xl mb-4">⚠️</div>
             <h3 className="text-lg font-semibold text-destructive mb-2">Configuration Required</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              No valid Nostr public key configured. Please go to settings to set it up.
+              No valid Nostr public key configured. Please update settings.json to set it up.
             </p>
-            <Button asChild>
-              <Link href="/settings">Configure Settings</Link>
-            </Button>
+            
           </CardContent>
         </Card>
       </div>
@@ -35,7 +33,7 @@ export default async function BlogPostPage({ params }: { params: { id: string } 
   let post: NostrArticle | null = null
   try {
     await nostrClient.connect()
-    const pubkeyHex = npubToHex(settings.npub)
+    const pubkeyHex = npubToHex(settings.ownerNpub)
     if (pubkeyHex) {
       const event = await nostrClient.fetchEventById(id, pubkeyHex)
       if (event) {

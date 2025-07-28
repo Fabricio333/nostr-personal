@@ -1,0 +1,24 @@
+{
+  "site": {
+    "showResume": true,
+    "showEvents": true,
+    "showLifestyle": true,
+    "siteName": "My Personal Blog",
+    "siteDescription": "A personal blog powered by Nostr",
+    "contactEmail": "",
+    "socialLinks": {
+      "twitter": "",
+      "github": "",
+      "linkedin": ""
+    }
+  },
+  "nostr": {
+    "ownerNpub": "",
+    "relays": ["wss://relay.damus.io", "wss://relay.snort.social", "wss://nostr.wine"],
+    "noteEventIds": [],
+    "articleEventIds": [],
+    "maxPosts": 10,
+    "enableComments": true,
+    "enableViews": true
+  }
+}
