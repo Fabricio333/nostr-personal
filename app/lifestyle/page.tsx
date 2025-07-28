@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -9,6 +9,9 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { PlusCircle, Trash2 } from "lucide-react"
+import lifestyleConfig from "@/lib/lifestyle-config.json"
+import { fetchNostrPosts } from "@/lib/nostr"
+import { getNostrSettings } from "@/lib/nostr-settings"
 
 interface Workout {
   id: string
@@ -37,37 +40,88 @@ interface RoutineItem {
   completed: boolean
 }
 
+interface NostrProfile {
+  name?: string
+  display_name?: string
+  about?: string
+  picture?: string
+  banner?: string
+  nip05?: string
+  lud16?: string
+  website?: string
+}
+
+interface NostrPost {
+  id: string
+  pubkey: string
+  created_at: number
+  kind: number
+  tags: string[][]
+  content: string
+  sig: string
+  profile?: NostrProfile
+  type: "note" | "article"
+  title?: string
+  summary?: string
+  image?: string
+  published_at?: number
+}
+
 export default function LifestylePage() {
-  const [workouts, setWorkouts] = useState<Workout[]>([
-    { id: "1", name: "Morning Run (30 min)", completed: false },
-    { id: "2", name: "Strength Training (Upper Body)", completed: true },
-    { id: "3", name: "Yoga (20 min)", completed: false },
-  ])
+  const [workouts, setWorkouts] = useState<Workout[]>(
+    lifestyleConfig.workouts as Workout[],
+  )
   const [newWorkoutName, setNewWorkoutName] = useState("")
 
-  const [meals, setMeals] = useState<Meal[]>([
-    { id: "m1", name: "Oatmeal with Berries", calories: 350, protein: 15, carbs: 50, fat: 10 },
-    { id: "m2", name: "Chicken Salad", calories: 450, protein: 40, carbs: 20, fat: 25 },
-  ])
+  const [meals, setMeals] = useState<Meal[]>(
+    lifestyleConfig.meals as Meal[],
+  )
   const [newMeal, setNewMeal] = useState({ name: "", calories: 0, protein: 0, carbs: 0, fat: 0 })
 
-  const [biohacks, setBiohacks] = useState<Biohack[]>([
-    { id: "b1", name: "Cold Shower (5 min)", completed: false },
-    { id: "b2", name: "Intermittent Fasting (16/8)", completed: true },
-  ])
+  const [biohacks, setBiohacks] = useState<Biohack[]>(
+    lifestyleConfig.biohacks as Biohack[],
+  )
   const [newBiohackName, setNewBiohackName] = useState("")
 
-  const [morningRoutine, setMorningRoutine] = useState<RoutineItem[]>([
-    { id: "mr1", name: "Meditate (10 min)", completed: false },
-    { id: "mr2", name: "Journaling", completed: false },
-    { id: "mr3", name: "Hydrate (500ml water)", completed: true },
-  ])
-  const [eveningRoutine, setEveningRoutine] = useState<RoutineItem[]>([
-    { id: "er1", name: "Read (30 min)", completed: false },
-    { id: "er2", name: "Prepare for next day", completed: false },
-  ])
+  const [morningRoutine, setMorningRoutine] = useState<RoutineItem[]>(
+    lifestyleConfig.morningRoutine as RoutineItem[],
+  )
+  const [eveningRoutine, setEveningRoutine] = useState<RoutineItem[]>(
+    lifestyleConfig.eveningRoutine as RoutineItem[],
+  )
   const [newMorningRoutineItem, setNewMorningRoutineItem] = useState("")
   const [newEveningRoutineItem, setNewEveningRoutineItem] = useState("")
+
+  const [posts, setPosts] = useState<NostrPost[]>([])
+  const [loadingPosts, setLoadingPosts] = useState(true)
+
+  useEffect(() => {
+    const loadPosts = async () => {
+      try {
+        const settings = getNostrSettings()
+        if (!settings.ownerNpub) {
+          setLoadingPosts(false)
+          return
+        }
+
+        const allPosts = await fetchNostrPosts(settings.ownerNpub, 20)
+        const lifestylePosts = allPosts.filter(
+          (post) =>
+            post.tags.some(
+              (t) => t[0] === "t" && t[1]?.toLowerCase() === "lifestyle",
+            ) || post.content.toLowerCase().includes("#lifestyle"),
+        )
+
+        setPosts(lifestylePosts)
+      } catch (error) {
+        console.error("Failed to load lifestyle posts", error)
+      } finally {
+        setLoadingPosts(false)
+      }
+    }
+
+    loadPosts()
+  }, [])
 
   // Workout Handlers
   const toggleWorkout = (id: string) => {
@@ -440,6 +494,36 @@ export default function LifestylePage() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      <div className="mt-12">
+        <h2 className="text-2xl font-bold text-center mb-6">Latest #lifestyle Posts</h2>
+        {loadingPosts ? (
+          <p className="text-center text-muted-foreground">Loading...</p>
+        ) : (
+          <div className="space-y-4">
+            {posts.map((post) => (
+              <Card key={post.id}>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg">{post.title || "Note"}</CardTitle>
+                    <span className="text-sm text-muted-foreground">
+                      {new Date(post.created_at * 1000).toLocaleDateString()}
+                    </span>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p>
+                    {post.content.length > 200 ? post.content.slice(0, 200) + "..." : post.content}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+            {posts.length === 0 && !loadingPosts && (
+              <p className="text-center text-muted-foreground">No posts found.</p>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
