@@ -6,13 +6,16 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
 import { Toaster } from "@/components/ui/toaster"
+import { getSettings } from "@/lib/settings"
 
 const inter = Inter({ subsets: ["latin"] })
 
+const settings = getSettings()
+
 export const metadata: Metadata = {
-  title: "Personal Blog",
-  description: "A personal blog powered by Nostr",
-    generator: 'v0.dev'
+  title: settings.siteName,
+  description: settings.siteDescription,
+  generator: "v0.dev",
 }
 
 export default function RootLayout({

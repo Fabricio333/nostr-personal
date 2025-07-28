@@ -8,6 +8,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { ModeToggle } from "@/components/mode-toggle"
 import { Menu, Home, FileText, User, Coffee, Mail } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { getSettings } from "@/lib/settings"
 import { getNostrSettings } from "@/lib/nostr-settings"
 import { fetchNostrProfile } from "@/lib/nostr"
 
@@ -23,7 +24,7 @@ const navigation = [
 export function Navigation() {
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
-  const [firstName, setFirstName] = useState("Personal Blog")
+  const [firstName, setFirstName] = useState(() => getSettings().siteName)
 
   useEffect(() => {
     const settings = getNostrSettings()
