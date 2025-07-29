@@ -2,10 +2,10 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
-import { Navigation } from "@/components/navigation"
-import { Footer } from "@/components/footer"
-import { Toaster } from "@/components/ui/toaster"
+// import { ThemeProvider } from "@/components/theme-provider"
+// import { Navigation } from "@/components/navigation"
+// import { Footer } from "@/components/footer"
+// import { Toaster } from "@/components/ui/toaster"
 import { getSettings } from "@/lib/settings"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -40,6 +40,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
+        {/*
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
             <Navigation />
@@ -48,6 +49,8 @@ export default function RootLayout({
           </div>
           <Toaster />
         </ThemeProvider>
+        */
+        {children}
       </body>
     </html>
   )
