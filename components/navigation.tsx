@@ -6,19 +6,18 @@ import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { ModeToggle } from "@/components/mode-toggle"
-import { Menu, Home, FileText, User, Coffee, Mail } from "lucide-react"
+import { Menu } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { getSettings } from "@/lib/settings"
 import { getNostrSettings } from "@/lib/nostr-settings"
 import { fetchNostrProfile } from "@/lib/nostr"
 
 const navigation = [
-  { name: "Home", href: "/", icon: Home },
-  { name: "Blog", href: "/blog", icon: FileText },
-  { name: "Portfolio", href: "/portfolio", icon: User },
-  { name: "Resume", href: "/resume", icon: FileText },
-  { name: "Lifestyle", href: "/lifestyle", icon: Coffee },
-  { name: "Contact", href: "/contact", icon: Mail },
+  { name: "Home", href: "/" },
+  { name: "Blog", href: "/blog" },
+  { name: "Lifestyle", href: "/lifestyle" },
+  { name: "Portfolio", href: "/portfolio" },
+  { name: "Contact", href: "/contact" },
 ]
 
 export function Navigation() {
@@ -47,18 +46,19 @@ export function Navigation() {
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <span className="hidden font-bold sm:inline-block">{firstName}</span>
           </Link>
-          <nav className="flex items-center space-x-6 text-sm font-medium">
+          <nav className="flex items-center space-x-2">
             {navigation.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={cn(
-                  "transition-colors hover:text-foreground/80",
-                  pathname === item.href ? "text-foreground" : "text-foreground/60",
-                )}
-              >
-                {item.name}
-              </Link>
+              <Button key={item.name} variant="ghost" asChild>
+                <Link
+                  href={item.href}
+                  className={cn(
+                    "text-sm",
+                    pathname === item.href ? "text-foreground" : "text-foreground/60",
+                  )}
+                >
+                  {item.name}
+                </Link>
+              </Button>
             ))}
           </nav>
         </div>
@@ -79,18 +79,18 @@ export function Navigation() {
             <div className="my-4 h-[calc(100vh-8rem)] pb-10 pl-6">
               <div className="flex flex-col space-y-3">
                 {navigation.map((item) => (
-                  <Link
+                  <Button
                     key={item.name}
-                    href={item.href}
-                    onClick={() => setIsOpen(false)}
+                    variant="ghost"
+                    asChild
                     className={cn(
-                      "flex items-center space-x-2 text-sm font-medium transition-colors hover:text-foreground/80",
+                      "justify-start",
                       pathname === item.href ? "text-foreground" : "text-foreground/60",
                     )}
+                    onClick={() => setIsOpen(false)}
                   >
-                    <item.icon className="h-4 w-4" />
-                    <span>{item.name}</span>
-                  </Link>
+                    <Link href={item.href}>{item.name}</Link>
+                  </Button>
                 ))}
 
               </div>
