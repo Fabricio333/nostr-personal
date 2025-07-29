@@ -12,7 +12,7 @@
     }
   },
   "nostr": {
-    "ownerNpub": "",
+    "ownerNpub": "npub1m9vsm9d8sy0pevcjhenwm4ny6l37dm2hsg4dnusna43ql3n5305qy4zlg4",
     "relays": ["wss://relay.damus.io", "wss://relay.snort.social", "wss://nostr.wine"],
     "noteEventIds": [],
     "articleEventIds": [],
