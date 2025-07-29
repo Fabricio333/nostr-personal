@@ -1,6 +1,7 @@
+"use client"
+
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { Inter } from "next/font/google"
 import { getSettings } from "@/lib/settings"
 import { getNostrSettings } from "@/lib/nostr-settings"
 import { fetchNostrProfile } from "@/lib/nostr"
@@ -14,7 +15,6 @@ const links = [
   { name: "Contact", href: "/contact" },
 ]
 
-const inter = Inter({ subsets: ["latin"] })
 const settings = getSettings()
 
 export function Navbar() {
@@ -34,7 +34,7 @@ export function Navbar() {
   }, [])
 
   return (
-    <nav className={`${inter.className} border-b bg-background`}>
+    <nav className="border-b bg-background">
       <div className="container flex flex-wrap gap-4 py-4">
         <Link href="/" className="font-bold">
           {firstName}
