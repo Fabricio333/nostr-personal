@@ -75,24 +75,50 @@ export default function ResumePage() {
             <h2 className="text-2xl font-bold mb-4">Experience</h2>
             <div className="space-y-6">
               <div>
-                <h3 className="text-xl font-semibold">Senior Software Engineer</h3>
-                <p className="text-muted-foreground">Tech Innovations Inc. | Jan 2022 - Present</p>
+                <h3 className="text-xl font-semibold">Content Writer</h3>
+                <p className="text-muted-foreground">WeAreBitcoin.org | Mar 2025 – Present</p>
                 <ul className="list-disc list-inside text-muted-foreground mt-2 space-y-1">
                   <li>
-                    Led the development of a new microservices architecture using Node.js and Kafka, improving system
-                    scalability by 30%.
+                    Create and manage educational content for a Bitcoin-focused learning platform centered on self-custody and sound money principles.
                   </li>
-                  <li>Designed and implemented robust APIs for mobile and web clients.</li>
-                  <li>Mentored junior developers and conducted code reviews.</li>
+                  <li>
+                    Prototype interactive tools and guided lessons to help users understand complex Bitcoin and privacy concepts.
+                  </li>
+                  <li>
+                    Collaborate on content strategy, UX, and communication design to optimize learning outcomes.
+                  </li>
                 </ul>
               </div>
+
               <div>
-                <h3 className="text-xl font-semibold">Software Developer</h3>
-                <p className="text-muted-foreground">Web Solutions Co. | Jun 2019 - Dec 2021</p>
+                <h3 className="text-xl font-semibold">Founder — Web Password Manager (OPSEC)</h3>
+                <p className="text-muted-foreground">Personal Project | Dec 2024 – Mar 2025</p>
                 <ul className="list-disc list-inside text-muted-foreground mt-2 space-y-1">
-                  <li>Developed and maintained responsive web applications using React and Redux.</li>
-                  <li>Collaborated with UX/UI designers to translate wireframes into high-quality code.</li>
-                  <li>Optimized database queries and improved application performance.</li>
+                  <li>
+                    Developed a local password manager browser app with a single private key (BIP-39 mnemonic) to deterministically generate site-specific passwords.
+                  </li>
+                  <li>
+                    Implemented AES encryption, Nostr relay backups, and deterministic identity generation for full local and encrypted cloud sync.
+                  </li>
+                  <li>
+                    Focused on privacy-first UX using JavaScript, CryptoJS, and elliptic libraries.
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="text-xl font-semibold">Market Research Trainee</h3>
+                <p className="text-muted-foreground">Dandelion Labs | Mar 2023 – Sept 2023</p>
+                <ul className="list-disc list-inside text-muted-foreground mt-2 space-y-1">
+                  <li>
+                    Conducted research on blockchain trends and decentralized social networks to support strategic product and innovation decisions.
+                  </li>
+                  <li>
+                    Prepared insights and competitive analysis to guide product design for emerging decentralized applications.
+                  </li>
+                  <li>
+                    Explored Nostr protocol, user feedback loops, and market segmentation across Asia and Latin America.
+                  </li>
                 </ul>
               </div>
             </div>

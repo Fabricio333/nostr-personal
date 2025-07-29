@@ -1,5 +1,9 @@
+import { useEffect, useState } from "react"
 import Link from "next/link"
+import { Inter } from "next/font/google"
 import { getSettings } from "@/lib/settings"
+import { getNostrSettings } from "@/lib/nostr-settings"
+import { fetchNostrProfile } from "@/lib/nostr"
 
 const links = [
   { name: "Home", href: "/" },
@@ -10,17 +14,37 @@ const links = [
   { name: "Contact", href: "/contact" },
 ]
 
+const inter = Inter({ subsets: ["latin"] })
 const settings = getSettings()
 
 export function Navbar() {
+  const [firstName, setFirstName] = useState(() => settings.siteName)
+
+  useEffect(() => {
+    const nostr = getNostrSettings()
+    if (!nostr.ownerNpub) return
+
+    fetchNostrProfile(nostr.ownerNpub).then((profile) => {
+      const name = profile?.display_name || profile?.name || profile?.nip05?.split("@")[0]
+      if (name) {
+        const first = name.trim().split(/\s+/)[0]
+        if (first) setFirstName(first)
+      }
+    })
+  }, [])
+
   return (
-    <nav className="border-b bg-background">
+    <nav className={`${inter.className} border-b bg-background`}>
       <div className="container flex flex-wrap gap-4 py-4">
         <Link href="/" className="font-bold">
-          {settings.siteName}
+          {firstName}
         </Link>
         {links.map((link) => (
-          <Link key={link.href} href={link.href} className="text-sm text-muted-foreground hover:text-foreground">
+          <Link
+            key={link.href}
+            href={link.href}
+            className="text-sm text-muted-foreground hover:text-foreground"
+          >
             {link.name}
           </Link>
         ))}
