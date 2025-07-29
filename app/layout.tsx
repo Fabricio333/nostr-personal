@@ -41,20 +41,28 @@ const navigation = [
   { name: "Lifestyle", href: "/lifestyle" },
   { name: "Portfolio", href: "/portfolio" },
   { name: "Contact", href: "/contact" },
+  { name: "Resume", href: "/resume" },
 ]
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <nav className="sticky top-0 z-50 flex gap-2 border-b bg-background p-2">
-          {navigation.map((item) => (
-            <Link key={item.name} href={item.href} className="flex">
-              <Button variant="ghost" size="sm" className="text-sm">
-                {item.name}
-              </Button>
+        <nav className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur">
+          <div className="container mx-auto flex h-14 items-center justify-between gap-4 px-4">
+            <Link href="/" className="font-bold text-lg">
+              {settings.siteName}
             </Link>
-          ))}
+            <div className="flex gap-2">
+              {navigation.map((item) => (
+                <Link key={item.name} href={item.href} className="flex">
+                  <Button variant="ghost" size="sm" className="text-sm">
+                    {item.name}
+                  </Button>
+                </Link>
+              ))}
+            </div>
+          </div>
         </nav>
         <main className="container mx-auto px-4 py-8">{children}</main>
       </body>

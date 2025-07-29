@@ -271,6 +271,7 @@ export default function HomePage() {
         </Card>
 
         {/* Posts */}
+        <h2 className="text-2xl font-bold mb-4">Latest Posts</h2>
         <div className="space-y-6">
           {filteredPosts.length === 0 ? (
             <Card className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
