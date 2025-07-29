@@ -15,6 +15,10 @@ const settings = getSettings()
 export const metadata: Metadata = {
   title: settings.siteName,
   description: settings.siteDescription,
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+  },
   generator: "v0.dev",
   icons: {
     icon: "/icon.svg",
