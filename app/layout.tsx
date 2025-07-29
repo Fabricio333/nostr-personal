@@ -6,6 +6,7 @@ import "./globals.css"
 // import { Navigation } from "@/components/navigation"
 // import { Footer } from "@/components/footer"
 // import { Toaster } from "@/components/ui/toaster"
+import { Navbar } from "@/components/navbar"
 import { getSettings } from "@/lib/settings"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -44,16 +45,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        {/*
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
-            <Navigation />
-            <main className="container mx-auto px-4 py-8">{children}</main>
-            <Footer />
-          </div>
-          <Toaster />
-        </ThemeProvider>
-        */}
+        <Navbar />
         {children}
       </body>
     </html>
