@@ -49,7 +49,7 @@ export default function RootLayout({
           </div>
           <Toaster />
         </ThemeProvider>
-        */
+        */}
         {children}
       </body>
     </html>
