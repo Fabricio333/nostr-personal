@@ -18,7 +18,7 @@ export default async function DigitalGardenNotePage({ params }: { params: { slug
   })
   const html = marked.parse(content)
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="w-full px-4 py-8">
       <h1 className="text-3xl font-bold mb-4">{note.title}</h1>
       <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: html }} />
       <div className="mt-8">

@@ -45,20 +45,20 @@ export function Navbar() {
             <Button
               variant="ghost"
               size="icon"
-              className="ml-auto md:hidden"
+              className="ml-auto h-10 w-10 md:hidden"
             >
-              <Menu className="h-5 w-5" />
+              <Menu className="h-6 w-6" />
               <span className="sr-only">Open Menu</span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="pr-0">
-            <div className="mt-4 flex flex-col space-y-4 pl-6">
+          <SheetContent side="left" className="w-[90%] pr-0 sm:max-w-xs">
+            <div className="mt-4 flex flex-col space-y-2 pl-6">
               {links.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
                   onClick={() => setOpen(false)}
-                  className="text-muted-foreground hover:text-foreground"
+                  className="py-2 text-lg text-muted-foreground hover:text-foreground"
                 >
                   {link.name}
                 </Link>
