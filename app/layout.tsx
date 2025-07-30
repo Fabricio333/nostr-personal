@@ -8,6 +8,8 @@ import "./globals.css"
 // import { Toaster } from "@/components/ui/toaster"
 import { Navbar } from "@/components/navbar"
 import { getSettings } from "@/lib/settings"
+import { getNostrSettings } from "@/lib/nostr-settings"
+import { fetchNostrProfile } from "@/lib/nostr"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -38,15 +40,24 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const npub = getNostrSettings().ownerNpub
+  let siteName = settings.siteName
+  if (npub) {
+    const profile = await fetchNostrProfile(npub)
+    siteName =
+      profile?.display_name || profile?.name || profile?.nip05?.split("@")[0] ||
+      siteName
+  }
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <Navbar />
+        <Navbar siteName={siteName} />
         {children}
       </body>
     </html>

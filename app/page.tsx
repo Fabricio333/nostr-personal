@@ -195,8 +195,8 @@ export default function HomePage() {
         {profile && (
           <Card className="mb-8 border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:shadow-xl transition-all duration-300">
             <CardContent className="p-8">
-              <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-                <Avatar className="h-32 w-32 border-4 border-white dark:border-slate-700 shadow-lg">
+              <div className="flex flex-col md:flex-row items-center md:items-center gap-6">
+                <Avatar className="h-48 w-48 border-4 border-white dark:border-slate-700 shadow-lg">
                   <AvatarImage
                     src={profile.picture || "/placeholder.svg"}
                     alt={profile.name || profile.display_name || "Profile"}
@@ -279,6 +279,7 @@ export default function HomePage() {
         </Card>
 
         {/* Posts */}
+        <h2 className="text-2xl font-bold mb-4">Latest Posts</h2>
         <div className="space-y-6">
           {filteredPosts.length === 0 ? (
             <Card className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
