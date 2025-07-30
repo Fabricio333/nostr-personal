@@ -49,7 +49,7 @@ export default async function RootLayout({
   const siteName = await getSiteName()
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={`${inter.className} w-full`}>
         <Navbar siteName={siteName} />
         {children}
       </body>
