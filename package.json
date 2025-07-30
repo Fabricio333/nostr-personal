@@ -43,6 +43,7 @@
     "clsx": "^2.1.1",
     "cmdk": "latest",
     "embla-carousel-react": "latest",
+    "gray-matter": "^4.0.3",
     "input-otp": "latest",
     "lucide-react": "^0.454.0",
     "marked": "latest",
