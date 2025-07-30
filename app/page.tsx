@@ -131,8 +131,8 @@ export default function HomePage() {
           {/* Profile skeleton */}
           <Card className="mb-8 border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
             <CardContent className="p-8">
-              <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-                <Skeleton className="h-32 w-32 rounded-full" />
+              <div className="flex flex-col md:flex-row items-center md:items-center gap-8">
+                <Skeleton className="h-48 w-48 rounded-full" />
                 <div className="flex-1 space-y-4 text-center md:text-left">
                   <Skeleton className="h-8 w-48 mx-auto md:mx-0" />
                   <Skeleton className="h-4 w-full max-w-md mx-auto md:mx-0" />
@@ -195,8 +195,8 @@ export default function HomePage() {
         {profile && (
           <Card className="mb-8 border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:shadow-xl transition-all duration-300">
             <CardContent className="p-8">
-              <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-                <Avatar className="h-32 w-32 border-4 border-white dark:border-slate-700 shadow-lg">
+              <div className="flex flex-col md:flex-row items-center md:items-center gap-8">
+                <Avatar className="h-48 w-48 border-4 border-white dark:border-slate-700 shadow-lg">
                   <AvatarImage
                     src={profile.picture || "/placeholder.svg"}
                     alt={profile.name || profile.display_name || "Profile"}
@@ -279,6 +279,7 @@ export default function HomePage() {
         </Card>
 
         {/* Posts */}
+        <h2 className="text-2xl font-bold mb-4">Latest Posts</h2>
         <div className="space-y-6">
           {filteredPosts.length === 0 ? (
             <Card className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
