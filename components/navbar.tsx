@@ -1,5 +1,8 @@
 import Link from "next/link"
-import { getSettings } from "@/lib/settings"
+
+interface NavbarProps {
+  siteName: string
+}
 
 const links = [
   { name: "Home", href: "/" },
@@ -10,14 +13,12 @@ const links = [
   { name: "Contact", href: "/contact" },
 ]
 
-const settings = getSettings()
-
-export function Navbar() {
+export function Navbar({ siteName }: NavbarProps) {
   return (
     <nav className="border-b bg-background">
       <div className="container flex items-center gap-4 py-4">
         <Link href="/" className="font-bold">
-          {settings.siteName}
+          {siteName}
         </Link>
         <div className="ml-auto flex flex-wrap gap-4 text-sm">
           {links.map((link) => (
