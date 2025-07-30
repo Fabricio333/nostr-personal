@@ -6,7 +6,7 @@ import { Download, Mail, Phone, MapPin, Linkedin, Github } from "lucide-react"
 
 export default function ResumePage() {
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto py-8">
       <Card className="max-w-4xl mx-auto p-6">
         <CardHeader className="text-center">
           <CardTitle className="text-4xl font-bold mb-2">John Doe</CardTitle>

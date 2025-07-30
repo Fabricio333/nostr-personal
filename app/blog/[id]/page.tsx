@@ -15,7 +15,7 @@ export default async function BlogPostPage({ params }: { params: { id: string } 
 
   if (!settings.ownerNpub || !settings.ownerNpub.startsWith("npub1")) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto py-8">
         <Card className="border-destructive max-w-md mx-auto">
           <CardContent className="pt-6 text-center">
             <div className="text-destructive text-4xl mb-4">⚠️</div>
@@ -53,7 +53,7 @@ export default async function BlogPostPage({ params }: { params: { id: string } 
   const renderedContent = marked.parse(post.content || "")
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto py-8">
       <Card className="max-w-3xl mx-auto">
         <CardHeader>
           <div className="flex items-center justify-between mb-2">

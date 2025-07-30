@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card"
 
 export default function BlogLoading() {
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto py-8">
       <div className="animate-pulse">
         <div className="mb-8 h-10 w-64 rounded bg-muted"></div> {/* Title placeholder */}
         <div className="mb-6 flex space-x-4">
