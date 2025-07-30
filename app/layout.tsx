@@ -16,10 +16,6 @@ const settings = getSettings()
 export const metadata: Metadata = {
   title: settings.siteName,
   description: settings.siteDescription,
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-  },
   generator: "v0.dev",
   icons: {
     icon: "/icon.svg",
@@ -35,6 +31,11 @@ export const metadata: Metadata = {
     description: settings.siteDescription,
     images: ["/icon.svg"],
   },
+}
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
 }
 
 export default function RootLayout({
