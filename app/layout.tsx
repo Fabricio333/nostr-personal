@@ -1,5 +1,5 @@
 import type React from "react"
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 // import { ThemeProvider } from "@/components/theme-provider"
@@ -13,13 +13,14 @@ const inter = Inter({ subsets: ["latin"] })
 
 const settings = getSettings()
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+}
+
 export const metadata: Metadata = {
   title: settings.siteName,
   description: settings.siteDescription,
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-  },
   generator: "v0.dev",
   icons: {
     icon: "/icon.svg",
