@@ -14,7 +14,9 @@ export interface Settings {
 import config from "@/settings.json";
 
 export function getSettings(): Settings {
-  return (config as any).site as Settings;
+  const site = (config as any).site as Settings;
+  const npub = (config as any).nostr.ownerNpub as string;
+  return { ...site, siteName: npub };
 }
 
 // Placeholder to keep API compatibility
