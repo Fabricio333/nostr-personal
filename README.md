@@ -4,15 +4,14 @@ This is a personal blog website built with Next.js, Tailwind CSS, and Shadcn UI.
 
 ## Features
 
--   **Nostr Integration**: Fetches blog posts (NIP-23 long-form content and NIP-01 notes) and profile data directly from Nostr relays.
--   **Responsive Design**: Optimized for various screen sizes, from mobile to desktop.
--   **Theme Toggle**: Switch between light and dark modes.
--   **Blog Section**: Displays a list of posts with search and filtering capabilities.
--   **Profile Page**: Shows user's Nostr profile information.
--   **Portfolio Section**: Showcase your projects.
--   **Resume Section**: Display your professional resume.
--   **JSON Configuration**: All site and Nostr settings are stored in `settings.json` at the project root.
--   **Lifestyle Tracking**: (Planned/Partial) Sections for workouts, nutrition, biohacks, and routines.
+- **Nostr Integration** – Fetches NIP‑23 long‑form articles and NIP‑01 notes from the relays listed in `settings.json`. Profile information is also pulled from Nostr and cached locally.
+- **Blog** – Lists your posts with search and type filters. Each post has its own page with Markdown rendering and optional tags.
+- **Digital Garden** – Markdown notes in `digital-garden/` are rendered with `[[wikilink]]` style linking between pages.
+- **Lifestyle Page** – Shows posts tagged `#lifestyle` from Nostr alongside configurable lists of workouts, nutrition, biohacks and routines.
+- **Contact Form** – Sends an encrypted direct message via Nostr to the owner npub.
+- **Portfolio & Resume** – Dedicated pages to showcase projects and display a résumé/CV.
+- **Settings Pages** – UI for editing site options and Nostr relay settings which are saved to `settings.json`.
+- **Theme Toggle & Responsive Design** – Light/dark mode support and layouts that work on mobile or desktop.
 
 ## Getting Started
 
