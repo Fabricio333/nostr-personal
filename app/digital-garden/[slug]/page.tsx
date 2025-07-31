@@ -1,12 +1,8 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { marked } from 'marked'
-import { getNote } from '@/lib/digital-garden'
+import { getNote, slugify } from '@/lib/digital-garden'
 import { Badge } from '@/components/ui/badge'
-
-function slugify(text: string) {
-  return text.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
-}
 
 export default async function DigitalGardenNotePage({ params }: { params: { slug: string } }) {
   const note = await getNote(params.slug)

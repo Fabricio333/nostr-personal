@@ -12,6 +12,10 @@ export interface DigitalGardenNote {
 
 const notesDir = path.join(process.cwd(), 'digital-garden')
 
+export function slugify(text: string) {
+  return text.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+}
+
 export async function getAllNotes(): Promise<DigitalGardenNote[]> {
   const files = await fs.readdir(notesDir)
   const notes: DigitalGardenNote[] = []
@@ -51,4 +55,26 @@ export async function getNote(
   } catch {
     return null
   }
+}
+
+export interface NotesGraph {
+  nodes: { id: string; title: string }[]
+  links: { source: string; target: string }[]
+}
+
+export async function getNotesGraph(): Promise<NotesGraph> {
+  const notes = await getAllNotes()
+  const nodes = notes.map((n) => ({ id: n.slug, title: n.title }))
+  const links: { source: string; target: string }[] = []
+  for (const note of notes) {
+    const regex = /\[\[([^\]]+)\]\]/g
+    let match
+    while ((match = regex.exec(note.content))) {
+      const target = slugify(match[1])
+      if (notes.some((n) => n.slug === target)) {
+        links.push({ source: note.slug, target })
+      }
+    }
+  }
+  return { nodes, links }
 }
