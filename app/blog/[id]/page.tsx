@@ -2,6 +2,7 @@ import { notFound } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { ExternalLink } from "lucide-react"
 import { nostrClient, type NostrPost } from "@/lib/nostr"
 import { getNostrSettings } from "@/lib/nostr-settings"
 import { marked } from "marked" // For Markdown rendering
@@ -53,12 +54,12 @@ export default async function BlogPostPage({ params }: { params: { id: string } 
   return (
     <div className="container mx-auto px-4 py-8">
       <div
-        className="prose dark:prose-invert max-w-none"
+        className="prose dark:prose-invert max-w-2xl mx-auto"
         dangerouslySetInnerHTML={{ __html: renderedContent }}
       />
 
       {tags.length > 0 && (
-        <div className="mt-4 flex flex-wrap gap-2">
+        <div className="mt-4 flex flex-wrap gap-2 justify-center">
           {tags.map((tag) => (
             <Badge key={tag} variant="outline">
               #{tag}
@@ -67,10 +68,11 @@ export default async function BlogPostPage({ params }: { params: { id: string } 
         </div>
       )}
 
-      <div className="mt-8">
-        <Button asChild>
+      <div className="mt-8 flex justify-center">
+        <Button variant="outline" asChild>
           <a href={njumpUrl} target="_blank" rel="noopener noreferrer">
-            Watch on your favorite Nostr clients
+            <ExternalLink className="h-4 w-4 mr-2" />
+            View on Nostr
           </a>
         </Button>
       </div>
