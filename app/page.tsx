@@ -4,11 +4,10 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Search, FileText, MessageSquare, Calendar, ExternalLink, RefreshCw } from "lucide-react"
+import { FileText, MessageSquare, Calendar, ExternalLink, RefreshCw } from "lucide-react"
 import { fetchNostrProfile, fetchNostrPosts } from "@/lib/nostr"
 import { getNostrSettings } from "@/lib/nostr-settings"
 import Link from "next/link"
@@ -43,11 +42,8 @@ interface NostrPost {
 export default function HomePage() {
   const [profile, setProfile] = useState<NostrProfile | null>(null)
   const [posts, setPosts] = useState<NostrPost[]>([])
-  const [filteredPosts, setFilteredPosts] = useState<NostrPost[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [selectedType, setSelectedType] = useState<"all" | "note" | "article">("all")
   const [notes, setNotes] = useState<{ slug: string; title: string }[]>([])
 
   const loadData = async () => {
@@ -89,27 +85,7 @@ export default function HomePage() {
       .catch((err) => console.error('Failed to load notes', err))
   }, [])
 
-  useEffect(() => {
-    let filtered = posts
-
-    // Filter by type
-    if (selectedType !== "all") {
-      filtered = filtered.filter((post) => post.type === selectedType)
-    }
-
-    // Filter by search term
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase()
-      filtered = filtered.filter(
-        (post) =>
-          post.content.toLowerCase().includes(term) ||
-          post.title?.toLowerCase().includes(term) ||
-          post.summary?.toLowerCase().includes(term),
-      )
-    }
-
-    setFilteredPosts(filtered)
-  }, [posts, searchTerm, selectedType])
+  // No filtering; posts displayed as fetched
 
   const formatDate = (timestamp: number) => {
     return new Date(timestamp * 1000).toLocaleDateString("en-US", {
@@ -236,61 +212,19 @@ export default function HomePage() {
           </Card>
         )}
 
-        {/* Search and Filter */}
-        <Card className="mb-6 border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
-          <CardContent className="p-6">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
-                <Input
-                  placeholder="Search posts..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 border-0 bg-slate-100 dark:bg-slate-700"
-                />
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  variant={selectedType === "all" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSelectedType("all")}
-                >
-                  All
-                </Button>
-                <Button
-                  variant={selectedType === "note" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSelectedType("note")}
-                >
-                  <MessageSquare className="h-4 w-4 mr-2" />
-                  Notes
-                </Button>
-                <Button
-                  variant={selectedType === "article" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSelectedType("article")}
-                >
-                  <FileText className="h-4 w-4 mr-2" />
-                  Articles
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Search and filter moved to navbar */}
 
         {/* Posts */}
         <h2 className="text-2xl font-bold mb-4">Latest Posts</h2>
         <div className="space-y-6">
-          {filteredPosts.length === 0 ? (
+          {posts.length === 0 ? (
             <Card className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
               <CardContent className="p-8 text-center">
-                <p className="text-slate-600 dark:text-slate-300">
-                  {posts.length === 0 ? "No posts found." : "No posts match your search criteria."}
-                </p>
+                <p className="text-slate-600 dark:text-slate-300">No posts found.</p>
               </CardContent>
             </Card>
           ) : (
-            filteredPosts.map((post) => (
+            posts.map((post) => (
               <Card
                 key={post.id}
                 className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"

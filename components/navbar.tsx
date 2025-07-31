@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { Menu, X } from "lucide-react"
+import SiteSearch from "./site-search"
 
 interface NavbarProps {
   siteName: string
@@ -27,24 +28,27 @@ export function Navbar({ siteName }: NavbarProps) {
         <Link href="/" className="font-bold">
           {siteName}
         </Link>
-        <div className="ml-auto hidden flex-wrap gap-4 text-sm md:flex">
-          {links.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="text-muted-foreground hover:text-foreground"
-            >
-              {link.name}
-            </Link>
-          ))}
+        <div className="ml-auto flex items-center gap-4">
+          <SiteSearch />
+          <div className="hidden flex-wrap gap-4 text-sm md:flex">
+            {links.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                {link.name}
+              </Link>
+            ))}
+          </div>
+          <button
+            className="md:hidden"
+            onClick={() => setOpen(true)}
+            aria-label="Open menu"
+          >
+            <Menu className="h-6 w-6" />
+          </button>
         </div>
-        <button
-          className="ml-auto md:hidden"
-          onClick={() => setOpen(true)}
-          aria-label="Open menu"
-        >
-          <Menu className="h-6 w-6" />
-        </button>
       </div>
       {open && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background">
