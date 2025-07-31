@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { Menu, X } from "lucide-react"
+import SearchBar from "@/components/search-bar"
 
 interface NavbarProps {
   siteName: string
@@ -27,6 +28,7 @@ export function Navbar({ siteName }: NavbarProps) {
         <Link href="/" className="font-bold">
           {siteName}
         </Link>
+        <SearchBar className="hidden flex-1 max-w-md sm:flex ml-4" />
         <div className="ml-auto hidden flex-wrap gap-4 text-sm md:flex">
           {links.map((link) => (
             <Link
@@ -56,6 +58,10 @@ export function Navbar({ siteName }: NavbarProps) {
             <X className="h-6 w-6" />
           </button>
           <div className="flex flex-col items-center gap-8 text-lg">
+            <SearchBar
+              className="w-3/4"
+              onSearch={() => setOpen(false)}
+            />
             {links.map((link) => (
               <Link
                 key={link.href}
