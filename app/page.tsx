@@ -4,11 +4,10 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Search, FileText, MessageSquare, Calendar, ExternalLink, RefreshCw } from "lucide-react"
+import { FileText, MessageSquare, Calendar, ExternalLink, RefreshCw } from "lucide-react"
 import { fetchNostrProfile, fetchNostrPosts } from "@/lib/nostr"
 import { getNostrSettings } from "@/lib/nostr-settings"
 import Link from "next/link"
@@ -235,48 +234,6 @@ export default function HomePage() {
             </CardContent>
           </Card>
         )}
-
-        {/* Search and Filter */}
-        <Card className="mb-6 border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
-          <CardContent className="p-6">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
-                <Input
-                  placeholder="Search posts..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 border-0 bg-slate-100 dark:bg-slate-700"
-                />
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  variant={selectedType === "all" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSelectedType("all")}
-                >
-                  All
-                </Button>
-                <Button
-                  variant={selectedType === "note" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSelectedType("note")}
-                >
-                  <MessageSquare className="h-4 w-4 mr-2" />
-                  Notes
-                </Button>
-                <Button
-                  variant={selectedType === "article" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSelectedType("article")}
-                >
-                  <FileText className="h-4 w-4 mr-2" />
-                  Articles
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Posts */}
         <h2 className="text-2xl font-bold mb-4">Latest Posts</h2>
