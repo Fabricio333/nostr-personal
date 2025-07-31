@@ -215,11 +215,6 @@ export default function HomePage() {
                         </a>
                       </Button>
                     )}
-                    {profile.nip05 && (
-                      <Badge variant="secondary" className="px-3 py-1">
-                        ✓ {profile.nip05}
-                      </Badge>
-                    )}
                   </div>
                 </div>
               </div>
