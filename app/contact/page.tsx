@@ -90,7 +90,7 @@ ${formData.message}`
               <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
               <h2 className="text-2xl font-bold mb-2 text-green-600 dark:text-green-400">Message Sent!</h2>
               <p className="text-slate-600 dark:text-slate-300 mb-6">
-                Your message has been successfully sent via Nostr. I'll get back to you as soon as possible.
+                  Your message has been successfully sent via Nostr. I’ll get back to you as soon as possible.
               </p>
               <Button onClick={() => setIsSubmitted(false)} variant="outline">
                 Send Another Message
@@ -112,7 +112,7 @@ ${formData.message}`
               Contact Me
             </CardTitle>
             <CardDescription className="text-lg">
-              Send me a message via Nostr. I'll receive it as an encrypted DM and get back to you soon!
+                Send me a message via Nostr. I’ll receive it as an encrypted DM and get back to you soon!
             </CardDescription>
           </CardHeader>
           <CardContent>
