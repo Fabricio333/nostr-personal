@@ -7,7 +7,7 @@ export default async function SearchPage({
   searchParams: { q?: string; source?: SearchSource }
 }) {
   const query = searchParams.q ?? ''
-  const source = (searchParams.source as SearchSource) ?? 'all'
+  const source = searchParams.source as SearchSource | undefined
   const results = await searchContent(query, source)
 
   return (
