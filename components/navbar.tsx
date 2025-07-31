@@ -5,6 +5,7 @@ import Link from "next/link"
 import { Menu, X } from "lucide-react"
 import Image from "next/image"
 import { SearchBar } from "@/components/search-bar"
+import { ModeToggle } from "@/components/mode-toggle"
 
 interface NavbarProps {
   siteName: string
@@ -41,6 +42,7 @@ export function Navbar({ siteName }: NavbarProps) {
             </Link>
           ))}
           <SearchBar />
+          <ModeToggle />
         </div>
         <button
           className="ml-auto md:hidden"
@@ -61,6 +63,7 @@ export function Navbar({ siteName }: NavbarProps) {
           </button>
           <div className="flex flex-col items-center gap-8 text-lg">
             <SearchBar />
+            <ModeToggle />
             {links.map((link) => (
               <Link
                 key={link.href}
