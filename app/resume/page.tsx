@@ -1,29 +1,20 @@
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { Button } from "@/components/ui/button"
-import { Download, Mail, Phone, MapPin, Linkedin, Github } from "lucide-react"
+import { MapPin, Linkedin, Github } from "lucide-react"
+import { getSiteName } from "@/lib/settings"
 
-export default function ResumePage() {
+export default async function ResumePage() {
+  const name = await getSiteName()
   return (
     <div className="container mx-auto px-4 py-8">
       <Card className="max-w-4xl mx-auto p-6">
         <CardHeader className="text-center">
-          <CardTitle className="text-4xl font-bold mb-2">Your Name</CardTitle>
+          <CardTitle className="text-4xl font-bold mb-2">{name}</CardTitle>
           <p className="text-lg text-muted-foreground">
             Finance Student | Economics &amp; Business Enthusiast
           </p>
           <div className="flex flex-wrap justify-center gap-4 mt-4 text-sm text-muted-foreground">
-            <div className="flex items-center gap-1">
-              <Mail className="h-4 w-4" />
-              <a href="mailto:you@example.com" className="hover:underline">
-                you@example.com
-              </a>
-            </div>
-            <div className="flex items-center gap-1">
-              <Phone className="h-4 w-4" />
-              <span>+00 000-000-0000</span>
-            </div>
             <div className="flex items-center gap-1">
               <MapPin className="h-4 w-4" />
               <span>Buenos Aires, Argentina</span>
@@ -31,7 +22,7 @@ export default function ResumePage() {
             <div className="flex items-center gap-1">
               <Linkedin className="h-4 w-4" />
               <a
-                href="https://linkedin.com/in/yourprofile"
+                href="https://linkedin.com/in/fabricio-acosta-ok"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:underline"
@@ -42,7 +33,7 @@ export default function ResumePage() {
             <div className="flex items-center gap-1">
               <Github className="h-4 w-4" />
               <a
-                href="https://github.com/yourusername"
+                href="https://github.com/Fabricio333"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:underline"
@@ -51,87 +42,89 @@ export default function ResumePage() {
               </a>
             </div>
           </div>
-          <Button className="mt-6" asChild>
-            <a href="/path/to/your/resume.pdf" download>
-              <Download className="mr-2 h-4 w-4" />
-              Download Resume
-            </a>
-          </Button>
         </CardHeader>
 
         <Separator className="my-8" />
 
         <CardContent className="space-y-8">
-          {/* Professional Profile */}
-          <div>
-            <h2 className="text-2xl font-bold mb-4">Professional Profile</h2>
-            <p className="text-muted-foreground">
-              Finance student passionate about economics and business. One of my strengths is my curiosity, which has
-              allowed me to learn and understand various topics over the past few years, from hardware development to
-              programming trading bots, data analysis, and cybersecurity tool development. This enables me to find
-              holistic and creative solutions to any problem that arises. I enjoy continuous learning and working towards
-              long-term goals that create a societal impact.
-            </p>
-          </div>
+          <section className="grid gap-8 md:grid-cols-2">
+            {/* Professional Profile */}
+            <div>
+              <h2 className="text-2xl font-bold mb-4">Professional Profile</h2>
+              <p className="text-muted-foreground">
+                Finance student passionate about economics and business. One of my strengths is my curiosity, which has
+                allowed me to learn and understand various topics over the past few years, from hardware development to
+                programming trading bots, data analysis, and cybersecurity tool development. This enables me to find
+                holistic and creative solutions to any problem that arises. I enjoy continuous learning and working towards
+                long-term goals that create a societal impact.
+              </p>
+            </div>
 
-          {/* Skills */}
-          <div>
-            <h2 className="text-2xl font-bold mb-4">Skills</h2>
-            <div className="space-y-4">
-              <div>
-                <h3 className="text-xl font-semibold mb-2">Tech skills</h3>
-                <div className="flex flex-wrap gap-2">
-                  <Badge variant="default">Cryptographic Tools</Badge>
-                  <Badge variant="default">Python</Badge>
-                  <Badge variant="default">JavaScript</Badge>
-                  <Badge variant="default">Local AI Models</Badge>
+            {/* Skills */}
+            <div>
+              <h2 className="text-2xl font-bold mb-4">Skills</h2>
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-xl font-semibold mb-2">Tech skills</h3>
+                  <div className="flex flex-wrap gap-2">
+                    <Badge variant="default">Cryptographic Tools</Badge>
+                    <Badge variant="default">Python</Badge>
+                    <Badge variant="default">JavaScript</Badge>
+                    <Badge variant="default">Local AI Models</Badge>
+                  </div>
                 </div>
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold mb-2">Soft skills</h3>
-                <div className="flex flex-wrap gap-2">
-                  <Badge variant="default">Problem-solving</Badge>
-                  <Badge variant="default">Effective Communication</Badge>
-                  <Badge variant="default">Teamwork</Badge>
-                  <Badge variant="default">Continuous Learning &amp; Adaptability</Badge>
-                  <Badge variant="default">Attention to Detail</Badge>
+                <div>
+                  <h3 className="text-xl font-semibold mb-2">Soft skills</h3>
+                  <div className="flex flex-wrap gap-2">
+                    <Badge variant="default">Problem-solving</Badge>
+                    <Badge variant="default">Effective Communication</Badge>
+                    <Badge variant="default">Teamwork</Badge>
+                    <Badge variant="default">Continuous Learning &amp; Adaptability</Badge>
+                    <Badge variant="default">Attention to Detail</Badge>
+                  </div>
                 </div>
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold mb-2">Languages</h3>
-                <div className="flex flex-wrap gap-2">
-                  <Badge variant="default">Spanish (Native)</Badge>
-                  <Badge variant="default">English (Bilingual)</Badge>
+                <div>
+                  <h3 className="text-xl font-semibold mb-2">Languages</h3>
+                  <div className="flex flex-wrap gap-2">
+                    <Badge variant="default">Spanish (Native)</Badge>
+                    <Badge variant="default">English (Bilingual)</Badge>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          </section>
 
-          {/* Education */}
-          <div>
-            <h2 className="text-2xl font-bold mb-4">Education</h2>
-            <div className="space-y-4">
-              <div>
-                <h3 className="text-xl font-semibold">Bachelor’s Degree in Finance</h3>
-                <p className="text-muted-foreground">
-                  Universidad Argentina de la Empresa (UADE), Buenos Aires (2023 - Present)
-                </p>
-                <p className="text-muted-foreground">Second Year – 19/40 Courses Completed</p>
+          <Separator />
+
+          <section className="grid gap-8 md:grid-cols-2">
+            {/* Education */}
+            <div>
+              <h2 className="text-2xl font-bold mb-4">Education</h2>
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-xl font-semibold">Bachelor’s Degree in Finance</h3>
+                  <p className="text-muted-foreground">
+                    Universidad Argentina de la Empresa (UADE), Buenos Aires (2023 - Present)
+                  </p>
+                  <p className="text-muted-foreground">Second Year – 19/40 Courses Completed</p>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Courses & Certifications */}
-          <div>
-            <h2 className="text-2xl font-bold mb-4">Courses &amp; Certifications</h2>
-            <div className="space-y-2 text-muted-foreground">
-              <p>English, White Castle (2021–2023)</p>
-              <p>Python For Everybody, Coursera (2021)</p>
+            {/* Courses & Certifications */}
+            <div>
+              <h2 className="text-2xl font-bold mb-4">Courses &amp; Certifications</h2>
+              <div className="space-y-2 text-muted-foreground">
+                <p>English, White Castle (2021–2023)</p>
+                <p>Python For Everybody, Coursera (2021)</p>
+              </div>
             </div>
-          </div>
+          </section>
+
+          <Separator />
 
           {/* Professional Experience */}
-          <div>
+          <section>
             <h2 className="text-2xl font-bold mb-4">Professional Experience</h2>
             <div className="space-y-6">
               <div>
@@ -171,10 +164,12 @@ export default function ResumePage() {
                 </ul>
               </div>
             </div>
-          </div>
+          </section>
+
+          <Separator />
 
           {/* Notable Projects */}
-          <div>
+          <section>
             <h2 className="text-2xl font-bold mb-4">Notable Projects</h2>
             <div className="space-y-6">
               <div>
@@ -230,9 +225,10 @@ export default function ResumePage() {
                 </p>
               </div>
             </div>
-          </div>
+          </section>
         </CardContent>
       </Card>
     </div>
   )
 }
+
