@@ -2,11 +2,19 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { ModeToggle } from "@/components/mode-toggle"
-import { Menu, Home, FileText, User, Coffee, Mail, Leaf } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Menu, Home, FileText, User, Coffee, Mail, Leaf, Search } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { getSettings } from "@/lib/settings"
 import { getNostrSettings } from "@/lib/nostr-settings"
@@ -26,6 +34,9 @@ export function Navigation() {
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
   const [firstName, setFirstName] = useState(() => getSettings().siteName)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [searchType, setSearchType] = useState("all")
+  const router = useRouter()
 
   useEffect(() => {
     const settings = getNostrSettings()
@@ -40,6 +51,13 @@ export function Navigation() {
       }
     })
   }, [])
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!searchQuery.trim()) return
+    router.push(`/search?q=${encodeURIComponent(searchQuery)}&type=${searchType}`)
+    setSearchQuery("")
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -104,6 +122,29 @@ export function Navigation() {
               <span className="font-bold">{firstName}</span>
             </Link>
           </div>
+          <form onSubmit={handleSearch} className="flex flex-1 items-center gap-2">
+            <Select value={searchType} onValueChange={setSearchType}>
+              <SelectTrigger className="w-[110px]">
+                <SelectValue placeholder="All" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="nostr">Nostr</SelectItem>
+                <SelectItem value="articles">Articles</SelectItem>
+                <SelectItem value="garden">Garden</SelectItem>
+              </SelectContent>
+            </Select>
+            <div className="relative flex-1">
+              <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Search..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-8"
+              />
+            </div>
+          </form>
           <nav className="flex items-center space-x-2">
             <ModeToggle />
           </nav>
