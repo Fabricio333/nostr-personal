@@ -15,7 +15,7 @@ import { fetchNostrProfile } from "@/lib/nostr"
 const navigation = [
   { name: "Home", href: "/", icon: Home },
   { name: "Blog", href: "/blog", icon: FileText },
-  { name: "Portfolio", href: "/portfolio", icon: User },
+  { name: "Projects", href: "/projects", icon: User },
   { name: "Resume", href: "/resume", icon: FileText },
   { name: "Lifestyle", href: "/lifestyle", icon: Coffee },
   { name: "Garden", href: "/digital-garden", icon: Leaf },
