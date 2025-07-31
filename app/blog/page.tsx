@@ -4,10 +4,9 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Search, FileText, MessageSquare, Calendar, RefreshCw } from "lucide-react"
+import { FileText, MessageSquare, Calendar, RefreshCw } from "lucide-react"
 import { fetchNostrPosts } from "@/lib/nostr"
 import { getNostrSettings } from "@/lib/nostr-settings"
 import Link from "next/link"
@@ -44,7 +43,6 @@ export default function BlogPage() {
   const [filteredPosts, setFilteredPosts] = useState<NostrPost[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [searchTerm, setSearchTerm] = useState("")
   const [selectedType, setSelectedType] = useState<"all" | "note" | "article">("all")
 
   const loadPosts = async () => {
@@ -81,19 +79,8 @@ export default function BlogPage() {
       filtered = filtered.filter((post) => post.type === selectedType)
     }
 
-    // Filter by search term
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase()
-      filtered = filtered.filter(
-        (post) =>
-          post.content.toLowerCase().includes(term) ||
-          post.title?.toLowerCase().includes(term) ||
-          post.summary?.toLowerCase().includes(term),
-      )
-    }
-
     setFilteredPosts(filtered)
-  }, [posts, searchTerm, selectedType])
+  }, [posts, selectedType])
 
   const formatDate = (timestamp: number) => {
     return new Date(timestamp * 1000).toLocaleDateString("en-US", {
@@ -181,44 +168,33 @@ export default function BlogPage() {
           <p className="text-slate-600 dark:text-slate-300">All my thoughts, articles, and notes from Nostr</p>
         </div>
 
-        {/* Search and Filter */}
+        {/* Filter */}
         <Card className="mb-6 border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
           <CardContent className="p-6">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
-                <Input
-                  placeholder="Search posts..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 border-0 bg-slate-100 dark:bg-slate-700"
-                />
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  variant={selectedType === "all" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSelectedType("all")}
-                >
-                  All ({posts.length})
-                </Button>
-                <Button
-                  variant={selectedType === "note" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSelectedType("note")}
-                >
-                  <MessageSquare className="h-4 w-4 mr-2" />
-                  Notes ({posts.filter((p) => p.type === "note").length})
-                </Button>
-                <Button
-                  variant={selectedType === "article" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSelectedType("article")}
-                >
-                  <FileText className="h-4 w-4 mr-2" />
-                  Articles ({posts.filter((p) => p.type === "article").length})
-                </Button>
-              </div>
+            <div className="flex gap-2">
+              <Button
+                variant={selectedType === "all" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setSelectedType("all")}
+              >
+                All ({posts.length})
+              </Button>
+              <Button
+                variant={selectedType === "note" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setSelectedType("note")}
+              >
+                <MessageSquare className="h-4 w-4 mr-2" />
+                Notes ({posts.filter((p) => p.type === "note").length})
+              </Button>
+              <Button
+                variant={selectedType === "article" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setSelectedType("article")}
+              >
+                <FileText className="h-4 w-4 mr-2" />
+                Articles ({posts.filter((p) => p.type === "article").length})
+              </Button>
             </div>
           </CardContent>
         </Card>

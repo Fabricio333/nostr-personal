@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { Menu, X } from "lucide-react"
+import { SearchBar } from "./search-bar"
 
 interface NavbarProps {
   siteName: string
@@ -27,7 +28,7 @@ export function Navbar({ siteName }: NavbarProps) {
         <Link href="/" className="font-bold">
           {siteName}
         </Link>
-        <div className="ml-auto hidden flex-wrap gap-4 text-sm md:flex">
+        <div className="ml-auto hidden flex-1 items-center gap-4 text-sm md:flex">
           {links.map((link) => (
             <Link
               key={link.href}
@@ -37,9 +38,11 @@ export function Navbar({ siteName }: NavbarProps) {
               {link.name}
             </Link>
           ))}
+          <SearchBar className="ml-auto" />
         </div>
+        <SearchBar className="ml-auto flex-1 md:hidden" />
         <button
-          className="ml-auto md:hidden"
+          className="ml-2 md:hidden"
           onClick={() => setOpen(true)}
           aria-label="Open menu"
         >
@@ -47,7 +50,7 @@ export function Navbar({ siteName }: NavbarProps) {
         </button>
       </div>
       {open && (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background">
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background p-4">
           <button
             className="absolute right-4 top-4"
             onClick={() => setOpen(false)}
@@ -55,6 +58,7 @@ export function Navbar({ siteName }: NavbarProps) {
           >
             <X className="h-6 w-6" />
           </button>
+          <SearchBar className="mb-8 w-full max-w-xs" />
           <div className="flex flex-col items-center gap-8 text-lg">
             {links.map((link) => (
               <Link

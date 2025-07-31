@@ -13,7 +13,7 @@ const DEFAULT_RELAYS = [
 const cache = new Map<string, any>()
 const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
 
-interface NostrProfile {
+export interface NostrProfile {
   name?: string
   display_name?: string
   about?: string
@@ -24,7 +24,7 @@ interface NostrProfile {
   website?: string
 }
 
-interface NostrPost {
+export interface NostrPost {
   id: string
   pubkey: string
   created_at: number
