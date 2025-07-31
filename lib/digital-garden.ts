@@ -10,7 +10,13 @@ export interface DigitalGardenNote {
   content: string
 }
 
+export interface GardenGraph {
+  nodes: { id: string; title: string }[]
+  links: { source: string; target: string }[]
+}
+
 const notesDir = path.join(process.cwd(), 'digital-garden')
+const wikilinkRegex = /\[\[([^\]]+)\]\]/g
 
 export async function getAllNotes(): Promise<DigitalGardenNote[]> {
   const files = await fs.readdir(notesDir)
@@ -51,4 +57,33 @@ export async function getNote(
   } catch {
     return null
   }
+}
+
+function slugify(text: string) {
+  return text
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9\-]/g, '')
+}
+
+export function buildGraph(notes: DigitalGardenNote[]): GardenGraph {
+  const nodes = notes.map((n) => ({ id: n.slug, title: n.title }))
+  const slugs = new Set(notes.map((n) => n.slug))
+  const links: { source: string; target: string }[] = []
+  const seen = new Set<string>()
+  for (const note of notes) {
+    const matches = note.content.matchAll(wikilinkRegex)
+    for (const match of matches) {
+      const target = slugify(match[1])
+      if (slugs.has(target)) {
+        const key = `${note.slug}->${target}`
+        if (!seen.has(key)) {
+          seen.add(key)
+          links.push({ source: note.slug, target })
+        }
+      }
+    }
+  }
+  return { nodes, links }
 }

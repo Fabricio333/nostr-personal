@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { getAllNotes } from '@/lib/digital-garden'
+import { getAllNotes, buildGraph } from '@/lib/digital-garden'
 import { getSiteName } from '@/lib/settings'
 import {
   Card,
@@ -8,6 +8,7 @@ import {
   CardContent,
 } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import GardenGraph from '@/components/garden-graph'
 
 export default async function DigitalGardenPage({
   searchParams,
@@ -15,6 +16,7 @@ export default async function DigitalGardenPage({
   searchParams: { tag?: string }
 }) {
   const [notes, siteName] = await Promise.all([getAllNotes(), getSiteName()])
+  const graph = buildGraph(notes)
   const allTags = Array.from(new Set(notes.flatMap((n) => n.tags))).sort()
   const activeTag = searchParams.tag
   const filteredNotes = activeTag
@@ -67,6 +69,9 @@ export default async function DigitalGardenPage({
             </Card>
           </Link>
         ))}
+      </div>
+      <div className="mt-16">
+        <GardenGraph data={graph} />
       </div>
     </div>
   )
