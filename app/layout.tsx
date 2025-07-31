@@ -50,9 +50,11 @@ export default async function RootLayout({
   const siteName = await getSiteName()
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} w-full`}>
+      <body className={`${inter.className} w-full overflow-x-hidden`}>
         <Navbar siteName={siteName} />
-        {children}
+        <main className="w-full max-w-screen-md mx-auto px-4">
+          {children}
+        </main>
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-G8586BX397"
           strategy="afterInteractive"
