@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { Menu, X } from "lucide-react"
+import Image from "next/image"
 import { SearchBar } from "@/components/search-bar"
 
 interface NavbarProps {
@@ -24,9 +25,10 @@ export function Navbar({ siteName }: NavbarProps) {
 
   return (
     <nav className="border-b bg-background">
-      <div className="container flex items-center gap-4 py-4">
-        <Link href="/" className="font-bold">
-          {siteName}
+      <div className="container flex items-center gap-4 px-4 py-4">
+        <Link href="/" className="flex items-center gap-2 font-bold text-xl">
+          <Image src="/icon.svg" alt="" width={24} height={24} />
+          <span>{siteName}</span>
         </Link>
         <div className="ml-auto hidden items-center gap-4 text-sm md:flex">
           {links.map((link) => (
