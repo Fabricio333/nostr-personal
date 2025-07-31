@@ -31,34 +31,34 @@ export default function ProjectsPage() {
   ]
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold mb-8 text-center">Projects</h1>
-      <p className="text-xl text-muted-foreground text-center mb-12">
+    <div className="container mx-auto px-4 py-4">
+      <h1 className="text-3xl font-bold mb-4 text-center">Projects</h1>
+      <p className="text-lg text-muted-foreground text-center mb-6">
         A collection of my work, showcasing various technologies and problem-solving approaches.
       </p>
 
-      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {projects.map((project) => (
           <Card key={project.id} className="hover:shadow-lg transition-shadow">
-            <CardHeader>
+            <CardHeader className="p-4">
               <Link href={project.link}>
                 <Image
                   src={project.image || "/placeholder.png"}
                   alt={project.title}
-                  width={400}
-                  height={400}
-                  className="w-full aspect-square object-cover rounded-md mb-4"
+                  width={256}
+                  height={256}
+                  className="w-full aspect-square object-cover rounded-md mb-2"
                 />
               </Link>
-              <CardTitle className="text-2xl mb-2">{project.title}</CardTitle>
-              <CardDescription className="mb-4">
+              <CardTitle className="text-xl mb-1">{project.title}</CardTitle>
+              <CardDescription className="mb-2">
                 <Link href={project.link} className="hover:underline">
                   {project.shortDescription}
                 </Link>
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-2 mb-4">
+            <CardContent className="p-4 pt-0">
+              <div className="flex flex-wrap gap-2 mb-2">
                 {project.tags.map((tag) => (
                   <Badge key={tag} variant="secondary">
                     {tag}
