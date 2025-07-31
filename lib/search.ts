@@ -4,7 +4,7 @@ import matter from 'gray-matter'
 import { fetchNostrPosts } from '@/lib/nostr'
 import { getNostrSettings } from '@/lib/nostr-settings'
 
-export type SearchSource = 'all' | 'nostr' | 'article' | 'garden'
+export type SearchSource = 'nostr' | 'article' | 'garden'
 
 export interface SearchResult {
   type: SearchSource
@@ -13,21 +13,21 @@ export interface SearchResult {
   snippet: string
 }
 
-export async function searchContent(query: string, source: SearchSource = 'all'): Promise<SearchResult[]> {
+export async function searchContent(query: string, source?: SearchSource): Promise<SearchResult[]> {
   const q = query.toLowerCase()
   const results: SearchResult[] = []
 
   const settings = getNostrSettings()
 
-  const includeNostr = source === 'all' || source === 'nostr' || source === 'article'
-  const includeGarden = source === 'all' || source === 'garden'
+  const includeNostr = !source || source === 'nostr' || source === 'article'
+  const includeGarden = !source || source === 'garden'
 
   if (includeNostr && settings.ownerNpub) {
     try {
       const posts = await fetchNostrPosts(settings.ownerNpub, settings.maxPosts)
       for (const post of posts) {
         const postType: SearchSource = post.type === 'article' ? 'article' : 'nostr'
-        if (source !== 'all' && source !== postType) continue
+        if (source && source !== postType) continue
         const text = `${post.title ?? ''} ${post.summary ?? ''} ${post.content}`.toLowerCase()
         if (!q || text.includes(q)) {
           results.push({

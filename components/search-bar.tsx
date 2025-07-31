@@ -8,7 +8,7 @@ import { Search } from "lucide-react"
 
 export function SearchBar() {
   const [term, setTerm] = useState("")
-  const [source, setSource] = useState("all")
+  const [source, setSource] = useState("nostr")
   const router = useRouter()
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -32,10 +32,9 @@ export function SearchBar() {
       </div>
       <Select value={source} onValueChange={setSource}>
         <SelectTrigger className="w-[110px]">
-          <SelectValue placeholder="All" />
+          <SelectValue placeholder="Nostr" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">All</SelectItem>
           <SelectItem value="nostr">Nostr</SelectItem>
           <SelectItem value="article">Articles</SelectItem>
           <SelectItem value="garden">Garden</SelectItem>

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { FileText, MessageSquare, Calendar, ExternalLink, RefreshCw } from "lucide-react"
+import { FileText, MessageSquare, Calendar, ExternalLink, RefreshCw, Leaf } from "lucide-react"
 import { fetchNostrProfile, fetchNostrPosts } from "@/lib/nostr"
 import { getNostrSettings } from "@/lib/nostr-settings"
 import Link from "next/link"
@@ -39,14 +39,24 @@ interface NostrPost {
   published_at?: number
 }
 
+interface Post {
+  id: string
+  content: string
+  title?: string
+  summary?: string
+  published_at?: number
+  created_at: number
+  type: "nostr" | "article" | "garden"
+}
+
 export default function HomePage() {
   const [profile, setProfile] = useState<NostrProfile | null>(null)
-  const [posts, setPosts] = useState<NostrPost[]>([])
-  const [filteredPosts, setFilteredPosts] = useState<NostrPost[]>([])
+  const [posts, setPosts] = useState<Post[]>([])
+  const [filteredPosts, setFilteredPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
-  const [selectedType, setSelectedType] = useState<"all" | "note" | "article">("all")
+  const [selectedType, setSelectedType] = useState<"" | "nostr" | "article" | "garden">("")
 
   const loadData = async () => {
     try {
@@ -59,15 +69,44 @@ export default function HomePage() {
         return
       }
 
-      // Fetch profile and posts
-      const [profileData, postsData] = await Promise.all([
+      // Fetch profile, nostr posts, and garden notes
+      const [profileData, nostrData, gardenData] = await Promise.all([
         fetchNostrProfile(settings.ownerNpub),
         fetchNostrPosts(settings.ownerNpub, settings.maxPosts),
+        fetch("/api/digital-garden").then((res) => res.json()),
       ])
 
+      const nostrPosts: Post[] = nostrData.map((p: NostrPost) => ({
+        id: p.id,
+        content: p.content,
+        title: p.title,
+        summary: p.summary,
+        published_at: p.published_at,
+        created_at: p.created_at,
+        type: p.type === "note" ? "nostr" : "article",
+      }))
+
+      const gardenPosts: Post[] = gardenData.map((n: any) => {
+        const ts = n.date ? Math.floor(new Date(n.date).getTime() / 1000) : 0
+        return {
+          id: n.slug,
+          content: n.content,
+          title: n.title,
+          created_at: ts,
+          published_at: ts,
+          type: "garden",
+        }
+      })
+
+      const combined = [...nostrPosts, ...gardenPosts].sort((a, b) => {
+        const aDate = a.published_at ?? a.created_at
+        const bDate = b.published_at ?? b.created_at
+        return bDate - aDate
+      })
+
       setProfile(profileData)
-      setPosts(postsData)
-      setFilteredPosts(postsData)
+      setPosts(combined)
+      setFilteredPosts(combined)
     } catch (err) {
       console.error("Error loading data:", err)
       setError("Failed to load data. Please try again.")
@@ -84,7 +123,7 @@ export default function HomePage() {
     let filtered = posts
 
     // Filter by type
-    if (selectedType !== "all") {
+    if (selectedType) {
       filtered = filtered.filter((post) => post.type === selectedType)
     }
 
@@ -224,6 +263,18 @@ export default function HomePage() {
 
         {/* Posts */}
         <h2 className="text-2xl font-bold mb-4">Latest Posts</h2>
+        <div className="flex gap-2 mb-4">
+          {["nostr", "article", "garden"].map((type) => (
+            <Button
+              key={type}
+              variant={selectedType === type ? "default" : "outline"}
+              size="sm"
+              onClick={() => setSelectedType(selectedType === type ? "" : (type as "nostr" | "article" | "garden"))}
+            >
+              {type === "nostr" ? "Nostr" : type === "article" ? "Articles" : "Garden"}
+            </Button>
+          ))}
+        </div>
         <div className="space-y-6">
           {filteredPosts.length === 0 ? (
             <Card className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
@@ -247,10 +298,15 @@ export default function HomePage() {
                           <FileText className="h-3 w-3 mr-1" />
                           Article
                         </>
+                      ) : post.type === "garden" ? (
+                        <>
+                          <Leaf className="h-3 w-3 mr-1" />
+                          Garden
+                        </>
                       ) : (
                         <>
                           <MessageSquare className="h-3 w-3 mr-1" />
-                          Note
+                          Nostr
                         </>
                       )}
                     </Badge>
@@ -278,7 +334,9 @@ export default function HomePage() {
                   </div>
                   <div className="mt-4 flex justify-between items-center">
                     <Button variant="outline" size="sm" asChild>
-                      <Link href={`/blog/${post.id}`}>Read More</Link>
+                      <Link href={post.type === "garden" ? `/digital-garden/${post.id}` : `/blog/${post.id}`}>
+                        Read More
+                      </Link>
                     </Button>
                   </div>
                 </CardContent>
