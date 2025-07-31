@@ -119,9 +119,9 @@ export default function HomePage() {
     })
   }
 
-  const truncateContent = (content: string, maxLength = 200) => {
+  const truncateContent = (content: string, maxLength = 300) => {
     if (content.length <= maxLength) return content
-    return content.substring(0, maxLength) + "..."
+    return content.slice(0, maxLength) + "…"
   }
 
   if (loading) {
@@ -327,8 +327,8 @@ export default function HomePage() {
                   )}
                 </CardHeader>
                 <CardContent>
-                  <div className="prose prose-slate dark:prose-invert max-w-none">
-                    <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
+                  <div className="prose prose-slate dark:prose-invert max-w-none w-full">
+                    <p className="text-slate-700 dark:text-slate-300 leading-relaxed break-words overflow-hidden line-clamp-3">
                       {truncateContent(post.content)}
                     </p>
                   </div>
