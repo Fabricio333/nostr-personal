@@ -22,9 +22,17 @@ export default async function DigitalGardenPage({
     : notes
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="mb-8 text-center text-4xl font-bold">
+      <h1 className="mb-4 text-center text-4xl font-bold">
         {siteName}&apos;s Garden
       </h1>
+      <div className="mb-8 text-center">
+        <Link
+          href="/digital-garden/graph"
+          className="text-blue-600 hover:underline"
+        >
+          View Graph
+        </Link>
+      </div>
       {allTags.length > 0 && (
         <div className="mb-8 flex flex-wrap justify-center gap-2">
           <Link href="/digital-garden">
