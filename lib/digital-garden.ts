@@ -5,6 +5,7 @@ import matter from 'gray-matter'
 export interface DigitalGardenNote {
   slug: string
   title: string
+  tags: string[]
 }
 
 const notesDir = path.join(process.cwd(), 'digital-garden')
@@ -17,17 +18,33 @@ export async function getAllNotes(): Promise<DigitalGardenNote[]> {
     const slug = file.replace(/\.md$/, '')
     const content = await fs.readFile(path.join(notesDir, file), 'utf8')
     const { data } = matter(content)
-    notes.push({ slug, title: (data as any).title || slug })
+    const title = (data as any).title || slug
+    const rawTags = (data as any).tags
+    const tags = Array.isArray(rawTags)
+      ? rawTags.map(String)
+      : rawTags
+      ? [String(rawTags)]
+      : []
+    notes.push({ slug, title, tags })
   }
   return notes
 }
 
-export async function getNote(slug: string): Promise<{ title: string; content: string } | null> {
+export async function getNote(
+  slug: string
+): Promise<{ title: string; tags: string[]; content: string } | null> {
   const filePath = path.join(notesDir, `${slug}.md`)
   try {
     const content = await fs.readFile(filePath, 'utf8')
     const { data, content: body } = matter(content)
-    return { title: (data as any).title || slug, content: body }
+    const title = (data as any).title || slug
+    const rawTags = (data as any).tags
+    const tags = Array.isArray(rawTags)
+      ? rawTags.map(String)
+      : rawTags
+      ? [String(rawTags)]
+      : []
+    return { title, tags, content: body }
   } catch {
     return null
   }
