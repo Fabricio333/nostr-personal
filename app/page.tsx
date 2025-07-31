@@ -119,9 +119,8 @@ export default function HomePage() {
     })
   }
 
-  const truncateContent = (content: string, maxLength = 200) => {
-    if (content.length <= maxLength) return content
-    return content.substring(0, maxLength) + "..."
+  const truncateContent = (content: string, maxLength = 300) => {
+    return content.length > maxLength ? content.slice(0, maxLength) + "\u2026" : content
   }
 
   if (loading) {
@@ -316,7 +315,7 @@ export default function HomePage() {
                     </div>
                   </div>
                   {post.title && (
-                    <CardTitle className="text-xl bg-gradient-to-r from-slate-900 to-slate-600 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
+                    <CardTitle className="break-words text-xl bg-gradient-to-r from-slate-900 to-slate-600 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
                       {post.title}
                     </CardTitle>
                   )}
@@ -328,7 +327,7 @@ export default function HomePage() {
                 </CardHeader>
                 <CardContent>
                   <div className="prose prose-slate dark:prose-invert max-w-none">
-                    <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
+                    <p className="break-words overflow-hidden text-slate-700 dark:text-slate-300 leading-relaxed">
                       {truncateContent(post.content)}
                     </p>
                   </div>

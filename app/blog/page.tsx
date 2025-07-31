@@ -104,8 +104,7 @@ export default function BlogPage() {
   }
 
   const truncateContent = (content: string, maxLength = 300) => {
-    if (content.length <= maxLength) return content
-    return content.substring(0, maxLength) + "..."
+    return content.length > maxLength ? content.slice(0, maxLength) + "\u2026" : content
   }
 
   if (loading) {
@@ -262,11 +261,11 @@ export default function BlogPage() {
                     </div>
                   </div>
                   {post.title ? (
-                    <CardTitle className="text-lg leading-tight bg-gradient-to-r from-slate-900 to-slate-600 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
+                    <CardTitle className="break-words text-lg leading-tight bg-gradient-to-r from-slate-900 to-slate-600 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
                       {post.title}
                     </CardTitle>
                   ) : (
-                    <CardTitle className="text-lg leading-tight bg-gradient-to-r from-slate-900 to-slate-600 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
+                    <CardTitle className="break-words text-lg leading-tight bg-gradient-to-r from-slate-900 to-slate-600 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
                       {truncateContent(post.content, 60)}
                     </CardTitle>
                   )}
@@ -276,8 +275,8 @@ export default function BlogPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="prose prose-sm prose-slate dark:prose-invert max-w-none">
-                    <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
-                      {truncateContent(post.content, 150)}
+                    <p className="break-words overflow-hidden text-slate-700 dark:text-slate-300 leading-relaxed">
+                      {truncateContent(post.content)}
                     </p>
                   </div>
                   <div className="mt-4">

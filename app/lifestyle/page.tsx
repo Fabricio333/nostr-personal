@@ -73,6 +73,10 @@ export default function LifestylePage() {
     loadPosts()
   }, [])
 
+  const truncateContent = (content: string, maxLength = 300) => {
+    return content.length > maxLength ? content.slice(0, maxLength) + "\u2026" : content
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-4xl font-bold mb-8 text-center">Lifestyle</h1>
@@ -105,10 +109,8 @@ export default function LifestylePage() {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <p>
-                      {post.content.length > 200
-                        ? post.content.slice(0, 200) + "..."
-                        : post.content}
+                    <p className="break-words overflow-hidden">
+                      {truncateContent(post.content)}
                     </p>
                   </CardContent>
                 </Card>
