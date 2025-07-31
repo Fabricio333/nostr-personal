@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { Menu, X } from "lucide-react"
+import SearchBar from "./search-bar"
 
 interface NavbarProps {
   siteName: string
@@ -27,6 +28,7 @@ export function Navbar({ siteName }: NavbarProps) {
         <Link href="/" className="font-bold">
           {siteName}
         </Link>
+        <SearchBar />
         <div className="ml-auto hidden flex-wrap gap-4 text-sm md:flex">
           {links.map((link) => (
             <Link
