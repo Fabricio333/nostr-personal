@@ -43,7 +43,28 @@ export default function ProjectsPage() {
       github: "https://github.com/fabricio333/WebWorkOutTimer",
       live: "https://fabricio333.github.io/WebWorkOutTimer/",
       emoji: "🏋️",
+      emojiClass: "text-7xl",
       link: "/projects/webworkouttimer",
+    },
+    {
+      id: "3",
+      title: "Password Manager v2",
+      shortDescription:
+        "Deterministic password vault with decentralized Nostr backup.",
+      description:
+        "Browser-based, offline-capable password manager using seed phrases and encrypted Nostr backups.",
+      responsibilities: [
+        "Generate deterministic passwords from BIP39 seed phrases and SHA-256 hashes.",
+        "Encrypt optional Nostr backups via nip04 and kind:1 events.",
+        "Protect local sessions with password-based AES stored in localStorage.",
+        "Provide a mobile-friendly, fully offline experience with no central servers.",
+      ],
+      tags: ["Security", "Nostr", "BIP39"],
+      github: "https://github.com/Fabricio333/PasswordManagerWeb",
+      live: "https://fabricio333.github.io/PasswordManagerWeb/",
+      emoji: "🔒",
+      emojiClass: "text-7xl",
+      link: "/projects/passwordmanagerweb",
     },
   ]
 
@@ -60,7 +81,9 @@ export default function ProjectsPage() {
             <CardHeader className="p-4">
               <Link href={project.link}>
                 {project.emoji ? (
-                  <div className="w-full aspect-square flex items-center justify-center rounded-md mb-2 text-6xl">
+                  <div
+                    className={`w-full aspect-square flex items-center justify-center rounded-md mb-2 ${project.emojiClass ?? "text-6xl"}`}
+                  >
                     {project.emoji}
                   </div>
                 ) : (
