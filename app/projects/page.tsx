@@ -3,12 +3,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Github, ExternalLink } from "lucide-react"
+import Image from "next/image"
+import Link from "next/link"
 
 export default function ProjectsPage() {
   const projects = [
     {
       id: "1",
       title: "WeAreBitcoin.org",
+      shortDescription:
+        "Bitcoin education platform focused on self-custody and sound money principles.",
       description:
         "Content Writer and Developer at WeAreBitcoin.org, a Bitcoin education platform focused on self-custody and sound money principles.",
       responsibilities: [
@@ -22,39 +26,39 @@ export default function ProjectsPage() {
       github: "https://github.com/we-are-bitcoin",
       live: "https://wearebitcoin.org",
       image: "/wab.png",
+      link: "/projects/wearebitcoin",
     },
   ]
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold mb-8 text-center">Projects</h1>
-      <p className="text-xl text-muted-foreground text-center mb-12">
+    <div className="container mx-auto px-4 py-4">
+      <h1 className="text-3xl font-bold mb-4 text-center">Projects</h1>
+      <p className="text-lg text-muted-foreground text-center mb-6">
         A collection of my work, showcasing various technologies and problem-solving approaches.
       </p>
 
-      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {projects.map((project) => (
           <Card key={project.id} className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <img
-                src={project.image || "/placeholder.png"}
-                alt={project.title}
-                className="w-full h-48 object-cover rounded-md mb-4"
-              />
-              <CardTitle className="text-2xl mb-2">{project.title}</CardTitle>
-              <CardDescription className="mb-4">
-                {project.description}
+            <CardHeader className="p-4">
+              <Link href={project.link}>
+                <Image
+                  src={project.image || "/placeholder.png"}
+                  alt={project.title}
+                  width={256}
+                  height={256}
+                  className="w-full aspect-square object-cover rounded-md mb-2"
+                />
+              </Link>
+              <CardTitle className="text-xl mb-1">{project.title}</CardTitle>
+              <CardDescription className="mb-2">
+                <Link href={project.link} className="hover:underline">
+                  {project.shortDescription}
+                </Link>
               </CardDescription>
-              {project.responsibilities && (
-                <ul className="list-disc list-inside text-sm text-muted-foreground">
-                  {project.responsibilities.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              )}
             </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-2 mb-4">
+            <CardContent className="p-4 pt-0">
+              <div className="flex flex-wrap gap-2 mb-2">
                 {project.tags.map((tag) => (
                   <Badge key={tag} variant="secondary">
                     {tag}
