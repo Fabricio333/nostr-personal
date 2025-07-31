@@ -6,18 +6,21 @@ export interface DigitalGardenNote {
   slug: string
   title: string
   tags: string[]
+  content?: string
 }
 
 const notesDir = path.join(process.cwd(), 'digital-garden')
 
-export async function getAllNotes(): Promise<DigitalGardenNote[]> {
+export async function getAllNotes(
+  includeContent = false,
+): Promise<DigitalGardenNote[]> {
   const files = await fs.readdir(notesDir)
   const notes: DigitalGardenNote[] = []
   for (const file of files) {
     if (!file.endsWith('.md')) continue
     const slug = file.replace(/\.md$/, '')
-    const content = await fs.readFile(path.join(notesDir, file), 'utf8')
-    const { data } = matter(content)
+    const fileContent = await fs.readFile(path.join(notesDir, file), 'utf8')
+    const { data, content } = matter(fileContent)
     const title = (data as any).title || slug
     const rawTags = (data as any).tags
     const tags = Array.isArray(rawTags)
@@ -25,7 +28,11 @@ export async function getAllNotes(): Promise<DigitalGardenNote[]> {
       : rawTags
       ? [String(rawTags)]
       : []
-    notes.push({ slug, title, tags })
+    const note: DigitalGardenNote = { slug, title, tags }
+    if (includeContent) {
+      note.content = content
+    }
+    notes.push(note)
   }
   return notes
 }

@@ -2,7 +2,16 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Menu, X } from "lucide-react"
+import { Menu, X, Search } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select"
 
 interface NavbarProps {
   siteName: string
@@ -20,6 +29,16 @@ const links = [
 
 export function Navbar({ siteName }: NavbarProps) {
   const [open, setOpen] = useState(false)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [filter, setFilter] = useState("all")
+  const router = useRouter()
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!searchTerm.trim()) return
+    router.push(`/search?q=${encodeURIComponent(searchTerm)}&filter=${filter}`)
+    setSearchTerm("")
+  }
 
   return (
     <nav className="border-b bg-background">
@@ -27,7 +46,7 @@ export function Navbar({ siteName }: NavbarProps) {
         <Link href="/" className="font-bold">
           {siteName}
         </Link>
-        <div className="ml-auto hidden flex-wrap gap-4 text-sm md:flex">
+        <div className="hidden flex-wrap gap-4 text-sm md:flex">
           {links.map((link) => (
             <Link
               key={link.href}
@@ -38,8 +57,31 @@ export function Navbar({ siteName }: NavbarProps) {
             </Link>
           ))}
         </div>
+        <form
+          onSubmit={handleSearch}
+          className="relative ml-auto hidden items-center md:flex"
+        >
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <Input
+            placeholder="Search..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-64 pl-8 pr-20 bg-slate-100 dark:bg-slate-700 border-0"
+          />
+          <Select value={filter} onValueChange={setFilter}>
+            <SelectTrigger className="absolute right-1 top-1/2 h-7 w-20 -translate-y-1/2 border-0 bg-transparent p-0 text-xs">
+              <SelectValue placeholder="All" />
+            </SelectTrigger>
+            <SelectContent align="end">
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="nostr">Nostr</SelectItem>
+              <SelectItem value="articles">Articles</SelectItem>
+              <SelectItem value="garden">Garden</SelectItem>
+            </SelectContent>
+          </Select>
+        </form>
         <button
-          className="ml-auto md:hidden"
+          className="ml-2 md:hidden"
           onClick={() => setOpen(true)}
           aria-label="Open menu"
         >
