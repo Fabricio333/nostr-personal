@@ -134,7 +134,7 @@ export default function HomePage() {
           </Card>
 
           {/* Posts skeleton */}
-          <div className="space-y-6">
+          <div className="space-y-6 max-w-2xl mx-auto">
             {[...Array(3)].map((_, i) => (
               <Card key={i} className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
                 <CardHeader>
@@ -224,7 +224,7 @@ export default function HomePage() {
 
         {/* Posts */}
         <h2 className="text-2xl font-bold mb-4">Latest Posts</h2>
-        <div className="space-y-6">
+        <div className="space-y-6 max-w-2xl mx-auto">
           {filteredPosts.length === 0 ? (
             <Card className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
               <CardContent className="p-8 text-center">

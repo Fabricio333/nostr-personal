@@ -119,7 +119,7 @@ export default function BlogPage() {
             <p className="text-slate-600 dark:text-slate-300">All my thoughts, articles, and notes from Nostr</p>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-6 max-w-2xl mx-auto">
             {[...Array(5)].map((_, i) => (
               <Card key={i} className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
                 <CardHeader>
@@ -224,7 +224,7 @@ export default function BlogPage() {
         </Card>
 
         {/* Posts Grid */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
           {filteredPosts.length === 0 ? (
             <div className="col-span-full">
               <Card className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">

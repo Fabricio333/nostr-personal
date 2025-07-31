@@ -86,7 +86,7 @@ export default function LifestylePage() {
         </TabsList>
 
         <TabsContent value="posts" className="mt-6">
-          <div className="space-y-4">
+          <div className="space-y-4 max-w-2xl mx-auto">
             {loadingPosts ? (
               <p className="text-center text-muted-foreground">Loading...</p>
             ) : posts.length === 0 ? (
