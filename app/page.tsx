@@ -47,7 +47,6 @@ export default function HomePage() {
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedType, setSelectedType] = useState<"all" | "note" | "article">("all")
-  const [notes, setNotes] = useState<{ slug: string; title: string }[]>([])
 
   const loadData = async () => {
     try {
@@ -79,13 +78,6 @@ export default function HomePage() {
 
   useEffect(() => {
     loadData()
-  }, [])
-
-  useEffect(() => {
-    fetch('/api/digital-garden')
-      .then((res) => res.json())
-      .then((data) => setNotes(data))
-      .catch((err) => console.error('Failed to load notes', err))
   }, [])
 
   useEffect(() => {
@@ -300,23 +292,6 @@ export default function HomePage() {
           )}
         </div>
 
-        {/* Digital Garden */}
-        <div className="mt-12">
-          <h2 className="text-2xl font-bold mb-4">Digital Garden</h2>
-          {notes.length === 0 ? (
-            <p className="text-slate-600 dark:text-slate-300">No notes found.</p>
-          ) : (
-            <ul className="list-disc pl-5 space-y-1">
-              {notes.map((note) => (
-                <li key={note.slug}>
-                  <Link href={`/digital-garden/${note.slug}`} className="text-blue-600 hover:underline">
-                    {note.title}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
       </div>
     </div>
   )
