@@ -3,7 +3,7 @@ export default function WebWorkOutTimerPage() {
     <div className="container mx-auto max-w-3xl px-4 py-8">
       <article className="prose dark:prose-invert">
         <h1>Web WorkOut Timer</h1>
-        <div className="w-full max-w-xs aspect-square flex items-center justify-center rounded-md mb-4 text-9xl">
+        <div className="w-full max-w-xs aspect-square flex items-center justify-center rounded-md mb-4 text-10xl">
           🏋️
         </div>
         <p>
