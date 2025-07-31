@@ -66,6 +66,15 @@
   body {
     @apply bg-background text-foreground;
   }
+  h1 {
+    @apply text-blue-600 dark:text-blue-400;
+  }
+  h2 {
+    @apply text-purple-600 dark:text-purple-400;
+  }
+  h3 {
+    @apply text-green-600 dark:text-green-400;
+  }
 }
 
 /* Custom styles for better typography and spacing */
@@ -83,15 +92,15 @@
 }
 
 .prose h1 {
-  @apply text-3xl mb-4 mt-8 text-slate-900 dark:text-slate-100;
+  @apply text-3xl mb-4 mt-8 text-blue-600 dark:text-blue-400;
 }
 
 .prose h2 {
-  @apply text-2xl mb-3 mt-6 text-slate-900 dark:text-slate-100;
+  @apply text-2xl mb-3 mt-6 text-purple-600 dark:text-purple-400;
 }
 
 .prose h3 {
-  @apply text-xl mb-2 mt-5 text-slate-900 dark:text-slate-100;
+  @apply text-xl mb-2 mt-5 text-green-600 dark:text-green-400;
 }
 
 .prose p {

@@ -3,7 +3,7 @@ import type { Metadata, Viewport } from "next"
 import { Inter } from "next/font/google"
 import Script from "next/script"
 import "./globals.css"
-// import { ThemeProvider } from "@/components/theme-provider"
+import { ThemeProvider } from "@/components/theme-provider"
 // import { Navigation } from "@/components/navigation"
 // import { Footer } from "@/components/footer"
 // import { Toaster } from "@/components/ui/toaster"
@@ -50,23 +50,25 @@ export default async function RootLayout({
   const siteName = await getSiteName()
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} w-full`}>
-        <Navbar siteName={siteName} />
-        {children}
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-G8586BX397"
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
+        <body className={`${inter.className} w-full`}>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+            <Navbar siteName={siteName} />
+            {children}
+          </ThemeProvider>
+          <Script
+            src="https://www.googletagmanager.com/gtag/js?id=G-G8586BX397"
+            strategy="afterInteractive"
+          />
+          <Script id="google-analytics" strategy="afterInteractive">
+            {`
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
 
-            gtag('config', 'G-G8586BX397');
-          `}
-        </Script>
-      </body>
+              gtag('config', 'G-G8586BX397');
+            `}
+          </Script>
+        </body>
     </html>
   )
 }
