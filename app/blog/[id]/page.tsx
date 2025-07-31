@@ -52,28 +52,32 @@ export default async function BlogPostPage({ params }: { params: { id: string } 
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div
-        className="prose dark:prose-invert max-w-none"
-        dangerouslySetInnerHTML={{ __html: renderedContent }}
-      />
+      <Card className="max-w-3xl mx-auto">
+        <CardContent className="pt-6">
+          <div
+            className="prose dark:prose-invert max-w-none"
+            dangerouslySetInnerHTML={{ __html: renderedContent }}
+          />
 
-      {tags.length > 0 && (
-        <div className="mt-4 flex flex-wrap gap-2">
-          {tags.map((tag) => (
-            <Badge key={tag} variant="outline">
-              #{tag}
-            </Badge>
-          ))}
-        </div>
-      )}
+          {tags.length > 0 && (
+            <div className="mt-4 flex flex-wrap justify-center gap-2">
+              {tags.map((tag) => (
+                <Badge key={tag} variant="outline">
+                  #{tag}
+                </Badge>
+              ))}
+            </div>
+          )}
 
-      <div className="mt-8">
-        <Button asChild>
-          <a href={njumpUrl} target="_blank" rel="noopener noreferrer">
-            Watch on your favorite Nostr clients
-          </a>
-        </Button>
-      </div>
+          <div className="mt-8 text-center">
+            <Button asChild variant="secondary">
+              <a href={njumpUrl} target="_blank" rel="noopener noreferrer">
+                View on Nostr (njump)
+              </a>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

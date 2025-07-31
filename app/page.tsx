@@ -136,7 +136,7 @@ export default function HomePage() {
           {/* Posts skeleton */}
           <div className="space-y-6">
             {[...Array(3)].map((_, i) => (
-              <Card key={i} className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
+              <Card key={i} className="max-w-2xl mx-auto border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <Skeleton className="h-6 w-24" />
@@ -226,7 +226,7 @@ export default function HomePage() {
         <h2 className="text-2xl font-bold mb-4">Latest Posts</h2>
         <div className="space-y-6">
           {filteredPosts.length === 0 ? (
-            <Card className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
+            <Card className="max-w-2xl mx-auto border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
               <CardContent className="p-8 text-center">
                 <p className="text-slate-600 dark:text-slate-300">
                   {posts.length === 0 ? "No posts found." : "No posts match your search criteria."}
@@ -237,7 +237,7 @@ export default function HomePage() {
             filteredPosts.map((post) => (
               <Card
                 key={post.id}
-                className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                className="max-w-2xl mx-auto border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
               >
                 <CardHeader>
                   <div className="flex items-center justify-between">

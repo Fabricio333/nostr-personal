@@ -121,7 +121,7 @@ export default function BlogPage() {
 
           <div className="space-y-6">
             {[...Array(5)].map((_, i) => (
-              <Card key={i} className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
+              <Card key={i} className="max-w-2xl mx-auto border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <Skeleton className="h-6 w-24" />
@@ -182,7 +182,7 @@ export default function BlogPage() {
         </div>
 
         {/* Search and Filter */}
-        <Card className="mb-6 border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
+        <Card className="max-w-2xl mx-auto mb-6 border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
           <CardContent className="p-6">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="relative flex-1">
@@ -227,7 +227,7 @@ export default function BlogPage() {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filteredPosts.length === 0 ? (
             <div className="col-span-full">
-              <Card className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
+              <Card className="max-w-2xl mx-auto border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
                 <CardContent className="p-8 text-center">
                   <p className="text-slate-600 dark:text-slate-300">
                     {posts.length === 0 ? "No posts found." : "No posts match your search criteria."}
@@ -239,7 +239,7 @@ export default function BlogPage() {
             filteredPosts.map((post) => (
               <Card
                 key={post.id}
-                className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                className="max-w-2xl mx-auto border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
               >
                 <CardHeader>
                   <div className="flex items-center justify-between mb-2">
