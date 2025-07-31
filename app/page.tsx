@@ -132,7 +132,7 @@ export default function HomePage() {
           <Card className="mb-8 border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
             <CardContent className="p-8">
               <div className="flex flex-col md:flex-row items-center md:items-center gap-8">
-                <Skeleton className="h-48 w-48 rounded-full" />
+                <Skeleton className="w-full max-w-xs mx-auto rounded-full aspect-square" />
                 <div className="flex-1 space-y-4 text-center md:text-left">
                   <Skeleton className="h-8 w-48 mx-auto md:mx-0" />
                   <Skeleton className="h-4 w-full max-w-md mx-auto md:mx-0" />
@@ -196,7 +196,7 @@ export default function HomePage() {
           <Card className="mb-8 border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:shadow-xl transition-all duration-300">
             <CardContent className="p-8">
               <div className="flex flex-col md:flex-row items-center md:items-center gap-8">
-                <Avatar className="h-48 w-48 border-4 border-white dark:border-slate-700 shadow-lg">
+                <Avatar className="w-full max-w-xs mx-auto md:mx-0 border-4 border-white dark:border-slate-700 shadow-lg aspect-square">
                   <AvatarImage
                     src={profile.picture || "/placeholder.svg"}
                     alt={profile.name || profile.display_name || "Profile"}
@@ -249,11 +249,12 @@ export default function HomePage() {
                   className="pl-10 border-0 bg-slate-100 dark:bg-slate-700"
                 />
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                 <Button
                   variant={selectedType === "all" ? "default" : "outline"}
                   size="sm"
                   onClick={() => setSelectedType("all")}
+                  className="w-full sm:w-auto"
                 >
                   All
                 </Button>
@@ -261,6 +262,7 @@ export default function HomePage() {
                   variant={selectedType === "note" ? "default" : "outline"}
                   size="sm"
                   onClick={() => setSelectedType("note")}
+                  className="w-full sm:w-auto"
                 >
                   <MessageSquare className="h-4 w-4 mr-2" />
                   Notes
@@ -269,6 +271,7 @@ export default function HomePage() {
                   variant={selectedType === "article" ? "default" : "outline"}
                   size="sm"
                   onClick={() => setSelectedType("article")}
+                  className="w-full sm:w-auto"
                 >
                   <FileText className="h-4 w-4 mr-2" />
                   Articles
