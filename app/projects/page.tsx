@@ -28,6 +28,23 @@ export default function ProjectsPage() {
       image: "/wab.png",
       link: "/projects/wearebitcoin",
     },
+    {
+      id: "2",
+      title: "Web WorkOut Timer",
+      shortDescription:
+        "Customizable web timer for managing workout and rest intervals.",
+      description:
+        "A simple browser-based timer that lets users configure exercise and break periods for workouts.",
+      responsibilities: [
+        "Designed intuitive controls for setting exercise and rest durations.",
+        "Implemented start, pause, and reset actions with audio alerts.",
+      ],
+      tags: ["JavaScript", "Fitness", "Timer"],
+      github: "https://github.com/fabricio333/WebWorkOutTimer",
+      live: "https://fabricio333.github.io/WebWorkOutTimer/",
+      emoji: "🏋️",
+      link: "/projects/webworkouttimer",
+    },
   ]
 
   return (
@@ -42,13 +59,19 @@ export default function ProjectsPage() {
           <Card key={project.id} className="hover:shadow-lg transition-shadow">
             <CardHeader className="p-4">
               <Link href={project.link}>
-                <Image
-                  src={project.image || "/placeholder.png"}
-                  alt={project.title}
-                  width={256}
-                  height={256}
-                  className="w-full aspect-square object-cover rounded-md mb-2"
-                />
+                {project.emoji ? (
+                  <div className="w-full aspect-square flex items-center justify-center rounded-md mb-2 text-6xl">
+                    {project.emoji}
+                  </div>
+                ) : (
+                  <Image
+                    src={project.image || "/placeholder.png"}
+                    alt={project.title}
+                    width={256}
+                    height={256}
+                    className="w-full aspect-square object-cover rounded-md mb-2"
+                  />
+                )}
               </Link>
               <CardTitle className="text-xl mb-1">{project.title}</CardTitle>
               <CardDescription className="mb-2">
