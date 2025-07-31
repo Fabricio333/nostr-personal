@@ -20,7 +20,7 @@ export default async function DigitalGardenNotePage({ params }: { params: { slug
   const html = marked.parse(content)
   return (
     <div className="container mx-auto max-w-3xl px-4 py-8">
-      <article className="prose dark:prose-invert">
+      <article className="prose dark:prose-invert [&_img]:h-auto [&_img]:w-16">
         <h1>{note.title}</h1>
         {note.tags.length > 0 && (
           <div className="mb-4 flex flex-wrap gap-2">

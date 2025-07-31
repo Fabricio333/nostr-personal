@@ -9,19 +9,46 @@ import {
 } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 
-export default async function DigitalGardenPage() {
-  const [notes, siteName] = await Promise.all([
-    getAllNotes(),
-    getSiteName(),
-  ])
+export default async function DigitalGardenPage({
+  searchParams,
+}: {
+  searchParams: { tag?: string }
+}) {
+  const [notes, siteName] = await Promise.all([getAllNotes(), getSiteName()])
+  const allTags = Array.from(new Set(notes.flatMap((n) => n.tags))).sort()
+  const activeTag = searchParams.tag
+  const filteredNotes = activeTag
+    ? notes.filter((n) => n.tags.includes(activeTag))
+    : notes
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="mb-8 text-center text-4xl font-bold">
         {siteName}&apos;s Garden
       </h1>
+      {allTags.length > 0 && (
+        <div className="mb-8 flex flex-wrap justify-center gap-2">
+          <Link href="/digital-garden">
+            <Badge variant={activeTag ? 'outline' : 'default'}>All</Badge>
+          </Link>
+          {allTags.map((tag) => (
+            <Link
+              key={tag}
+              href={{ pathname: '/digital-garden', query: { tag } }}
+            >
+              <Badge variant={activeTag === tag ? 'default' : 'outline'}>
+                {tag}
+              </Badge>
+            </Link>
+          ))}
+        </div>
+      )}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {notes.map((note) => (
-          <Link key={note.slug} href={`/digital-garden/${note.slug}`} className="block">
+        {filteredNotes.map((note) => (
+          <Link
+            key={note.slug}
+            href={`/digital-garden/${note.slug}`}
+            className="block"
+          >
             <Card className="h-full transition-colors hover:bg-muted">
               <CardHeader>
                 <CardTitle>{note.title}</CardTitle>
