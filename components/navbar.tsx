@@ -14,6 +14,7 @@ const links = [
   { name: "Portfolio", href: "/portfolio" },
   { name: "Resume", href: "/resume" },
   { name: "Lifestyle", href: "/lifestyle" },
+  { name: "Garden", href: "/digital-garden" },
   { name: "Contact", href: "/contact" },
 ]
 

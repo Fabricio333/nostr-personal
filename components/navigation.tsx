@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { ModeToggle } from "@/components/mode-toggle"
-import { Menu, Home, FileText, User, Coffee, Mail } from "lucide-react"
+import { Menu, Home, FileText, User, Coffee, Mail, Leaf } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { getSettings } from "@/lib/settings"
 import { getNostrSettings } from "@/lib/nostr-settings"
@@ -18,6 +18,7 @@ const navigation = [
   { name: "Portfolio", href: "/portfolio", icon: User },
   { name: "Resume", href: "/resume", icon: FileText },
   { name: "Lifestyle", href: "/lifestyle", icon: Coffee },
+  { name: "Garden", href: "/digital-garden", icon: Leaf },
   { name: "Contact", href: "/contact", icon: Mail },
 ]
 
