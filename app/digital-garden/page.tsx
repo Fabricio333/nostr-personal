@@ -8,6 +8,7 @@ import {
   CardContent,
 } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import GardenGraph from '@/components/garden-graph'
 
 export default async function DigitalGardenPage({
   searchParams,
@@ -20,6 +21,24 @@ export default async function DigitalGardenPage({
   const filteredNotes = activeTag
     ? notes.filter((n) => n.tags.includes(activeTag))
     : notes
+
+  function slugify(text: string) {
+    return text.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+  }
+
+  const nodes = filteredNotes.map((n) => ({ id: n.slug, name: n.title }))
+  const links: { source: string; target: string }[] = []
+  for (const note of filteredNotes) {
+    const matches = note.content.match(/\[\[([^\]]+)\]\]/g) || []
+    for (const match of matches) {
+      const targetSlug = slugify(match.slice(2, -2))
+      if (filteredNotes.some((n) => n.slug === targetSlug)) {
+        links.push({ source: note.slug, target: targetSlug })
+      }
+    }
+  }
+
+  const graphData = { nodes, links }
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="mb-8 text-center text-4xl font-bold">
@@ -42,6 +61,7 @@ export default async function DigitalGardenPage({
           ))}
         </div>
       )}
+      <GardenGraph data={graphData} />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {filteredNotes.map((note) => (
           <Link
