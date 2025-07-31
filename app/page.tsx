@@ -269,9 +269,30 @@ export default function HomePage() {
               key={type}
               variant={selectedType === type ? "default" : "outline"}
               size="sm"
-              onClick={() => setSelectedType(selectedType === type ? "" : (type as "nostr" | "article" | "garden"))}
+              onClick={() =>
+                setSelectedType(
+                  selectedType === type
+                    ? ""
+                    : (type as "nostr" | "article" | "garden"),
+                )
+              }
             >
-              {type === "nostr" ? "Nostr" : type === "article" ? "Articles" : "Garden"}
+              {type === "nostr" ? (
+                <>
+                  <MessageSquare className="h-4 w-4 mr-2" />
+                  Nostr
+                </>
+              ) : type === "article" ? (
+                <>
+                  <FileText className="h-4 w-4 mr-2" />
+                  Articles
+                </>
+              ) : (
+                <>
+                  <Leaf className="h-4 w-4 mr-2" />
+                  Garden
+                </>
+              )}
             </Button>
           ))}
         </div>
