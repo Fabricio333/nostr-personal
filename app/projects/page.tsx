@@ -3,12 +3,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Github, ExternalLink } from "lucide-react"
+import Image from "next/image"
+import Link from "next/link"
 
 export default function ProjectsPage() {
   const projects = [
     {
       id: "1",
       title: "WeAreBitcoin.org",
+      shortDescription:
+        "Bitcoin education platform focused on self-custody and sound money principles.",
       description:
         "Content Writer and Developer at WeAreBitcoin.org, a Bitcoin education platform focused on self-custody and sound money principles.",
       responsibilities: [
@@ -22,6 +26,7 @@ export default function ProjectsPage() {
       github: "https://github.com/we-are-bitcoin",
       live: "https://wearebitcoin.org",
       image: "/wab.png",
+      link: "/projects/wearebitcoin",
     },
   ]
 
@@ -36,22 +41,21 @@ export default function ProjectsPage() {
         {projects.map((project) => (
           <Card key={project.id} className="hover:shadow-lg transition-shadow">
             <CardHeader>
-              <img
-                src={project.image || "/placeholder.png"}
-                alt={project.title}
-                className="w-full h-48 object-cover rounded-md mb-4"
-              />
+              <Link href={project.link}>
+                <Image
+                  src={project.image || "/placeholder.png"}
+                  alt={project.title}
+                  width={400}
+                  height={400}
+                  className="w-full aspect-square object-cover rounded-md mb-4"
+                />
+              </Link>
               <CardTitle className="text-2xl mb-2">{project.title}</CardTitle>
               <CardDescription className="mb-4">
-                {project.description}
+                <Link href={project.link} className="hover:underline">
+                  {project.shortDescription}
+                </Link>
               </CardDescription>
-              {project.responsibilities && (
-                <ul className="list-disc list-inside text-sm text-muted-foreground">
-                  {project.responsibilities.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              )}
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-2 mb-4">
