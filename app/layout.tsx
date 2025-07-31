@@ -9,6 +9,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 // import { Toaster } from "@/components/ui/toaster"
 import { Navbar } from "@/components/navbar"
 import { getSettings, getSiteName } from "@/lib/settings"
+import { ensurePreviewImage } from "@/lib/preview-image"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -21,6 +22,7 @@ export const viewport: Viewport = {
 export async function generateMetadata(): Promise<Metadata> {
   const settings = getSettings()
   const siteName = await getSiteName()
+  const previewImage = await ensurePreviewImage()
   return {
     title: siteName,
     description: settings.siteDescription,
@@ -31,13 +33,13 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       title: siteName,
       description: settings.siteDescription,
-      images: ["/icon.svg"],
+      images: [previewImage],
     },
     twitter: {
       card: "summary",
       title: siteName,
       description: settings.siteDescription,
-      images: ["/icon.svg"],
+      images: [previewImage],
     },
   }
 }
