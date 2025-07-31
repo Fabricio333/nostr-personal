@@ -249,11 +249,12 @@ export default function HomePage() {
                   className="pl-10 border-0 bg-slate-100 dark:bg-slate-700"
                 />
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <Button
                   variant={selectedType === "all" ? "default" : "outline"}
                   size="sm"
                   onClick={() => setSelectedType("all")}
+                  className="w-full sm:w-auto"
                 >
                   All
                 </Button>
@@ -261,6 +262,7 @@ export default function HomePage() {
                   variant={selectedType === "note" ? "default" : "outline"}
                   size="sm"
                   onClick={() => setSelectedType("note")}
+                  className="w-full sm:w-auto"
                 >
                   <MessageSquare className="h-4 w-4 mr-2" />
                   Notes
@@ -269,6 +271,7 @@ export default function HomePage() {
                   variant={selectedType === "article" ? "default" : "outline"}
                   size="sm"
                   onClick={() => setSelectedType("article")}
+                  className="w-full sm:w-auto"
                 >
                   <FileText className="h-4 w-4 mr-2" />
                   Articles
