@@ -132,7 +132,7 @@ export default function HomePage() {
           <Card className="mb-8 border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
             <CardContent className="p-8">
               <div className="flex flex-col md:flex-row items-center md:items-center gap-8">
-                <Skeleton className="h-48 w-48 rounded-full" />
+                <Skeleton className="w-32 h-32 md:w-48 md:h-48 rounded-full" />
                 <div className="flex-1 space-y-4 text-center md:text-left">
                   <Skeleton className="h-8 w-48 mx-auto md:mx-0" />
                   <Skeleton className="h-4 w-full max-w-md mx-auto md:mx-0" />
@@ -196,7 +196,7 @@ export default function HomePage() {
           <Card className="mb-8 border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:shadow-xl transition-all duration-300">
             <CardContent className="p-8">
               <div className="flex flex-col md:flex-row items-center md:items-center gap-8">
-                <Avatar className="h-48 w-48 border-4 border-white dark:border-slate-700 shadow-lg">
+                <Avatar className="w-32 h-32 md:w-48 md:h-48 border-4 border-white dark:border-slate-700 shadow-lg">
                   <AvatarImage
                     src={profile.picture || "/placeholder.svg"}
                     alt={profile.name || profile.display_name || "Profile"}

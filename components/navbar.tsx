@@ -22,7 +22,7 @@ export function Navbar({ siteName }: NavbarProps) {
 
   return (
     <nav className="border-b bg-background">
-      <div className="container flex items-center gap-4 py-4">
+      <div className="w-full max-w-screen-md mx-auto px-4 flex items-center gap-4 py-4">
         <Link href="/" className="font-bold">
           {siteName}
         </Link>
