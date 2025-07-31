@@ -13,7 +13,7 @@ interface NavbarProps {
 const links = [
   { name: "Home", href: "/" },
   { name: "Blog", href: "/blog" },
-  { name: "Portfolio", href: "/portfolio" },
+  { name: "Projects", href: "/projects" },
   { name: "Resume", href: "/resume" },
   { name: "Lifestyle", href: "/lifestyle" },
   { name: "Garden", href: "/digital-garden" },
