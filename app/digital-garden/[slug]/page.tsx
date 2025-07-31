@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { marked } from 'marked'
 import { getNote } from '@/lib/digital-garden'
+import { Badge } from '@/components/ui/badge'
 
 function slugify(text: string) {
   return text.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
@@ -21,6 +22,15 @@ export default async function DigitalGardenNotePage({ params }: { params: { slug
     <div className="container mx-auto max-w-3xl px-4 py-8">
       <article className="prose dark:prose-invert">
         <h1>{note.title}</h1>
+        {note.tags.length > 0 && (
+          <div className="mb-4 flex flex-wrap gap-2">
+            {note.tags.map((tag) => (
+              <Badge key={tag} variant="secondary">
+                {tag}
+              </Badge>
+            ))}
+          </div>
+        )}
         <div dangerouslySetInnerHTML={{ __html: html }} />
       </article>
       <div className="mt-8">
