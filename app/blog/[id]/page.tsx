@@ -1,13 +1,11 @@
-import { CardDescription } from "@/components/ui/card"
 import { notFound } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Calendar, ExternalLink } from "lucide-react"
-import Link from "next/link"
 import { nostrClient, type NostrPost } from "@/lib/nostr"
 import { getNostrSettings } from "@/lib/nostr-settings"
 import { marked } from "marked" // For Markdown rendering
+import { nip19 } from "nostr-tools"
 
 export default async function BlogPostPage({ params }: { params: { id: string } }) {
   const { id } = params
@@ -41,65 +39,41 @@ export default async function BlogPostPage({ params }: { params: { id: string } 
     notFound()
   }
 
-  const formatDate = (timestamp: number) => {
-    return new Date(timestamp * 1000).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    })
-  }
-
   // Render markdown content
   const renderedContent = marked.parse(post.content || "")
 
+  // Extract 't' tags
+  const tags = post.tags
+    .filter((t) => t[0] === "t" && t[1])
+    .map((t) => t[1]!)
+
+  const nevent = nip19.neventEncode({ id: post.id })
+  const njumpUrl = `https://njump.me/${nevent}`
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <Card className="max-w-3xl mx-auto">
-        <CardHeader>
-          <div className="flex items-center justify-between mb-2">
-            <Badge variant={post.kind === 30023 ? "default" : "secondary"}>
-              {post.kind === 30023 ? "Article" : "Note"}
+      <div
+        className="prose dark:prose-invert max-w-none"
+        dangerouslySetInnerHTML={{ __html: renderedContent }}
+      />
+
+      {tags.length > 0 && (
+        <div className="mt-4 flex flex-wrap gap-2">
+          {tags.map((tag) => (
+            <Badge key={tag} variant="outline">
+              #{tag}
             </Badge>
-            <div className="flex items-center text-sm text-muted-foreground">
-              <Calendar className="mr-1 h-3 w-3" />
-              {formatDate(post.created_at)}
-            </div>
-          </div>
-          <CardTitle className="text-3xl font-bold">{post.title || "Untitled Post"}</CardTitle>
-          {post.summary && <CardDescription className="text-lg">{post.summary}</CardDescription>}
-        </CardHeader>
-        <CardContent>
-          {post.image && (
-            <img
-              src={post.image || "/placeholder.png"}
-              alt={post.title || "Post image"}
-              className="w-full h-64 object-cover rounded-md mb-6"
-            />
-          )}
-          <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: renderedContent }} />
+          ))}
+        </div>
+      )}
 
-          {post.url && (
-            <div className="mt-8 border-t pt-4 flex justify-end">
-              <Button variant="outline" size="sm" asChild>
-                <a href={post.url} target="_blank" rel="noopener noreferrer">
-                  View on Nostr
-                  <ExternalLink className="ml-2 h-3 w-3" />
-                </a>
-              </Button>
-            </div>
-          )}
-
-          {post.tags && post.tags.length > 0 && (
-            <div className="mt-4 flex flex-wrap gap-2">
-              {post.tags.map((tag) => (
-                <Badge key={tag} variant="outline">
-                  #{tag}
-                </Badge>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <div className="mt-8">
+        <Button asChild>
+          <a href={njumpUrl} target="_blank" rel="noopener noreferrer">
+            Watch on your favorite Nostr clients
+          </a>
+        </Button>
+      </div>
     </div>
   )
 }
