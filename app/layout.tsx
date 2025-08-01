@@ -8,7 +8,8 @@ import { ThemeProvider } from "@/components/theme-provider"
 // import { Footer } from "@/components/footer"
 // import { Toaster } from "@/components/ui/toaster"
 import { Navbar } from "@/components/navbar"
-import { getSettings, getSiteName } from "@/lib/settings"
+import { getSettings, getSiteName, getOwnerNpub } from "@/lib/settings"
+import { cacheProfilePicture } from "@/lib/profile-picture-cache"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -21,6 +22,14 @@ export const viewport: Viewport = {
 export async function generateMetadata(): Promise<Metadata> {
   const settings = getSettings()
   const siteName = await getSiteName()
+  const ownerNpub = getOwnerNpub()
+  let profileImage = "/icon.svg"
+  if (ownerNpub) {
+    const cached = await cacheProfilePicture(ownerNpub)
+    if (cached) {
+      profileImage = cached
+    }
+  }
   return {
     title: siteName,
     description: settings.siteDescription,
@@ -31,13 +40,13 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       title: siteName,
       description: settings.siteDescription,
-      images: ["/icon.svg"],
+      images: [profileImage],
     },
     twitter: {
       card: "summary",
       title: siteName,
       description: settings.siteDescription,
-      images: ["/icon.svg"],
+      images: [profileImage],
     },
   }
 }
