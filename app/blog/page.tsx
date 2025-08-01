@@ -237,16 +237,20 @@ export default function BlogPage() {
             </div>
           ) : (
             filteredPosts.map((post) => (
-              <Card
+              <Link
                 key={post.id}
-                className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                href={`/blog/${post.id}`}
+                className="group block"
               >
-                <CardHeader>
-                  <div className="flex items-center justify-between mb-2">
-                    <Badge variant={post.type === "article" ? "default" : "secondary"}>
-                      {post.type === "article" ? (
-                        <>
-                          <FileText className="h-3 w-3 mr-1" />
+                <Card
+                  className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm transition-all duration-300 group-hover:shadow-xl group-hover:-translate-y-1"
+                >
+                  <CardHeader>
+                    <div className="flex items-center justify-between mb-2">
+                      <Badge variant={post.type === "article" ? "default" : "secondary"}>
+                        {post.type === "article" ? (
+                          <>
+                            <FileText className="h-3 w-3 mr-1" />
                           Article
                         </>
                       ) : (
@@ -273,20 +277,16 @@ export default function BlogPage() {
                   {post.summary && (
                     <CardDescription className="text-slate-600 dark:text-slate-300">{post.summary}</CardDescription>
                   )}
-                </CardHeader>
-                <CardContent>
-                  <div className="prose prose-slate dark:prose-invert max-w-none w-full">
-                    <p className="text-slate-700 dark:text-slate-300 leading-relaxed break-words overflow-hidden line-clamp-3">
-                      {truncateContent(post.content)}
-                    </p>
-                  </div>
-                  <div className="mt-4 flex justify-between items-center">
-                    <Button variant="outline" size="sm" asChild>
-                      <Link href={`/blog/${post.id}`}>Read More</Link>
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="prose prose-slate dark:prose-invert max-w-none w-full">
+                      <p className="text-slate-700 dark:text-slate-300 leading-relaxed break-words overflow-hidden line-clamp-3">
+                        {truncateContent(post.content)}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
             ))
           )}
         </div>

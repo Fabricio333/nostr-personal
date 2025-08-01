@@ -268,11 +268,14 @@ export async function fetchNostrPosts(npub: string, limit = 50): Promise<NostrPo
       return post
     })
 
+    // Remove any duplicate posts that might come from multiple relays
+    const uniquePosts = Array.from(new Map(posts.map((p) => [p.id, p])).values())
+
     // Sort by creation time (newest first)
-    posts.sort((a, b) => b.created_at - a.created_at)
+    uniquePosts.sort((a, b) => b.created_at - a.created_at)
 
     // Limit results
-    const limitedPosts = posts.slice(0, limit)
+    const limitedPosts = uniquePosts.slice(0, limit)
 
     setCachedData(cacheKey, limitedPosts)
     return limitedPosts
