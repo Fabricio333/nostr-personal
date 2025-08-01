@@ -8,6 +8,7 @@ import {
   CardContent,
 } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { cn } from '@/lib/utils'
 
 export default async function DigitalGardenPage({
   searchParams,
@@ -33,14 +34,28 @@ export default async function DigitalGardenPage({
       {allTags.length > 0 && (
         <div className="mb-8 flex flex-wrap justify-center gap-2">
           <Link href="/digital-garden">
-            <Badge variant={activeTag ? 'outline' : 'default'}>All</Badge>
+            <Badge
+              variant="outline"
+              className={cn(
+                'border-green-500 text-green-500',
+                !activeTag && 'bg-green-500 text-white',
+              )}
+            >
+              All
+            </Badge>
           </Link>
           {allTags.map((tag) => (
             <Link
               key={tag}
               href={{ pathname: '/digital-garden', query: { tag } }}
             >
-              <Badge variant={activeTag === tag ? 'default' : 'outline'}>
+              <Badge
+                variant="outline"
+                className={cn(
+                  'border-green-500 text-green-500',
+                  activeTag === tag && 'bg-green-500 text-white',
+                )}
+              >
                 {tag}
               </Badge>
             </Link>
@@ -62,7 +77,11 @@ export default async function DigitalGardenPage({
                 <CardContent className="pt-0">
                   <div className="flex flex-wrap gap-2">
                     {note.tags.map((tag) => (
-                      <Badge key={tag} variant="secondary">
+                      <Badge
+                        key={tag}
+                        variant="secondary"
+                        className="bg-green-100 text-green-700"
+                      >
                         {tag}
                       </Badge>
                     ))}

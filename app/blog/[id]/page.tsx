@@ -136,7 +136,7 @@ export default async function BlogPostPage({ params }: { params: { id: string } 
             {tags.length > 0 && (
               <div className="mt-4 flex flex-wrap gap-2">
                 {tags.map((tag) => (
-                  <Badge key={tag} variant="outline">
+                  <Badge key={tag} variant="outline" className="border-purple-500 text-purple-500">
                     #{tag}
                   </Badge>
                 ))}
