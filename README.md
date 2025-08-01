@@ -12,6 +12,7 @@ This is a personal blog website built with Next.js, Tailwind CSS, and Shadcn UI.
 - **Portfolio & Resume** – Dedicated pages to showcase projects and display a résumé/CV.
 - **Settings Pages** – UI for editing site options and Nostr relay settings which are saved to `settings.json`.
 - **Theme Toggle & Responsive Design** – Light/dark mode support and layouts that work on mobile or desktop.
+- **SEO** – Generates `sitemap.xml` and `robots.txt` with links to your Nostr posts so they can be indexed by search engines.
 
 ## Getting Started
 
@@ -54,6 +55,7 @@ This is a personal blog website built with Next.js, Tailwind CSS, and Shadcn UI.
 -   **Styling**: Modify `app/globals.css` and `tailwind.config.ts` for theme and custom styles.
 -   **Nostr Relays**: Adjust the list of relays in `lib/nostr.ts` to connect to your preferred Nostr relays.
 -   **Content**: Your blog content is fetched directly from your Nostr public key. Publish NIP-23 long-form events or NIP-01 notes to your configured relays.
+-   **SEO Settings**: Set the `NEXT_PUBLIC_SITE_URL` environment variable so generated links in the sitemap and metadata point to your domain.
 
 ## Contributing
 
