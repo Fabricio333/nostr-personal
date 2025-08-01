@@ -36,6 +36,10 @@ export async function getSiteName(): Promise<string> {
   }
 }
 
+export function getOwnerNpub(): string | undefined {
+  return (config as any).nostr?.ownerNpub as string | undefined
+}
+
 // Placeholder to keep API compatibility
 export function saveSettings(_settings: Settings): void {
   // Settings are now stored in settings.json and cannot be changed at runtime
