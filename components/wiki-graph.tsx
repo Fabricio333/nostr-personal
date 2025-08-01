@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { useTheme } from 'next-themes'
 import * as d3 from 'd3'
 
 interface GraphData {
@@ -10,6 +11,7 @@ interface GraphData {
 
 export default function WikiGraph({ data }: { data: GraphData }) {
   const ref = useRef<SVGSVGElement>(null)
+  const { resolvedTheme } = useTheme()
 
   useEffect(() => {
     const svg = d3.select(ref.current)
@@ -17,6 +19,11 @@ export default function WikiGraph({ data }: { data: GraphData }) {
     const height = 600
     svg.attr('viewBox', `0 0 ${width} ${height}`)
     svg.selectAll('*').remove()
+
+    const isDark = resolvedTheme === 'dark'
+    const linkColor = isDark ? '#555' : '#999'
+    const nodeColor = isDark ? '#60a5fa' : '#1f77b4'
+    const textColor = isDark ? '#fff' : '#000'
 
     const simulation = d3
       .forceSimulation(data.nodes as any)
@@ -29,7 +36,7 @@ export default function WikiGraph({ data }: { data: GraphData }) {
 
     const link = svg
       .append('g')
-      .attr('stroke', '#999')
+      .attr('stroke', linkColor)
       .attr('stroke-opacity', 0.6)
       .selectAll('line')
       .data(data.links)
@@ -45,7 +52,7 @@ export default function WikiGraph({ data }: { data: GraphData }) {
       .enter()
       .append('circle')
       .attr('r', 8)
-      .attr('fill', '#1f77b4')
+      .attr('fill', nodeColor)
       .on('click', (_event, d: any) => {
         window.location.href = `/digital-garden/${d.id}`
       })
@@ -78,6 +85,7 @@ export default function WikiGraph({ data }: { data: GraphData }) {
       .attr('font-size', 10)
       .attr('dx', 12)
       .attr('dy', '0.35em')
+      .attr('fill', textColor)
 
     simulation.on('tick', () => {
       link
@@ -96,7 +104,7 @@ export default function WikiGraph({ data }: { data: GraphData }) {
     return () => {
       simulation.stop()
     }
-  }, [data])
+  }, [data, resolvedTheme])
 
   return <svg ref={ref} className="h-[600px] w-full"></svg>
 }
