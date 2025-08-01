@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation"
+import type { Metadata } from "next"
 import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -8,6 +9,43 @@ import { nostrClient, type NostrPost } from "@/lib/nostr"
 import { getNostrSettings } from "@/lib/nostr-settings"
 import { marked } from "marked" // For Markdown rendering
 import { nip19 } from "nostr-tools"
+
+export async function generateStaticParams() {
+  const settings = getNostrSettings()
+  if (!settings.ownerNpub) return []
+  try {
+    const posts = await nostrClient.fetchPosts(settings.ownerNpub, settings.maxPosts || 50)
+    return posts.map((post) => ({ id: post.id }))
+  } catch {
+    return []
+  }
+}
+
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://example.com"
+  try {
+    const post = await nostrClient.fetchPost(params.id)
+    if (!post) {
+      return { title: "Post not found" }
+    }
+    const title = post.title || `${post.content.slice(0, 60)}…`
+    const description = post.summary || post.content.slice(0, 160)
+    const url = `${siteUrl}/blog/${post.id}`
+    return {
+      title,
+      description,
+      alternates: { canonical: url },
+      openGraph: {
+        title,
+        description,
+        url,
+        type: "article",
+      },
+    }
+  } catch {
+    return { title: "Blog Post" }
+  }
+}
 
 export default async function BlogPostPage({ params }: { params: { id: string } }) {
   const { id } = params
