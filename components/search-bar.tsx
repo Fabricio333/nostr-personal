@@ -3,7 +3,13 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Search } from "lucide-react"
 
 export function SearchBar() {
@@ -31,13 +37,19 @@ export function SearchBar() {
         />
       </div>
       <Select value={source} onValueChange={setSource}>
-        <SelectTrigger className="w-[110px]">
+        <SelectTrigger className="w-[150px]">
           <SelectValue placeholder="Nostr" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="nostr">Nostr</SelectItem>
-          <SelectItem value="article">Articles</SelectItem>
-          <SelectItem value="garden">Garden</SelectItem>
+          <SelectItem value="nostr">
+            <span className="mr-2 text-purple-500">⚡</span>Nostr
+          </SelectItem>
+          <SelectItem value="article">
+            <span className="mr-2 text-orange-500">📝</span>Articles
+          </SelectItem>
+          <SelectItem value="garden">
+            <span className="mr-2 text-green-500">🌱</span>Garden
+          </SelectItem>
         </SelectContent>
       </Select>
     </form>
