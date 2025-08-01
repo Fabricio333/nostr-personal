@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Search } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 export function SearchBar() {
   const [term, setTerm] = useState("")
@@ -31,13 +32,20 @@ export function SearchBar() {
         />
       </div>
       <Select value={source} onValueChange={setSource}>
-        <SelectTrigger className="w-[110px]">
-          <SelectValue placeholder="Nostr" />
+        <SelectTrigger
+          className={cn(
+            "w-[110px]",
+            source === "nostr" && "text-purple-600",
+            source === "article" && "text-orange-500",
+            source === "garden" && "text-green-600",
+          )}
+        >
+          <SelectValue placeholder="⚡ Nostr" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="nostr">Nostr</SelectItem>
-          <SelectItem value="article">Articles</SelectItem>
-          <SelectItem value="garden">Garden</SelectItem>
+          <SelectItem value="nostr" className="text-purple-600">⚡ Nostr</SelectItem>
+          <SelectItem value="article" className="text-orange-500">📝 Articles</SelectItem>
+          <SelectItem value="garden" className="text-green-600">🌱 Garden</SelectItem>
         </SelectContent>
       </Select>
     </form>
