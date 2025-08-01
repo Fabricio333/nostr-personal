@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -196,24 +197,35 @@ export default function BlogPage() {
               </div>
               <div className="flex gap-2">
                 <Button
-                  variant={selectedType === "all" ? "default" : "outline"}
+                  variant="outline"
                   size="sm"
                   onClick={() => setSelectedType("all")}
+                  className={cn(
+                    selectedType === "all" && "bg-slate-200 dark:bg-slate-700",
+                  )}
                 >
                   All ({posts.length})
                 </Button>
                 <Button
-                  variant={selectedType === "note" ? "default" : "outline"}
+                  variant="outline"
                   size="sm"
                   onClick={() => setSelectedType("note")}
+                  className={cn(
+                    "border-purple-500 text-purple-500",
+                    selectedType === "note" && "bg-purple-500 text-white",
+                  )}
                 >
                   <MessageSquare className="h-4 w-4 mr-2" />
                   Notes ({posts.filter((p) => p.type === "note").length})
                 </Button>
                 <Button
-                  variant={selectedType === "article" ? "default" : "outline"}
+                  variant="outline"
                   size="sm"
                   onClick={() => setSelectedType("article")}
+                  className={cn(
+                    "border-orange-500 text-orange-500",
+                    selectedType === "article" && "bg-orange-500 text-white",
+                  )}
                 >
                   <FileText className="h-4 w-4 mr-2" />
                   Articles ({posts.filter((p) => p.type === "article").length})
@@ -247,7 +259,14 @@ export default function BlogPage() {
                 >
                   <CardHeader>
                     <div className="flex items-center justify-between mb-2">
-                      <Badge variant={post.type === "article" ? "default" : "secondary"}>
+                      <Badge
+                        variant="secondary"
+                        className={cn(
+                          post.type === "article"
+                            ? "bg-orange-100 text-orange-700"
+                            : "bg-purple-100 text-purple-700",
+                        )}
+                      >
                         {post.type === "article" ? (
                           <>
                             <FileText className="h-3 w-3 mr-1" />
@@ -259,7 +278,7 @@ export default function BlogPage() {
                           Note
                         </>
                       )}
-                    </Badge>
+                      </Badge>
                     <div className="flex items-center text-xs text-slate-500 dark:text-slate-400">
                       <Calendar className="h-3 w-3 mr-1" />
                       {formatDate(post.published_at || post.created_at)}

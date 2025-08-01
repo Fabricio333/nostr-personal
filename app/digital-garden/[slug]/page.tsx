@@ -22,7 +22,11 @@ export default async function DigitalGardenNotePage({ params }: { params: { slug
         {note.tags.length > 0 && (
           <div className="mb-4 flex flex-wrap gap-2">
             {note.tags.map((tag) => (
-              <Badge key={tag} variant="secondary">
+              <Badge
+                key={tag}
+                variant="secondary"
+                className="bg-green-100 text-green-700"
+              >
                 {tag}
               </Badge>
             ))}

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -264,37 +265,50 @@ export default function HomePage() {
         {/* Posts */}
         <h2 className="text-2xl font-bold mb-4">Latest Posts</h2>
         <div className="flex gap-2 mb-4">
-          {["nostr", "article", "garden"].map((type) => (
-            <Button
-              key={type}
-              variant={selectedType === type ? "default" : "outline"}
-              size="sm"
-              onClick={() =>
-                setSelectedType(
-                  selectedType === type
-                    ? ""
-                    : (type as "nostr" | "article" | "garden"),
-                )
-              }
-            >
-              {type === "nostr" ? (
-                <>
-                  <MessageSquare className="h-4 w-4 mr-2" />
-                  Nostr
-                </>
-              ) : type === "article" ? (
-                <>
-                  <FileText className="h-4 w-4 mr-2" />
-                  Articles
-                </>
-              ) : (
-                <>
-                  <Leaf className="h-4 w-4 mr-2" />
-                  Garden
-                </>
-              )}
-            </Button>
-          ))}
+          {["nostr", "article", "garden"].map((type) => {
+            const isActive = selectedType === type
+            const color =
+              type === "nostr"
+                ? "purple"
+                : type === "article"
+                ? "orange"
+                : "green"
+            return (
+              <Button
+                key={type}
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  setSelectedType(
+                    selectedType === type
+                      ? ""
+                      : (type as "nostr" | "article" | "garden"),
+                  )
+                }
+                className={cn(
+                  `border-${color}-500 text-${color}-500`,
+                  isActive && `bg-${color}-500 text-white`,
+                )}
+              >
+                {type === "nostr" ? (
+                  <>
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    Nostr
+                  </>
+                ) : type === "article" ? (
+                  <>
+                    <FileText className="h-4 w-4 mr-2" />
+                    Articles
+                  </>
+                ) : (
+                  <>
+                    <Leaf className="h-4 w-4 mr-2" />
+                    Garden
+                  </>
+                )}
+              </Button>
+            )
+          })}
         </div>
         <div className="space-y-6">
           {filteredPosts.length === 0 ? (
@@ -321,7 +335,16 @@ export default function HomePage() {
                 >
                   <CardHeader>
                     <div className="flex items-center justify-between">
-                      <Badge variant={post.type === "article" ? "default" : "secondary"}>
+                      <Badge
+                        variant="secondary"
+                        className={cn(
+                          post.type === "article"
+                            ? "bg-orange-100 text-orange-700"
+                            : post.type === "garden"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-purple-100 text-purple-700",
+                        )}
+                      >
                         {post.type === "article" ? (
                           <>
                             <FileText className="h-3 w-3 mr-1" />
