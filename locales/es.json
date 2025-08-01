@@ -1,0 +1,61 @@
+{
+  "navbar": {
+    "home": "Inicio",
+    "blog": "Blog",
+    "projects": "Proyectos",
+    "resume": "Currículum",
+    "lifestyle": "Estilo de vida",
+    "garden": "Jardín",
+    "contact": "Contacto",
+    "open_menu": "Abrir menú",
+    "close_menu": "Cerrar menú"
+  },
+  "footer": {
+    "rights": "Todos los derechos reservados.",
+    "powered": "Impulsado por Nostr y Next.js"
+  },
+  "search": {
+    "placeholder": "Buscar...",
+    "filter": "Filtrar",
+    "nostr": "⚡ Nostr",
+    "articles": "📝 Artículos",
+    "garden": "🌱 Jardín"
+  },
+  "contact": {
+    "configuration_error_title": "Error de configuración",
+    "configuration_error_description": "No hay una clave pública de Nostr configurada. Por favor contacte al administrador del sitio.",
+    "message_sent_title": "¡Mensaje enviado con éxito!",
+    "message_sent_description": "Tu mensaje ha sido enviado vía Nostr. ¡Me pondré en contacto contigo pronto!",
+    "failed_title": "Error al enviar el mensaje",
+    "failed_description": "Hubo un error al enviar tu mensaje. Intenta de nuevo o contáctame directamente.",
+    "header": "Contáctame",
+    "subheader": "Envíame un mensaje vía Nostr. Lo recibiré como un DM cifrado y te responderé pronto.",
+    "name": "Nombre *",
+    "name_placeholder": "Tu nombre completo",
+    "email": "Correo electrónico *",
+    "email_placeholder": "tu.correo@ejemplo.com",
+    "subject": "Asunto *",
+    "subject_placeholder": "¿De qué se trata?",
+    "message": "Mensaje *",
+    "message_placeholder": "Tu mensaje",
+    "send": "Enviar mensaje",
+    "message_sent_heading": "¡Mensaje enviado!",
+    "message_sent_text": "Tu mensaje ha sido enviado correctamente vía Nostr. Me pondré en contacto contigo lo antes posible.",
+    "send_another": "Enviar otro mensaje",
+    "sent_via": "Enviado vía Nostr",
+    "sent_via_description": "Tu mensaje será cifrado y enviado como un mensaje directo a través de la red Nostr. Esto garantiza privacidad y descentralización."
+  },
+  "home": {
+    "no_npub": "No se ha configurado una clave pública de Nostr. Por favor actualiza settings.json para agregar tu npub.",
+    "failed_load": "No se pudo cargar la información. Inténtalo de nuevo.",
+    "retry": "Reintentar",
+    "latest_posts": "Últimas publicaciones",
+    "website": "Sitio web",
+    "type_nostr": "Nostr",
+    "type_article": "Artículos",
+    "type_garden": "Jardín",
+    "no_posts": "No se encontraron publicaciones.",
+    "no_posts_match": "Ninguna publicación coincide con tu búsqueda.",
+    "anonymous": "Anónimo"
+  }
+}
