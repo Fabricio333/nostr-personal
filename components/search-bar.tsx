@@ -3,7 +3,14 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { cn } from "@/lib/utils"
 import { Search } from "lucide-react"
 
 export function SearchBar() {
@@ -31,13 +38,28 @@ export function SearchBar() {
         />
       </div>
       <Select value={source} onValueChange={setSource}>
-        <SelectTrigger className="w-[110px]">
+        <SelectTrigger
+          className={cn(
+            "w-[110px]",
+            source === "nostr"
+              ? "text-purple-500"
+              : source === "article"
+                ? "text-orange-500"
+                : "text-green-500",
+          )}
+        >
           <SelectValue placeholder="Nostr" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="nostr">Nostr</SelectItem>
-          <SelectItem value="article">Articles</SelectItem>
-          <SelectItem value="garden">Garden</SelectItem>
+          <SelectItem value="nostr" className="text-purple-500">
+            <span className="mr-2">⚡</span>Nostr
+          </SelectItem>
+          <SelectItem value="article" className="text-orange-500">
+            <span className="mr-2">📝</span>Articles
+          </SelectItem>
+          <SelectItem value="garden" className="text-green-500">
+            <span className="mr-2">🌱</span>Garden
+          </SelectItem>
         </SelectContent>
       </Select>
     </form>
