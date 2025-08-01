@@ -307,61 +307,63 @@ export default function HomePage() {
             </Card>
           ) : (
             filteredPosts.map((post) => (
-              <Card
+              <Link
                 key={post.id}
-                className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                href={
+                  post.type === "garden"
+                    ? `/digital-garden/${post.id}`
+                    : `/blog/${post.id}`
+                }
+                className="group block"
               >
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <Badge variant={post.type === "article" ? "default" : "secondary"}>
-                      {post.type === "article" ? (
-                        <>
-                          <FileText className="h-3 w-3 mr-1" />
-                          Article
-                        </>
-                      ) : post.type === "garden" ? (
-                        <>
-                          <Leaf className="h-3 w-3 mr-1" />
-                          Garden
-                        </>
-                      ) : (
-                        <>
-                          <MessageSquare className="h-3 w-3 mr-1" />
-                          Nostr
-                        </>
-                      )}
-                    </Badge>
-                    <div className="flex items-center text-sm text-slate-500 dark:text-slate-400">
-                      <Calendar className="h-4 w-4 mr-1" />
-                      {formatDate(post.published_at || post.created_at)}
+                <Card
+                  className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm transition-all duration-300 group-hover:shadow-xl group-hover:-translate-y-1"
+                >
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <Badge variant={post.type === "article" ? "default" : "secondary"}>
+                        {post.type === "article" ? (
+                          <>
+                            <FileText className="h-3 w-3 mr-1" />
+                            Article
+                          </>
+                        ) : post.type === "garden" ? (
+                          <>
+                            <Leaf className="h-3 w-3 mr-1" />
+                            Garden
+                          </>
+                        ) : (
+                          <>
+                            <MessageSquare className="h-3 w-3 mr-1" />
+                            Nostr
+                          </>
+                        )}
+                      </Badge>
+                      <div className="flex items-center text-sm text-slate-500 dark:text-slate-400">
+                        <Calendar className="h-4 w-4 mr-1" />
+                        {formatDate(post.published_at || post.created_at)}
+                      </div>
                     </div>
-                  </div>
-                  {post.title && (
-                    <CardTitle className="text-xl bg-gradient-to-r from-slate-900 to-slate-600 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
-                      {post.title}
-                    </CardTitle>
-                  )}
-                  {post.summary && (
-                    <CardDescription className="text-slate-600 dark:text-slate-300 leading-relaxed">
-                      {post.summary}
-                    </CardDescription>
-                  )}
-                </CardHeader>
-                <CardContent>
-                  <div className="prose prose-slate dark:prose-invert max-w-none w-full">
-                    <p className="text-slate-700 dark:text-slate-300 leading-relaxed break-words overflow-hidden line-clamp-3">
-                      {truncateContent(post.content)}
-                    </p>
-                  </div>
-                  <div className="mt-4 flex justify-between items-center">
-                    <Button variant="outline" size="sm" asChild>
-                      <Link href={post.type === "garden" ? `/digital-garden/${post.id}` : `/blog/${post.id}`}>
-                        Read More
-                      </Link>
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+                    {post.title && (
+                      <CardTitle className="text-xl bg-gradient-to-r from-slate-900 to-slate-600 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
+                        {post.title}
+                      </CardTitle>
+                    )}
+                    {post.summary && (
+                      <CardDescription className="text-slate-600 dark:text-slate-300 leading-relaxed">
+                        {post.summary}
+                      </CardDescription>
+                    )}
+                  </CardHeader>
+                  <CardContent>
+                    <div className="prose prose-slate dark:prose-invert max-w-none w-full">
+                      <p className="text-slate-700 dark:text-slate-300 leading-relaxed break-words overflow-hidden line-clamp-3">
+                        {truncateContent(post.content)}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
             ))
           )}
         </div>

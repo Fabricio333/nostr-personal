@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation"
+import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -64,10 +65,18 @@ export default async function BlogPostPage({ params }: { params: { id: string } 
   const njumpUrl = `https://njump.me/${nevent}`
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
-      <div className="container mx-auto px-4 py-8">
-        <Card className="mx-auto max-w-3xl border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
-          <CardContent className="p-6">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
+        <div className="container mx-auto px-4 py-8">
+          <div className="mb-4">
+            <Link
+              href="/blog"
+              className="text-blue-600 hover:underline"
+            >
+              ← Back to Blog
+            </Link>
+          </div>
+          <Card className="mx-auto max-w-3xl border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
+            <CardContent className="p-6">
             <div className="mb-6 flex items-center gap-4">
               <Avatar className="h-10 w-10">
                 <AvatarImage src={profilePic} alt={authorName} />
