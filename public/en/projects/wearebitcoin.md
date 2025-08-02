@@ -1,7 +1,8 @@
-WeAreBitcoin.org
+# WeAreBitcoin.org
+
 Content Writer and Developer at WeAreBitcoin.org, a Bitcoin education platform focused on self-custody and sound money principles.
 
-Responsibilities
+## Responsibilities
 - Write, translate, and localize articles on Bitcoin, Austrian economics, and self-sovereignty.
 - Format and publish posts using Markdown and a Next.js-based CMS.
 - Design and test interactive tools such as onboarding wizards and DCA calculators.
