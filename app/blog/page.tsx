@@ -12,6 +12,7 @@ import { Search, FileText, MessageSquare, Calendar, RefreshCw } from "lucide-rea
 import { fetchNostrPosts } from "@/lib/nostr"
 import { getNostrSettings } from "@/lib/nostr-settings"
 import Link from "next/link"
+import { useI18n } from "@/components/locale-provider"
 
 interface NostrProfile {
   name?: string
@@ -47,6 +48,7 @@ export default function BlogPage() {
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedType, setSelectedType] = useState<"all" | "note" | "article">("all")
+  const { locale } = useI18n()
 
   const loadPosts = async () => {
     try {
@@ -59,7 +61,7 @@ export default function BlogPage() {
         return
       }
 
-      const postsData = await fetchNostrPosts(settings.ownerNpub, 100)
+      const postsData = await fetchNostrPosts(settings.ownerNpub, 100, locale)
       setPosts(postsData)
       setFilteredPosts(postsData)
     } catch (err) {

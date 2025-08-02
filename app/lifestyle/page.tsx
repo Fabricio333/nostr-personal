@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import lifestyleConfig from "@/lib/lifestyle-config.json"
 import { fetchNostrPosts } from "@/lib/nostr"
 import { getNostrSettings } from "@/lib/nostr-settings"
+import { useI18n } from "@/components/locale-provider"
 
 interface NostrProfile {
   name?: string
@@ -44,6 +45,7 @@ export default function LifestylePage() {
 
   const [posts, setPosts] = useState<NostrPost[]>([])
   const [loadingPosts, setLoadingPosts] = useState(true)
+  const { locale } = useI18n()
 
   useEffect(() => {
     const loadPosts = async () => {
@@ -54,7 +56,7 @@ export default function LifestylePage() {
           return
         }
 
-        const allPosts = await fetchNostrPosts(settings.ownerNpub, 20)
+        const allPosts = await fetchNostrPosts(settings.ownerNpub, 20, locale)
         const lifestylePosts = allPosts.filter(
           (post) =>
             post.tags.some(
