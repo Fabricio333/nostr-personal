@@ -44,23 +44,32 @@ export async function searchContent(query: string, source?: SearchSource): Promi
   }
 
   if (includeGarden) {
-    const notesDir = path.join(process.cwd(), 'digital-garden')
+    const baseDir = path.join(process.cwd(), 'digital-garden')
     try {
-      const files = await fs.readdir(notesDir)
-      for (const file of files) {
-        if (!file.endsWith('.md')) continue
-        const slug = file.replace(/\.md$/, '')
-        const raw = await fs.readFile(path.join(notesDir, file), 'utf8')
-        const { data, content } = matter(raw)
-        const title = (data as any).title || slug
-        const text = `${title} ${content}`.toLowerCase()
-        if (!q || text.includes(q)) {
-          results.push({
-            type: 'garden',
-            title,
-            url: `/digital-garden/${slug}`,
-            snippet: content.slice(0, 200),
-          })
+      const locales = await fs.readdir(baseDir)
+      const seen = new Set<string>()
+      for (const locale of locales) {
+        const localePath = path.join(baseDir, locale)
+        const stat = await fs.stat(localePath)
+        if (!stat.isDirectory()) continue
+        const files = await fs.readdir(localePath)
+        for (const file of files) {
+          if (!file.endsWith('.md')) continue
+          const slug = file.replace(/\.md$/, '')
+          if (seen.has(slug)) continue
+          const raw = await fs.readFile(path.join(localePath, file), 'utf8')
+          const { data, content } = matter(raw)
+          const title = (data as any).title || slug
+          const text = `${title} ${content}`.toLowerCase()
+          if (!q || text.includes(q)) {
+            results.push({
+              type: 'garden',
+              title,
+              url: `/digital-garden/${slug}`,
+              snippet: content.slice(0, 200),
+            })
+            seen.add(slug)
+          }
         }
       }
     } catch (error) {
