@@ -2,9 +2,17 @@ import { NextResponse } from "next/server";
 import path from "path";
 import { promises as fs } from "fs";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const filePath = path.join(process.cwd(), "nostr-translations", "es", "description.md");
+    const { searchParams } = new URL(request.url);
+    const locale = searchParams.get("locale") || "en";
+    const filePath = path.join(
+      process.cwd(),
+      "public",
+      locale,
+      "nostr",
+      "description.md"
+    );
     const content = await fs.readFile(filePath, "utf8");
     return new NextResponse(content, {
       status: 200,

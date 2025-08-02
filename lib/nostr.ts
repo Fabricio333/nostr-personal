@@ -168,13 +168,14 @@ export async function fetchNostrProfile(
           const path = await import("path")
           const filePath = path.join(
             process.cwd(),
-            "nostr-translations",
-            "es",
+            "public",
+            locale,
+            "nostr",
             "description.md",
           )
           profile.about = (await fs.readFile(filePath, "utf8")).trim()
         } else {
-          const res = await fetch("/api/nostr-profile/description")
+          const res = await fetch(`/api/nostr-profile/description?locale=${locale}`)
           if (res.ok) {
             profile.about = (await res.text()).trim()
           }
@@ -314,7 +315,9 @@ export async function fetchNostrPosts(
               const matter = (await import("gray-matter")).default
               const filePath = path.join(
                 process.cwd(),
-                "nostr-translations",
+                "public",
+                locale,
+                "nostr",
                 `${post.id}.md`
               )
               const raw = await fs.readFile(filePath, "utf8")
@@ -323,7 +326,7 @@ export async function fetchNostrPosts(
               post.translation = data
               translated.push(post)
             } else {
-              const res = await fetch(`/api/nostr-translations/${post.id}`)
+              const res = await fetch(`/api/nostr-translations/${post.id}?locale=${locale}`)
               if (!res.ok) return
               const data = await res.json()
               post.content = data.content
@@ -451,7 +454,9 @@ export async function fetchNostrPost(
           const matter = (await import("gray-matter")).default
           const filePath = path.join(
             process.cwd(),
-            "nostr-translations",
+            "public",
+            locale,
+            "nostr",
             `${eventId}.md`
           )
           const raw = await fs.readFile(filePath, "utf8")
@@ -459,7 +464,7 @@ export async function fetchNostrPost(
           post.content = content
           post.translation = data
         } else {
-          const res = await fetch(`/api/nostr-translations/${eventId}`)
+          const res = await fetch(`/api/nostr-translations/${eventId}?locale=${locale}`)
           if (res.ok) {
             const data = await res.json()
             post.content = data.content
