@@ -256,7 +256,7 @@ export default function BlogPage() {
             filteredPosts.map((post) => (
               <Link
                 key={post.id}
-                href={`/blog/${post.id}`}
+                href={`/blog/${post.id}${locale === "es" ? "?locale=es" : ""}`}
                 className="group block"
               >
                 <Card
