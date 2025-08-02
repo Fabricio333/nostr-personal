@@ -10,11 +10,16 @@ export interface DigitalGardenNote {
   content: string
 }
 
-const baseDir = path.join(process.cwd(), 'digital-garden')
+const baseDir = path.join(process.cwd(), 'public')
 
 export async function getAllNotes(locale: string = 'en'): Promise<DigitalGardenNote[]> {
-  const notesDir = path.join(baseDir, locale)
-  const files = await fs.readdir(notesDir)
+  const notesDir = path.join(baseDir, locale, 'digital-garden')
+  let files: string[] = []
+  try {
+    files = await fs.readdir(notesDir)
+  } catch {
+    return []
+  }
   const notes: DigitalGardenNote[] = []
   for (const file of files) {
     if (!file.endsWith('.md')) continue
@@ -36,9 +41,9 @@ export async function getAllNotes(locale: string = 'en'): Promise<DigitalGardenN
 
 export async function getNote(
   slug: string,
-  locale: string = 'en'
+  locale: string = 'en',
 ): Promise<{ title: string; tags: string[]; content: string } | null> {
-  const filePath = path.join(baseDir, locale, `${slug}.md`)
+  const filePath = path.join(baseDir, locale, 'digital-garden', `${slug}.md`)
   try {
     const content = await fs.readFile(filePath, 'utf8')
     const { data, content: body } = matter(content)
@@ -51,6 +56,10 @@ export async function getNote(
       : []
     return { title, tags, content: body }
   } catch {
+    if (locale !== 'en') {
+      return getNote(slug, 'en')
+    }
     return null
   }
 }
+
