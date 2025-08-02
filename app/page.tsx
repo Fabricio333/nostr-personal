@@ -245,7 +245,7 @@ export default function HomePage() {
                   </h1>
                   {profile.about && (
                     <div className="text-slate-600 dark:text-slate-300 mb-4 leading-relaxed prose prose-slate dark:prose-invert max-w-none">
-                      <p>{profile.about}</p>
+                      <p className="whitespace-pre-line">{profile.about}</p>
                     </div>
                   )}
                   <div className="flex flex-wrap gap-4 justify-center md:justify-start">
