@@ -11,6 +11,9 @@ import { getNostrSettings } from "@/lib/nostr-settings"
 import { marked } from "marked" // For Markdown rendering
 import { nip19 } from "nostr-tools"
 
+export const dynamic = "force-dynamic"
+export const revalidate = 0
+
 export async function generateStaticParams() {
   const settings = getNostrSettings()
   if (!settings.ownerNpub) return []
