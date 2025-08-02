@@ -347,6 +347,23 @@ export async function fetchNostrPost(
       return cached
     }
 
+    // For Spanish locale, try loading translation first
+    let translation: { data: any; content: string } | null = null
+    if (locale === "es") {
+      const baseUrl =
+        typeof window === "undefined"
+          ? process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+          : ""
+      try {
+        const res = await fetch(`${baseUrl}/api/nostr-translations/${eventId}`)
+        if (res.ok) {
+          translation = await res.json()
+        }
+      } catch {
+        // ignore translation fetch errors
+      }
+    }
+
     const currentPool = getPool()
 
     // Try to fetch by event ID
@@ -355,64 +372,83 @@ export async function fetchNostrPost(
       limit: 1,
     }
 
-    const events = await currentPool.querySync(DEFAULT_RELAYS, filter)
+    let events: Event[] = []
+    try {
+      events = await currentPool.querySync(DEFAULT_RELAYS, filter)
+    } catch {
+      // ignore relay errors
+    }
 
-    if (events.length === 0) {
+    let post: NostrPost | null = null
+
+    if (events.length > 0) {
+      const event = events[0]
+
+      // Get profile for the author
+      const profile = await fetchNostrProfile(event.pubkey)
+
+      post = {
+        id: event.id,
+        pubkey: event.pubkey,
+        created_at: event.created_at,
+        kind: event.kind,
+        tags: event.tags,
+        content: event.content,
+        sig: event.sig,
+        profile,
+        type: event.kind === 30023 ? "article" : "note",
+      }
+
+      // For long-form articles, extract metadata from tags
+      if (event.kind === 30023) {
+        const titleTag = event.tags.find((tag) => tag[0] === "title")
+        const summaryTag = event.tags.find((tag) => tag[0] === "summary")
+        const imageTag = event.tags.find((tag) => tag[0] === "image")
+        const publishedAtTag = event.tags.find((tag) => tag[0] === "published_at")
+
+        if (titleTag && titleTag[1]) {
+          post.title = titleTag[1]
+        }
+        if (summaryTag && summaryTag[1]) {
+          post.summary = summaryTag[1]
+        }
+        if (imageTag && imageTag[1]) {
+          post.image = imageTag[1]
+        }
+        if (publishedAtTag && publishedAtTag[1]) {
+          post.published_at = Number.parseInt(publishedAtTag[1])
+        }
+      }
+    } else if (translation) {
+      // Fallback to translation-only post when event is unavailable
+      const published = translation.data?.publishing_date
+        ? Math.floor(new Date(translation.data.publishing_date).getTime() / 1000)
+        : Math.floor(Date.now() / 1000)
+      post = {
+        id: eventId,
+        pubkey: "",
+        created_at: published,
+        kind: translation.data?.kind || 1,
+        tags: Array.isArray(translation.data?.tags)
+          ? translation.data.tags.map((t: string) => ["t", t])
+          : [],
+        content: translation.content,
+        sig: "",
+        type: translation.data?.type === "article" ? "article" : "note",
+        title: translation.data?.title,
+        summary: translation.data?.summary,
+        published_at: published,
+        translation: translation.data,
+      }
+    }
+
+    if (!post) {
       return null
     }
 
-    const event = events[0]
-
-    // Get profile for the author
-    const profile = await fetchNostrProfile(event.pubkey)
-
-    const post: NostrPost = {
-      id: event.id,
-      pubkey: event.pubkey,
-      created_at: event.created_at,
-      kind: event.kind,
-      tags: event.tags,
-      content: event.content,
-      sig: event.sig,
-      profile,
-      type: event.kind === 30023 ? "article" : "note",
-    }
-
-    // For long-form articles, extract metadata from tags
-    if (event.kind === 30023) {
-      const titleTag = event.tags.find((tag) => tag[0] === "title")
-      const summaryTag = event.tags.find((tag) => tag[0] === "summary")
-      const imageTag = event.tags.find((tag) => tag[0] === "image")
-      const publishedAtTag = event.tags.find((tag) => tag[0] === "published_at")
-
-      if (titleTag && titleTag[1]) {
-        post.title = titleTag[1]
-      }
-      if (summaryTag && summaryTag[1]) {
-        post.summary = summaryTag[1]
-      }
-      if (imageTag && imageTag[1]) {
-        post.image = imageTag[1]
-      }
-      if (publishedAtTag && publishedAtTag[1]) {
-        post.published_at = Number.parseInt(publishedAtTag[1])
-      }
-    }
-
-    if (locale === "es") {
-      const baseUrl =
-        typeof window === "undefined"
-          ? process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
-          : ""
-      try {
-        const res = await fetch(`${baseUrl}/api/nostr-translations/${eventId}`)
-        if (!res.ok) return null
-        const data = await res.json()
-        post.content = data.content
-        post.translation = data.data
-      } catch {
-        return null
-      }
+    if (translation) {
+      post.content = translation.content
+      post.translation = translation.data
     }
 
     setCachedData(cacheKey, post)
