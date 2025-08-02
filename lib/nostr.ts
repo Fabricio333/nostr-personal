@@ -303,7 +303,7 @@ export async function fetchNostrPosts(
       return post
     })
 
-    // If Spanish locale, filter posts by available translations
+    // If Spanish locale, only keep posts with available translations
     if (locale === "es") {
       const translated: NostrPost[] = []
       await Promise.all(
@@ -312,6 +312,19 @@ export async function fetchNostrPosts(
           if (data) {
             post.content = data.content
             post.translation = data.data
+            // Override metadata when provided in translation frontmatter
+            if (data.data.title) {
+              post.title = data.data.title
+            }
+            if (data.data.summary) {
+              post.summary = data.data.summary
+            }
+            if (data.data.image) {
+              post.image = data.data.image
+            }
+            if (data.data.published_at) {
+              post.published_at = Number.parseInt(data.data.published_at)
+            }
             translated.push(post)
           }
         })
@@ -367,6 +380,15 @@ export async function fetchNostrPost(
       return cached
     }
 
+    // For Spanish locale, require a translation file
+    let translation: { data: any; content: string } | null = null
+    if (locale === "es") {
+      translation = await getTranslation(eventId)
+      if (!translation) {
+        return null
+      }
+    }
+
     const currentPool = getPool()
 
     // Try to fetch by event ID
@@ -419,11 +441,20 @@ export async function fetchNostrPost(
       }
     }
 
-    if (locale === "es") {
-      const data = await getTranslation(eventId)
-      if (data) {
-        post.content = data.content
-        post.translation = data.data
+    if (translation) {
+      post.content = translation.content
+      post.translation = translation.data
+      if (translation.data.title) {
+        post.title = translation.data.title
+      }
+      if (translation.data.summary) {
+        post.summary = translation.data.summary
+      }
+      if (translation.data.image) {
+        post.image = translation.data.image
+      }
+      if (translation.data.published_at) {
+        post.published_at = Number.parseInt(translation.data.published_at)
       }
     }
 
