@@ -10,10 +10,15 @@ export interface DigitalGardenNote {
   content: string
 }
 
-const baseDir = path.join(process.cwd(), 'digital-garden')
+// Notes are stored in the public folder under locale-specific directories:
+//   public/en/digital-garden
+//   public/es/digital-garden
+// Using the public folder allows the same markdown files to be served
+// statically while also being accessible via the filesystem for parsing.
+const baseDir = path.join(process.cwd(), 'public')
 
 export async function getAllNotes(locale: string = 'en'): Promise<DigitalGardenNote[]> {
-  const notesDir = path.join(baseDir, locale)
+  const notesDir = path.join(baseDir, locale, 'digital-garden')
   const files = await fs.readdir(notesDir)
   const notes: DigitalGardenNote[] = []
   for (const file of files) {
@@ -38,7 +43,7 @@ export async function getNote(
   slug: string,
   locale: string = 'en'
 ): Promise<{ title: string; tags: string[]; content: string } | null> {
-  const filePath = path.join(baseDir, locale, `${slug}.md`)
+  const filePath = path.join(baseDir, locale, 'digital-garden', `${slug}.md`)
   try {
     const content = await fs.readFile(filePath, 'utf8')
     const { data, content: body } = matter(content)
