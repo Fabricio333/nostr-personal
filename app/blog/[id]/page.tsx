@@ -22,12 +22,20 @@ export async function generateStaticParams() {
   }
 }
 
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+  searchParams,
+}: {
+  params: { id: string }
+  searchParams: { locale?: string }
+}): Promise<Metadata> {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://example.com"
   try {
     const cookieStore = cookies()
     const locale =
-      (cookieStore.get("NEXT_LOCALE")?.value as "en" | "es") || "en"
+      (searchParams.locale as "en" | "es") ||
+      (cookieStore.get("NEXT_LOCALE")?.value as "en" | "es") ||
+      "en"
     const post = await nostrClient.fetchPost(params.id, locale)
     if (!post) {
       return { title: "Post not found" }
@@ -51,12 +59,20 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   }
 }
 
-export default async function BlogPostPage({ params }: { params: { id: string } }) {
+export default async function BlogPostPage({
+  params,
+  searchParams,
+}: {
+  params: { id: string }
+  searchParams: { locale?: string }
+}) {
   const { id } = params
   const settings = getNostrSettings()
   const cookieStore = cookies()
   const locale =
-    (cookieStore.get("NEXT_LOCALE")?.value as "en" | "es") || "en"
+    (searchParams.locale as "en" | "es") ||
+    (cookieStore.get("NEXT_LOCALE")?.value as "en" | "es") ||
+    "en"
 
   if (!settings.ownerNpub || !settings.ownerNpub.startsWith("npub1")) {
     return (
@@ -117,7 +133,7 @@ export default async function BlogPostPage({ params }: { params: { id: string } 
         <div className="container mx-auto px-4 py-8">
           <div className="mb-4">
             <Link
-              href="/blog"
+              href={`/blog?locale=${locale}`}
               className="text-blue-600 hover:underline"
             >
               ← Back to Blog
