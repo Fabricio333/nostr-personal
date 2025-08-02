@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast"
 import { sendNostrDM } from "@/lib/nostr-contact"
 import { getNostrSettings } from "@/lib/nostr-settings"
 import { Mail, Send, MessageCircle, CheckCircle } from "lucide-react"
+import { useI18n } from "@/components/locale-provider"
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -23,6 +24,7 @@ export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const { toast } = useToast()
+  const { t } = useI18n()
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -35,8 +37,8 @@ export default function ContactPage() {
     const settings = getNostrSettings()
     if (!settings.ownerNpub) {
       toast({
-        title: "Configuration Error",
-        description: "No Nostr public key configured. Please contact the site administrator.",
+        title: t("contact.configuration_error_title"),
+        description: t("contact.configuration_error_description"),
         variant: "destructive",
       })
       return
@@ -58,8 +60,8 @@ ${formData.message}`
 
       setIsSubmitted(true)
       toast({
-        title: "Message Sent Successfully!",
-        description: "Your message has been sent via Nostr. I'll get back to you soon!",
+        title: t("contact.message_sent_title"),
+        description: t("contact.message_sent_description"),
       })
 
       // Reset form
@@ -72,8 +74,8 @@ ${formData.message}`
     } catch (error) {
       console.error("Error sending message:", error)
       toast({
-        title: "Failed to Send Message",
-        description: "There was an error sending your message. Please try again or contact me directly.",
+        title: t("contact.failed_title"),
+        description: t("contact.failed_description"),
         variant: "destructive",
       })
     } finally {
@@ -88,12 +90,14 @@ ${formData.message}`
           <Card className="max-w-2xl mx-auto backdrop-blur-sm bg-white/80 dark:bg-slate-800/80 border-0 shadow-xl">
             <CardContent className="p-8 text-center">
               <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold mb-2 text-green-600 dark:text-green-400">Message Sent!</h2>
+              <h2 className="text-2xl font-bold mb-2 text-green-600 dark:text-green-400">
+                {t("contact.message_sent_heading")}
+              </h2>
               <p className="text-slate-600 dark:text-slate-300 mb-6">
-                  Your message has been successfully sent via Nostr. I’ll get back to you as soon as possible.
+                {t("contact.message_sent_text")}
               </p>
               <Button onClick={() => setIsSubmitted(false)} variant="outline">
-                Send Another Message
+                {t("contact.send_another")}
               </Button>
             </CardContent>
           </Card>
@@ -109,10 +113,10 @@ ${formData.message}`
           <CardHeader className="text-center">
             <CardTitle className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center justify-center gap-2">
               <Mail className="h-8 w-8 text-blue-600" />
-              Contact Me
+              {t("contact.header")}
             </CardTitle>
             <CardDescription className="text-lg">
-                Send me a message via Nostr. I’ll receive it as an encrypted DM and get back to you soon!
+              {t("contact.subheader")}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -120,12 +124,12 @@ ${formData.message}`
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="name" className="text-sm font-medium">
-                    Name *
+                    {t("contact.name")}
                   </Label>
                   <Input
                     id="name"
                     name="name"
-                    placeholder="Your full name"
+                    placeholder={t("contact.name_placeholder")}
                     value={formData.name}
                     onChange={handleInputChange}
                     required
@@ -134,13 +138,13 @@ ${formData.message}`
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-sm font-medium">
-                    Email *
+                    {t("contact.email")}
                   </Label>
                   <Input
                     id="email"
                     name="email"
                     type="email"
-                    placeholder="your.email@example.com"
+                    placeholder={t("contact.email_placeholder")}
                     value={formData.email}
                     onChange={handleInputChange}
                     required
@@ -151,12 +155,12 @@ ${formData.message}`
 
               <div className="space-y-2">
                 <Label htmlFor="subject" className="text-sm font-medium">
-                  Subject *
+                  {t("contact.subject")}
                 </Label>
                 <Input
                   id="subject"
                   name="subject"
-                  placeholder="What's this about?"
+                  placeholder={t("contact.subject_placeholder")}
                   value={formData.subject}
                   onChange={handleInputChange}
                   required
@@ -166,12 +170,12 @@ ${formData.message}`
 
               <div className="space-y-2">
                 <Label htmlFor="message" className="text-sm font-medium">
-                  Message *
+                  {t("contact.message")}
                 </Label>
                 <Textarea
                   id="message"
                   name="message"
-                  placeholder="Tell me what's on your mind..."
+                  placeholder={t("contact.message_placeholder")}
                   value={formData.message}
                   onChange={handleInputChange}
                   required
@@ -184,11 +188,8 @@ ${formData.message}`
                 <div className="flex items-start gap-3">
                   <MessageCircle className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
                   <div className="text-sm text-blue-800 dark:text-blue-200">
-                    <p className="font-medium mb-1">Sent via Nostr</p>
-                    <p>
-                      Your message will be encrypted and sent as a direct message through the Nostr network. This
-                      ensures privacy and decentralization.
-                    </p>
+                    <p className="font-medium mb-1">{t("contact.sent_via")}</p>
+                    <p>{t("contact.sent_via_description")}</p>
                   </div>
                 </div>
               </div>
@@ -201,12 +202,12 @@ ${formData.message}`
                 {isSubmitting ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Sending via Nostr...
+                    {t("contact.send")}
                   </>
                 ) : (
                   <>
                     <Send className="h-4 w-4 mr-2" />
-                    Send Message
+                    {t("contact.send")}
                   </>
                 )}
               </Button>

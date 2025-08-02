@@ -10,6 +10,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { Navbar } from "@/components/navbar"
 import { getSettings, getSiteName, getOwnerNpub } from "@/lib/settings"
 import { cacheProfilePicture } from "@/lib/profile-picture-cache"
+import { I18nProvider } from "@/components/locale-provider"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -60,10 +61,12 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
         <body className={`${inter.className} w-full`}>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-            <Navbar siteName={siteName} />
-            {children}
-          </ThemeProvider>
+          <I18nProvider>
+            <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+              <Navbar siteName={siteName} />
+              {children}
+            </ThemeProvider>
+          </I18nProvider>
           <Script
             src="https://www.googletagmanager.com/gtag/js?id=G-G8586BX397"
             strategy="afterInteractive"

@@ -12,6 +12,7 @@ import { FileText, MessageSquare, Calendar, ExternalLink, RefreshCw, Leaf } from
 import { fetchNostrProfile, fetchNostrPosts } from "@/lib/nostr"
 import { getNostrSettings } from "@/lib/nostr-settings"
 import Link from "next/link"
+import { useI18n } from "@/components/locale-provider"
 
 interface NostrProfile {
   name?: string
@@ -58,6 +59,7 @@ export default function HomePage() {
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedType, setSelectedType] = useState<"" | "nostr" | "article" | "garden">("")
+  const { t, locale } = useI18n()
 
   const loadData = async () => {
     try {
@@ -66,7 +68,7 @@ export default function HomePage() {
 
       const settings = getNostrSettings()
       if (!settings.ownerNpub) {
-        setError("No Nostr public key configured. Please update settings.json to add your npub.")
+        setError(t("home.no_npub"))
         return
       }
 
@@ -110,7 +112,7 @@ export default function HomePage() {
       setFilteredPosts(combined)
     } catch (err) {
       console.error("Error loading data:", err)
-      setError("Failed to load data. Please try again.")
+      setError(t("home.failed_load"))
     } finally {
       setLoading(false)
     }
@@ -143,7 +145,7 @@ export default function HomePage() {
   }, [posts, searchTerm, selectedType])
 
   const formatDate = (timestamp: number) => {
-    return new Date(timestamp * 1000).toLocaleDateString("en-US", {
+    return new Date(timestamp * 1000).toLocaleDateString(locale === "es" ? "es-ES" : "en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -209,7 +211,7 @@ export default function HomePage() {
               <div className="flex gap-2">
                 <Button onClick={loadData} size="sm" variant="outline">
                   <RefreshCw className="h-4 w-4 mr-2" />
-                  Retry
+                  {t("home.retry")}
                 </Button>
               </div>
             </AlertDescription>
@@ -239,7 +241,7 @@ export default function HomePage() {
                 </Avatar>
                 <div className="flex-1 text-center md:text-left">
                   <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-slate-900 to-slate-600 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
-                    {profile.display_name || profile.name || "Anonymous"}
+                  {profile.display_name || profile.name || t("home.anonymous")}
                   </h1>
                   {profile.about && (
                     <div className="text-slate-600 dark:text-slate-300 mb-4 leading-relaxed prose prose-slate dark:prose-invert max-w-none">
@@ -251,7 +253,7 @@ export default function HomePage() {
                       <Button variant="outline" size="sm" asChild>
                         <a href={profile.website} target="_blank" rel="noopener noreferrer">
                           <ExternalLink className="h-4 w-4 mr-2" />
-                          Website
+                          {t("home.website")}
                         </a>
                       </Button>
                     )}
@@ -263,7 +265,7 @@ export default function HomePage() {
         )}
 
         {/* Posts */}
-        <h2 className="text-2xl font-bold mb-4">Latest Posts</h2>
+        <h2 className="text-2xl font-bold mb-4">{t("home.latest_posts")}</h2>
         <div className="flex gap-2 mb-4">
           {["nostr", "article", "garden"].map((type) => {
             const isActive = selectedType === type
@@ -293,17 +295,17 @@ export default function HomePage() {
                 {type === "nostr" ? (
                   <>
                     <MessageSquare className="h-4 w-4 mr-2" />
-                    Nostr
+                    {t("home.type_nostr")}
                   </>
                 ) : type === "article" ? (
                   <>
                     <FileText className="h-4 w-4 mr-2" />
-                    Articles
+                    {t("home.type_article")}
                   </>
                 ) : (
                   <>
                     <Leaf className="h-4 w-4 mr-2" />
-                    Garden
+                    {t("home.type_garden")}
                   </>
                 )}
               </Button>
@@ -315,7 +317,7 @@ export default function HomePage() {
             <Card className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
               <CardContent className="p-8 text-center">
                 <p className="text-slate-600 dark:text-slate-300">
-                  {posts.length === 0 ? "No posts found." : "No posts match your search criteria."}
+                  {posts.length === 0 ? t("home.no_posts") : t("home.no_posts_match")}
                 </p>
               </CardContent>
             </Card>
@@ -348,17 +350,17 @@ export default function HomePage() {
                         {post.type === "article" ? (
                           <>
                             <FileText className="h-3 w-3 mr-1" />
-                            Article
+                            {t("home.type_article")}
                           </>
                         ) : post.type === "garden" ? (
                           <>
                             <Leaf className="h-3 w-3 mr-1" />
-                            Garden
+                            {t("home.type_garden")}
                           </>
                         ) : (
                           <>
                             <MessageSquare className="h-3 w-3 mr-1" />
-                            Nostr
+                            {t("home.type_nostr")}
                           </>
                         )}
                       </Badge>

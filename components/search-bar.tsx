@@ -12,11 +12,13 @@ import {
 } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 import { Search } from "lucide-react"
+import { useI18n } from "@/components/locale-provider"
 
 export function SearchBar() {
   const [term, setTerm] = useState("")
   const [source, setSource] = useState("nostr")
   const router = useRouter()
+  const { t } = useI18n()
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -33,7 +35,7 @@ export function SearchBar() {
         <Input
           value={term}
           onChange={(e) => setTerm(e.target.value)}
-          placeholder="Search..."
+          placeholder={t("search.placeholder")}
           className="pl-8 w-40 md:w-64"
         />
       </div>
@@ -46,17 +48,17 @@ export function SearchBar() {
             source === "garden" && "text-green-500"
           )}
         >
-          <SelectValue placeholder="Filter" />
+          <SelectValue placeholder={t("search.filter")} />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="nostr" className="text-purple-500">
-            ⚡ Nostr
+            {t("search.nostr")}
           </SelectItem>
           <SelectItem value="article" className="text-orange-500">
-            📝 Articles
+            {t("search.articles")}
           </SelectItem>
           <SelectItem value="garden" className="text-green-500">
-            🌱 Garden
+            {t("search.garden")}
           </SelectItem>
         </SelectContent>
       </Select>

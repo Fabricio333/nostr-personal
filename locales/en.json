@@ -1,0 +1,61 @@
+{
+  "navbar": {
+    "home": "Home",
+    "blog": "Blog",
+    "projects": "Projects",
+    "resume": "Resume",
+    "lifestyle": "Lifestyle",
+    "garden": "Garden",
+    "contact": "Contact",
+    "open_menu": "Open menu",
+    "close_menu": "Close menu"
+  },
+  "footer": {
+    "rights": "All rights reserved.",
+    "powered": "Powered by Nostr and Next.js"
+  },
+  "search": {
+    "placeholder": "Search...",
+    "filter": "Filter",
+    "nostr": "⚡ Nostr",
+    "articles": "📝 Articles",
+    "garden": "🌱 Garden"
+  },
+  "contact": {
+    "configuration_error_title": "Configuration Error",
+    "configuration_error_description": "No Nostr public key configured. Please contact the site administrator.",
+    "message_sent_title": "Message Sent Successfully!",
+    "message_sent_description": "Your message has been sent via Nostr. I'll get back to you soon!",
+    "failed_title": "Failed to Send Message",
+    "failed_description": "There was an error sending your message. Please try again or contact me directly.",
+    "header": "Contact Me",
+    "subheader": "Send me a message via Nostr. I’ll receive it as an encrypted DM and get back to you soon!",
+    "name": "Name *",
+    "name_placeholder": "Your full name",
+    "email": "Email *",
+    "email_placeholder": "your.email@example.com",
+    "subject": "Subject *",
+    "subject_placeholder": "What's this about?",
+    "message": "Message *",
+    "message_placeholder": "Your message",
+    "send": "Send Message",
+    "message_sent_heading": "Message Sent!",
+    "message_sent_text": "Your message has been successfully sent via Nostr. I’ll get back to you as soon as possible.",
+    "send_another": "Send Another Message",
+    "sent_via": "Sent via Nostr",
+    "sent_via_description": "Your message will be encrypted and sent as a direct message through the Nostr network. This ensures privacy and decentralization."
+  },
+  "home": {
+    "no_npub": "No Nostr public key configured. Please update settings.json to add your npub.",
+    "failed_load": "Failed to load data. Please try again.",
+    "retry": "Retry",
+    "latest_posts": "Latest Posts",
+    "website": "Website",
+    "type_nostr": "Nostr",
+    "type_article": "Articles",
+    "type_garden": "Garden",
+    "no_posts": "No posts found.",
+    "no_posts_match": "No posts match your search criteria.",
+    "anonymous": "Anonymous"
+  }
+}
