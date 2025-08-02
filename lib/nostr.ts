@@ -295,6 +295,17 @@ export async function fetchNostrPosts(
               const { data, content } = matter(raw)
               post.content = content
               post.translation = data
+              if (data.title) post.title = data.title
+              if (data.summary) post.summary = data.summary
+              if (data.image) post.image = data.image
+              if (data.published_at || data.publishing_date) {
+                post.published_at = Number.parseInt(
+                  data.published_at || data.publishing_date,
+                )
+              }
+              if (Array.isArray(data.tags)) {
+                post.tags = data.tags.map((t: string) => ["t", t])
+              }
               translated.push(post)
             } else {
               const res = await fetch(`/api/nostr-translations/${post.id}`)
@@ -302,6 +313,17 @@ export async function fetchNostrPosts(
               const data = await res.json()
               post.content = data.content
               post.translation = data.data
+              if (data.data.title) post.title = data.data.title
+              if (data.data.summary) post.summary = data.data.summary
+              if (data.data.image) post.image = data.data.image
+              if (data.data.published_at || data.data.publishing_date) {
+                post.published_at = Number.parseInt(
+                  data.data.published_at || data.data.publishing_date,
+                )
+              }
+              if (Array.isArray(data.data.tags)) {
+                post.tags = data.data.tags.map((t: string) => ["t", t])
+              }
               translated.push(post)
             }
           } catch {
@@ -337,11 +359,17 @@ export async function fetchNostrPost(
 ): Promise<NostrPost | null> {
   try {
     let eventId = id
-    if (id.startsWith("note")) {
+    if (id.startsWith("note") || id.startsWith("nevent")) {
       try {
         const decoded = nip19.decode(id)
         if (decoded.type === "note") {
           eventId = decoded.data as string
+        } else if (decoded.type === "nevent") {
+          if (typeof decoded.data === "string") {
+            eventId = decoded.data
+          } else if (decoded.data && typeof decoded.data === "object") {
+            eventId = (decoded.data as any).id as string
+          }
         }
       } catch {
         // ignore decode errors and use id as-is
@@ -423,7 +451,7 @@ export async function fetchNostrPost(
           const fs = await import("fs/promises")
           const path = await import("path")
           const matter = (await import("gray-matter")).default
-          const filePath = path.join(
+        const filePath = path.join(
             process.cwd(),
             "nostr-translations",
             `${eventId}.md`
@@ -432,12 +460,34 @@ export async function fetchNostrPost(
           const { data, content } = matter(raw)
           post.content = content
           post.translation = data
+          if (data.title) post.title = data.title
+          if (data.summary) post.summary = data.summary
+          if (data.image) post.image = data.image
+          if (data.published_at || data.publishing_date) {
+            post.published_at = Number.parseInt(
+              data.published_at || data.publishing_date,
+            )
+          }
+          if (Array.isArray(data.tags)) {
+            post.tags = data.tags.map((t: string) => ["t", t])
+          }
         } else {
           const res = await fetch(`/api/nostr-translations/${eventId}`)
           if (res.ok) {
             const data = await res.json()
             post.content = data.content
             post.translation = data.data
+            if (data.data.title) post.title = data.data.title
+            if (data.data.summary) post.summary = data.data.summary
+            if (data.data.image) post.image = data.data.image
+            if (data.data.published_at || data.data.publishing_date) {
+              post.published_at = Number.parseInt(
+                data.data.published_at || data.data.publishing_date,
+              )
+            }
+            if (Array.isArray(data.data.tags)) {
+              post.tags = data.data.tags.map((t: string) => ["t", t])
+            }
           }
         }
       } catch {

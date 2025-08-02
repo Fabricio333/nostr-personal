@@ -10,11 +10,17 @@ export async function GET(
 ) {
   try {
     let id = params.id;
-    if (id.startsWith("note")) {
+    if (id.startsWith("note") || id.startsWith("nevent")) {
       try {
         const decoded = nip19.decode(id);
         if (decoded.type === "note") {
           id = decoded.data as string;
+        } else if (decoded.type === "nevent") {
+          if (typeof decoded.data === "string") {
+            id = decoded.data as string;
+          } else if (decoded.data && typeof decoded.data === "object") {
+            id = (decoded.data as any).id as string;
+          }
         }
       } catch {
         // ignore decode errors and try as-is
