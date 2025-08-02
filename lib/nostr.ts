@@ -321,7 +321,19 @@ export async function fetchNostrPost(
   locale = "en"
 ): Promise<NostrPost | null> {
   try {
-    const cacheKey = getCacheKey("post", id)
+    let eventId = id
+    if (id.startsWith("note")) {
+      try {
+        const decoded = nip19.decode(id)
+        if (decoded.type === "note") {
+          eventId = decoded.data as string
+        }
+      } catch {
+        // ignore decode errors and use id as-is
+      }
+    }
+
+    const cacheKey = getCacheKey("post", eventId)
 
     // Check cache first
     let cached = getCachedData(cacheKey)
@@ -339,7 +351,7 @@ export async function fetchNostrPost(
 
     // Try to fetch by event ID
     const filter: Filter = {
-      ids: [id],
+      ids: [eventId],
       limit: 1,
     }
 
@@ -393,7 +405,7 @@ export async function fetchNostrPost(
           ? process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
           : ""
       try {
-        const res = await fetch(`${baseUrl}/api/nostr-translations/${id}`)
+        const res = await fetch(`${baseUrl}/api/nostr-translations/${eventId}`)
         if (!res.ok) return null
         const data = await res.json()
         post.content = data.content
