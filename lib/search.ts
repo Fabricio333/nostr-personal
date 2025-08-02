@@ -13,7 +13,11 @@ export interface SearchResult {
   snippet: string
 }
 
-export async function searchContent(query: string, source?: SearchSource): Promise<SearchResult[]> {
+export async function searchContent(
+  query: string,
+  source?: SearchSource,
+  locale: 'en' | 'es' = 'en',
+): Promise<SearchResult[]> {
   const q = query.toLowerCase()
   const results: SearchResult[] = []
 
@@ -24,7 +28,7 @@ export async function searchContent(query: string, source?: SearchSource): Promi
 
   if (includeNostr && settings.ownerNpub) {
     try {
-      const posts = await fetchNostrPosts(settings.ownerNpub, settings.maxPosts)
+      const posts = await fetchNostrPosts(settings.ownerNpub, settings.maxPosts, locale)
       for (const post of posts) {
         const postType: SearchSource = post.type === 'article' ? 'article' : 'nostr'
         if (source && source !== postType) continue
@@ -33,7 +37,7 @@ export async function searchContent(query: string, source?: SearchSource): Promi
           results.push({
             type: postType,
             title: post.title || (post.content.length > 60 ? post.content.slice(0, 60) + '…' : post.content),
-            url: `/blog/${post.id}`,
+            url: `/blog/${post.id}${locale === 'es' ? '?lang=es' : ''}`,
             snippet: post.summary || post.content.slice(0, 200),
           })
         }
