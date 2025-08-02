@@ -10,7 +10,7 @@ export interface DigitalGardenNote {
   content: string
 }
 
-const notesDir = path.join(process.cwd(), 'digital-garden')
+const notesDir = path.join(process.cwd(), 'digital-garden', 'en')
 
 export async function getAllNotes(): Promise<DigitalGardenNote[]> {
   const files = await fs.readdir(notesDir)
