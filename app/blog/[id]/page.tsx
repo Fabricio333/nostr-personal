@@ -9,6 +9,8 @@ import { nostrClient, type NostrPost } from "@/lib/nostr"
 import { getNostrSettings } from "@/lib/nostr-settings"
 import { marked } from "marked" // For Markdown rendering
 import { nip19 } from "nostr-tools"
+import fs from "fs"
+import path from "path"
 
 export async function generateStaticParams() {
   const settings = getNostrSettings()
@@ -79,6 +81,11 @@ export default async function BlogPostPage({ params }: { params: { id: string } 
     notFound()
   }
 
+  const translationPath = path.resolve(
+    `./nostr-translations/${id}.md`,
+  )
+  const hasTranslation = fs.existsSync(translationPath)
+
   // Render markdown content
   const renderedContent = marked.parse(post.content || "")
 
@@ -132,6 +139,17 @@ export default async function BlogPostPage({ params }: { params: { id: string } 
               className="prose dark:prose-invert max-w-none"
               dangerouslySetInnerHTML={{ __html: renderedContent }}
             />
+
+            {hasTranslation && (
+              <div className="mt-4">
+                <Link
+                  href={`/es/note/${id}`}
+                  className="text-blue-600 hover:underline"
+                >
+                  🌐 Read in Spanish
+                </Link>
+              </div>
+            )}
 
             {tags.length > 0 && (
               <div className="mt-4 flex flex-wrap gap-2">
