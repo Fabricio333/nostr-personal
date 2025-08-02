@@ -257,6 +257,7 @@ export default function BlogPage() {
               <Link
                 key={post.id}
                 href={`/blog/${post.id}`}
+                prefetch={false}
                 className="group block"
               >
                 <Card

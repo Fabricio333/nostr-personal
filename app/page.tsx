@@ -330,6 +330,7 @@ export default function HomePage() {
                     ? `/digital-garden/${post.id}`
                     : `/blog/${post.id}`
                 }
+                prefetch={false}
                 className="group block"
               >
                 <Card
