@@ -1,12 +1,24 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import { cookies } from 'next/headers'
 import { marked } from 'marked'
 import { getNote } from '@/lib/digital-garden'
 import { Badge } from '@/components/ui/badge'
 import { slugify } from '@/lib/slugify'
+import en from '@/locales/en.json'
+import es from '@/locales/es.json'
+
+const translations = { en, es } as const
+
+function getT(locale: keyof typeof translations) {
+  return (key: string) =>
+    key.split('.').reduce((o: any, k) => (o ? o[k] : undefined), translations[locale]) || key
+}
 
 export default async function DigitalGardenNotePage({ params }: { params: { slug: string } }) {
-  const note = await getNote(params.slug)
+  const locale = (cookies().get('NEXT_LOCALE')?.value || 'en') as 'en' | 'es'
+  const t = getT(locale)
+  const note = await getNote(params.slug, locale)
   if (!note) {
     notFound()
   }
@@ -36,7 +48,7 @@ export default async function DigitalGardenNotePage({ params }: { params: { slug
       </article>
       <div className="mt-8">
         <Link href="/digital-garden" className="text-blue-600 hover:underline">
-          ← Back to Garden
+          {t('digital_garden.back')}
         </Link>
       </div>
     </div>

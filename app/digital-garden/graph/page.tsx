@@ -1,12 +1,24 @@
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
+import { cookies } from 'next/headers'
 import { getAllNotes } from '@/lib/digital-garden'
 import { slugify } from '@/lib/slugify'
+import en from '@/locales/en.json'
+import es from '@/locales/es.json'
+
+const translations = { en, es } as const
+
+function getT(locale: keyof typeof translations) {
+  return (key: string) =>
+    key.split('.').reduce((o: any, k) => (o ? o[k] : undefined), translations[locale]) || key
+}
 
 const WikiGraph = dynamic(() => import('@/components/wiki-graph'), { ssr: false })
 
 export default async function DigitalGardenGraphPage() {
-  const notes = await getAllNotes()
+  const locale = (cookies().get('NEXT_LOCALE')?.value || 'en') as 'en' | 'es'
+  const t = getT(locale)
+  const notes = await getAllNotes(locale)
   const nodes = notes.map((n) => ({ id: n.slug, title: n.title }))
   const links: { source: string; target: string }[] = []
   const linkRegex = /\[\[([^\]]+)\]\]/g
@@ -21,11 +33,11 @@ export default async function DigitalGardenGraphPage() {
   }
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="mb-4 text-center text-3xl font-bold">Garden Graph</h1>
+      <h1 className="mb-4 text-center text-3xl font-bold">{t('digital_garden.garden_graph')}</h1>
       <WikiGraph data={{ nodes, links }} />
       <div className="mt-4 text-center">
         <Link href="/digital-garden" className="text-blue-600 hover:underline">
-          ← Back to Garden
+          {t('digital_garden.back')}
         </Link>
       </div>
     </div>

@@ -48,7 +48,7 @@ export default function BlogPage() {
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedType, setSelectedType] = useState<"all" | "note" | "article">("all")
-  const { locale } = useI18n()
+  const { locale, t } = useI18n()
 
   const loadPosts = useCallback(async () => {
     try {
@@ -57,7 +57,7 @@ export default function BlogPage() {
 
       const settings = getNostrSettings()
       if (!settings.ownerNpub) {
-        setError("No Nostr public key configured. Please update settings.json to add your npub.")
+        setError(t("home.no_npub"))
         return
       }
 
@@ -66,11 +66,11 @@ export default function BlogPage() {
       setFilteredPosts(postsData)
     } catch (err) {
       console.error("Error loading posts:", err)
-      setError("Failed to load posts. Please try again.")
+      setError(t("home.failed_load"))
     } finally {
       setLoading(false)
     }
-  }, [locale])
+  }, [locale, t])
 
   useEffect(() => {
     loadPosts()
@@ -120,9 +120,9 @@ export default function BlogPage() {
         <div className="container mx-auto px-4 py-8">
           <div className="mb-8">
             <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-slate-900 to-slate-600 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
-              Blog Posts
+              {t("blog.title")}
             </h1>
-            <p className="text-slate-600 dark:text-slate-300">All my thoughts, articles, and notes from Nostr</p>
+            <p className="text-slate-600 dark:text-slate-300">{t("blog.subtitle")}</p>
           </div>
 
           <div className="space-y-6">
@@ -156,7 +156,7 @@ export default function BlogPage() {
         <div className="container mx-auto px-4 py-8">
           <div className="mb-8">
             <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-slate-900 to-slate-600 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
-              Blog Posts
+              {t("blog.title")}
             </h1>
           </div>
 
@@ -166,7 +166,7 @@ export default function BlogPage() {
               <div className="flex gap-2">
                 <Button onClick={loadPosts} size="sm" variant="outline">
                   <RefreshCw className="h-4 w-4 mr-2" />
-                  Retry
+                  {t("home.retry")}
                 </Button>
               </div>
             </AlertDescription>
@@ -182,9 +182,9 @@ export default function BlogPage() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-slate-900 to-slate-600 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
-            Blog Posts
+            {t("blog.title")}
           </h1>
-          <p className="text-slate-600 dark:text-slate-300">All my thoughts, articles, and notes from Nostr</p>
+          <p className="text-slate-600 dark:text-slate-300">{t("blog.subtitle")}</p>
         </div>
 
         {/* Search and Filter */}
@@ -194,7 +194,7 @@ export default function BlogPage() {
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
                 <Input
-                  placeholder="Search posts..."
+                  placeholder={t("blog.search_placeholder")}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 border-0 bg-slate-100 dark:bg-slate-700"
@@ -209,7 +209,7 @@ export default function BlogPage() {
                     selectedType === "all" && "bg-slate-200 dark:bg-slate-700",
                   )}
                 >
-                  All ({posts.length})
+                  {t("blog.all")} ({posts.length})
                 </Button>
                 <Button
                   variant="outline"
@@ -221,7 +221,7 @@ export default function BlogPage() {
                   )}
                 >
                   <MessageSquare className="h-4 w-4 mr-2" />
-                  Notes ({posts.filter((p) => p.type === "note").length})
+                  {t("blog.notes")} ({posts.filter((p) => p.type === "note").length})
                 </Button>
                 <Button
                   variant="outline"
@@ -233,7 +233,7 @@ export default function BlogPage() {
                   )}
                 >
                   <FileText className="h-4 w-4 mr-2" />
-                  Articles ({posts.filter((p) => p.type === "article").length})
+                  {t("blog.articles")} ({posts.filter((p) => p.type === "article").length})
                 </Button>
               </div>
             </div>
@@ -247,7 +247,7 @@ export default function BlogPage() {
               <Card className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
                 <CardContent className="p-8 text-center">
                   <p className="text-slate-600 dark:text-slate-300">
-                    {posts.length === 0 ? "No posts found." : "No posts match your search criteria."}
+                    {posts.length === 0 ? t("home.no_posts") : t("home.no_posts_match")}
                   </p>
                 </CardContent>
               </Card>
@@ -275,12 +275,12 @@ export default function BlogPage() {
                         {post.type === "article" ? (
                           <>
                             <FileText className="h-3 w-3 mr-1" />
-                          Article
+                          {t("blog.article")}
                         </>
                       ) : (
                         <>
                           <MessageSquare className="h-3 w-3 mr-1" />
-                          Note
+                          {t("blog.note")}
                         </>
                       )}
                       </Badge>

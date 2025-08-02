@@ -57,5 +57,21 @@
     "no_posts": "No posts found.",
     "no_posts_match": "No posts match your search criteria.",
     "anonymous": "Anonymous"
+  },
+  "blog": {
+    "title": "Blog Posts",
+    "subtitle": "All my thoughts, articles, and notes from Nostr",
+    "search_placeholder": "Search posts...",
+    "all": "All",
+    "notes": "Notes",
+    "articles": "Articles",
+    "article": "Article",
+    "note": "Note"
+  },
+  "digital_garden": {
+    "graph_view": "Graph View",
+    "all": "All",
+    "garden_graph": "Garden Graph",
+    "back": "\u2190 Back to Garden"
   }
 }
