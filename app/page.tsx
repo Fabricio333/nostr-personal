@@ -331,6 +331,7 @@ export default function HomePage() {
                     : `/blog/${post.id}`
                 }
                 className="group block"
+                prefetch={false}
               >
                 <Card
                   className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm transition-all duration-300 group-hover:shadow-xl group-hover:-translate-y-1"
