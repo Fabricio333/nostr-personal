@@ -38,6 +38,7 @@ interface NostrPost {
   summary?: string
   image?: string
   published_at?: number
+  translation?: import('./nostr-translations').NostrTranslation
 }
 
 // Initialize pool
@@ -165,9 +166,13 @@ export async function fetchNostrProfile(npub: string): Promise<NostrProfile | nu
   }
 }
 
-export async function fetchNostrPosts(npub: string, limit = 50): Promise<NostrPost[]> {
+export async function fetchNostrPosts(
+  npub: string,
+  limit = 50,
+  locale: 'en' | 'es' = 'en',
+): Promise<NostrPost[]> {
   try {
-    const cacheKey = getCacheKey("posts", `${npub}:${limit}`)
+    const cacheKey = getCacheKey("posts", `${npub}:${limit}:${locale}`)
 
     // Check cache first
     let cached = getCachedData(cacheKey)
@@ -277,6 +282,35 @@ export async function fetchNostrPosts(npub: string, limit = 50): Promise<NostrPo
     // Limit results
     const limitedPosts = uniquePosts.slice(0, limit)
 
+    if (locale === 'es') {
+      try {
+        const res = await fetch('/api/nostr-translations')
+        if (!res.ok) {
+          console.error('Failed to fetch translations')
+          return []
+        }
+        const translations: import('./nostr-translations').NostrTranslation[] = await res.json()
+        const map = new Map(translations.map((t) => [t.id, t]))
+        const translatedPosts = limitedPosts
+          .filter((p) => map.has(p.id))
+          .map((p) => {
+            const tr = map.get(p.id)!
+            const newPost: NostrPost = { ...p, content: tr.content, translation: tr }
+            if (tr.title) newPost.title = tr.title
+            if (tr.summary) newPost.summary = tr.summary
+            if (tr.publishing_date) {
+              newPost.published_at = Math.floor(new Date(tr.publishing_date).getTime() / 1000)
+            }
+            return newPost
+          })
+        setCachedData(cacheKey, translatedPosts)
+        return translatedPosts
+      } catch (error) {
+        console.error('Error loading translations:', error)
+        return []
+      }
+    }
+
     setCachedData(cacheKey, limitedPosts)
     return limitedPosts
   } catch (error) {
@@ -285,9 +319,12 @@ export async function fetchNostrPosts(npub: string, limit = 50): Promise<NostrPo
   }
 }
 
-export async function fetchNostrPost(id: string): Promise<NostrPost | null> {
+export async function fetchNostrPost(
+  id: string,
+  locale: 'en' | 'es' = 'en',
+): Promise<NostrPost | null> {
   try {
-    const cacheKey = getCacheKey("post", id)
+    const cacheKey = getCacheKey("post", `${id}:${locale}`)
 
     // Check cache first
     let cached = getCachedData(cacheKey)
@@ -353,6 +390,24 @@ export async function fetchNostrPost(id: string): Promise<NostrPost | null> {
       }
     }
 
+    if (locale === 'es') {
+      try {
+        const res = await fetch(`/api/nostr-translations/${id}`)
+        if (!res.ok) return null
+        const tr: import('./nostr-translations').NostrTranslation = await res.json()
+        post.content = tr.content
+        post.translation = tr
+        if (tr.title) post.title = tr.title
+        if (tr.summary) post.summary = tr.summary
+        if (tr.publishing_date) {
+          post.published_at = Math.floor(new Date(tr.publishing_date).getTime() / 1000)
+        }
+      } catch (error) {
+        console.error('Error loading translation:', error)
+        return null
+      }
+    }
+
     setCachedData(cacheKey, post)
     return post
   } catch (error) {
@@ -367,12 +422,19 @@ export class NostrClient {
     return fetchNostrProfile(npub)
   }
 
-  async fetchPosts(npub: string, limit?: number): Promise<NostrPost[]> {
-    return fetchNostrPosts(npub, limit)
+  async fetchPosts(
+    npub: string,
+    limit?: number,
+    locale: 'en' | 'es' = 'en',
+  ): Promise<NostrPost[]> {
+    return fetchNostrPosts(npub, limit, locale)
   }
 
-  async fetchPost(id: string): Promise<NostrPost | null> {
-    return fetchNostrPost(id)
+  async fetchPost(
+    id: string,
+    locale: 'en' | 'es' = 'en',
+  ): Promise<NostrPost | null> {
+    return fetchNostrPost(id, locale)
   }
 
   clearCache(): void {

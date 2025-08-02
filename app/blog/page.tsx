@@ -12,6 +12,7 @@ import { Search, FileText, MessageSquare, Calendar, RefreshCw } from "lucide-rea
 import { fetchNostrPosts } from "@/lib/nostr"
 import { getNostrSettings } from "@/lib/nostr-settings"
 import Link from "next/link"
+import { useI18n } from "@/components/locale-provider"
 
 interface NostrProfile {
   name?: string
@@ -41,6 +42,7 @@ interface NostrPost {
 }
 
 export default function BlogPage() {
+  const { locale } = useI18n()
   const [posts, setPosts] = useState<NostrPost[]>([])
   const [filteredPosts, setFilteredPosts] = useState<NostrPost[]>([])
   const [loading, setLoading] = useState(true)
@@ -59,7 +61,7 @@ export default function BlogPage() {
         return
       }
 
-      const postsData = await fetchNostrPosts(settings.ownerNpub, 100)
+      const postsData = await fetchNostrPosts(settings.ownerNpub, 100, locale)
       setPosts(postsData)
       setFilteredPosts(postsData)
     } catch (err) {
@@ -97,7 +99,7 @@ export default function BlogPage() {
   }, [posts, searchTerm, selectedType])
 
   const formatDate = (timestamp: number) => {
-    return new Date(timestamp * 1000).toLocaleDateString("en-US", {
+    return new Date(timestamp * 1000).toLocaleDateString(locale === "es" ? "es-ES" : "en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
