@@ -31,6 +31,10 @@ export function I18nProvider({ children }: { children: ReactNode }) {
       if (stored === "en" || stored === "es") {
         return stored
       }
+      const cookieMatch = document.cookie.match(/NEXT_LOCALE=(en|es)/)
+      if (cookieMatch) {
+        return cookieMatch[1] as Locale
+      }
     }
     return "en"
   })
