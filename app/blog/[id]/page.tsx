@@ -119,6 +119,7 @@ export default async function BlogPostPage({ params }: { params: { id: string } 
             <Link
               href="/blog"
               className="text-blue-600 hover:underline"
+              prefetch={false}
             >
               ← Back to Blog
             </Link>
