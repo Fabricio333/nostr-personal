@@ -57,5 +57,21 @@
     "no_posts": "No se encontraron publicaciones.",
     "no_posts_match": "Ninguna publicación coincide con tu búsqueda.",
     "anonymous": "Anónimo"
+  },
+  "blog": {
+    "title": "Publicaciones del Blog",
+    "subtitle": "Todas mis ideas, artículos y notas de Nostr",
+    "search_placeholder": "Buscar publicaciones...",
+    "all": "Todos",
+    "notes": "Notas",
+    "articles": "Artículos",
+    "article": "Artículo",
+    "note": "Nota"
+  },
+  "digital_garden": {
+    "graph_view": "Vista de Grafo",
+    "all": "Todo",
+    "garden_graph": "Grafo del Jardín",
+    "back": "\u2190 Volver al Jardín"
   }
 }

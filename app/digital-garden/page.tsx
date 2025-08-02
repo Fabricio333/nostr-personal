@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { cookies } from 'next/headers'
 import { getAllNotes } from '@/lib/digital-garden'
 import { getSiteName } from '@/lib/settings'
 import {
@@ -9,13 +10,27 @@ import {
 } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
+import en from '@/locales/en.json'
+import es from '@/locales/es.json'
+
+const translations = { en, es } as const
+
+function getT(locale: keyof typeof translations) {
+  return (key: string) =>
+    key.split('.').reduce((o: any, k) => (o ? o[k] : undefined), translations[locale]) || key
+}
 
 export default async function DigitalGardenPage({
   searchParams,
 }: {
   searchParams: { tag?: string }
 }) {
-  const [notes, siteName] = await Promise.all([getAllNotes(), getSiteName()])
+  const locale = (cookies().get('NEXT_LOCALE')?.value || 'en') as 'en' | 'es'
+  const t = getT(locale)
+  const [notes, siteName] = await Promise.all([
+    getAllNotes(locale),
+    getSiteName(),
+  ])
   const allTags = Array.from(new Set(notes.flatMap((n) => n.tags))).sort()
   const activeTag = searchParams.tag
   const filteredNotes = activeTag
@@ -24,11 +39,11 @@ export default async function DigitalGardenPage({
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="mb-8 text-center text-4xl font-bold">
-        {siteName}&apos;s Garden
+        {siteName}&apos;s {t('navbar.garden')}
       </h1>
       <div className="mb-4 text-center">
         <Link href="/digital-garden/graph" className="text-blue-600 hover:underline">
-          Graph View
+          {t('digital_garden.graph_view')}
         </Link>
       </div>
       {allTags.length > 0 && (
@@ -41,7 +56,7 @@ export default async function DigitalGardenPage({
                 !activeTag && 'bg-green-500 text-white',
               )}
             >
-              All
+              {t('digital_garden.all')}
             </Badge>
           </Link>
           {allTags.map((tag) => (
