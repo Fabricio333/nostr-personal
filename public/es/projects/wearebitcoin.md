@@ -1,7 +1,8 @@
-WeAreBitcoin.org
+# WeAreBitcoin.org
+
 Redactor de contenido y desarrollador en WeAreBitcoin.org, una plataforma educativa sobre Bitcoin enfocada en la autocustodia y los principios del dinero sano.
 
-Responsabilidades
+## Responsabilidades
 - Escribir, traducir y localizar artículos sobre Bitcoin, economía austríaca y autosoberanía.
 - Formatear y publicar publicaciones usando Markdown y un CMS basado en Next.js.
 - Diseñar y probar herramientas interactivas como asistentes de incorporación y calculadoras DCA.
