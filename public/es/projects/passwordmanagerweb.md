@@ -1,6 +1,10 @@
-# Password Manager v2
-
-Bóveda de contraseñas determinística con respaldo descentralizado en Nostr.
+---
+title: Password Manager v2
+description: Bóveda de contraseñas determinística con respaldo descentralizado en Nostr.
+links:
+  demo: https://fabricio333.github.io/PasswordManagerWeb/
+  source: https://github.com/Fabricio333/PasswordManagerWeb
+---
 
 ## Características
 - Gestor de contraseñas basado en el navegador y capaz de funcionar sin conexión usando frases semilla BIP39 y SHA-256 para la generación determinística de contraseñas.
@@ -8,6 +12,3 @@ Bóveda de contraseñas determinística con respaldo descentralizado en Nostr.
 - Cifrado de sesión local con protección AES basada en contraseña almacenada en localStorage.
 - Enfoque en la privacidad y portabilidad: funciona totalmente sin conexión, es apto para móviles y evita almacenamiento central o dependencia de servidores.
 
-[Demo en vivo](https://fabricio333.github.io/PasswordManagerWeb/)
-
-[Código fuente en GitHub](https://github.com/Fabricio333/PasswordManagerWeb)
