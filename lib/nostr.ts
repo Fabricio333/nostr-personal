@@ -98,9 +98,12 @@ function getStoredData(key: string): any | null {
   return null
 }
 
-export async function fetchNostrProfile(npub: string): Promise<NostrProfile | null> {
+export async function fetchNostrProfile(
+  npub: string,
+  locale = "en",
+): Promise<NostrProfile | null> {
   try {
-    const cacheKey = getCacheKey("profile", npub)
+    const cacheKey = getCacheKey("profile", `${npub}:${locale}`)
 
     // Check cache first
     let cached = getCachedData(cacheKey)
@@ -156,6 +159,29 @@ export async function fetchNostrProfile(npub: string): Promise<NostrProfile | nu
     } catch (error) {
       console.error("Failed to parse profile content:", error)
       profile = {}
+    }
+
+    if (locale === "es") {
+      try {
+        if (typeof window === "undefined") {
+          const fs = await import("fs/promises")
+          const path = await import("path")
+          const filePath = path.join(
+            process.cwd(),
+            "nostr-translations",
+            "es",
+            "description.md",
+          )
+          profile.about = (await fs.readFile(filePath, "utf8")).trim()
+        } else {
+          const res = await fetch("/api/nostr-profile/description")
+          if (res.ok) {
+            profile.about = (await res.text()).trim()
+          }
+        }
+      } catch {
+        // ignore missing translation
+      }
     }
 
     setCachedData(cacheKey, profile)
@@ -236,7 +262,7 @@ export async function fetchNostrPosts(
     }
 
     // Get profile for the author
-    const profile = await fetchNostrProfile(npub)
+    const profile = await fetchNostrProfile(npub, locale)
 
     // Convert events to posts
     let posts: NostrPost[] = allEvents.map((event) => {
@@ -382,7 +408,7 @@ export async function fetchNostrPost(
     const event = events[0]
 
     // Get profile for the author
-    const profile = await fetchNostrProfile(event.pubkey)
+    const profile = await fetchNostrProfile(event.pubkey, locale)
 
     const post: NostrPost = {
       id: event.id,
@@ -457,8 +483,11 @@ export async function fetchNostrPost(
 
 // NostrClient class for compatibility
 export class NostrClient {
-  async fetchProfile(npub: string): Promise<NostrProfile | null> {
-    return fetchNostrProfile(npub)
+  async fetchProfile(
+    npub: string,
+    locale?: string,
+  ): Promise<NostrProfile | null> {
+    return fetchNostrProfile(npub, locale)
   }
 
   async fetchPosts(

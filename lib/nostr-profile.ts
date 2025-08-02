@@ -11,8 +11,11 @@ const NOSTR_RELAYS = [
   "wss://relay.nostr.info",
 ]
 
-export async function fetchNostrProfile(npub: string): Promise<NostrProfile | null> {
-  return nostrClient.fetchNostrProfile(npub)
+export async function fetchNostrProfile(
+  npub: string,
+  locale = "en",
+): Promise<NostrProfile | null> {
+  return nostrClient.fetchProfile(npub, locale)
 }
 
 async function fetchProfileFromRelays(hexPubkey: string): Promise<NostrProfile | null> {
