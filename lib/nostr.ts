@@ -400,18 +400,30 @@ export async function fetchNostrPost(
     }
 
     if (locale === "es") {
-      const baseUrl =
-        typeof window === "undefined"
-          ? process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
-          : ""
       try {
-        const res = await fetch(`${baseUrl}/api/nostr-translations/${eventId}`)
-        if (!res.ok) return null
-        const data = await res.json()
-        post.content = data.content
-        post.translation = data.data
+        if (typeof window === "undefined") {
+          const fs = await import("fs/promises")
+          const path = await import("path")
+          const matter = (await import("gray-matter")).default
+          const filePath = path.join(
+            process.cwd(),
+            "nostr-translations",
+            `${eventId}.md`,
+          )
+          const raw = await fs.readFile(filePath, "utf8")
+          const { data, content } = matter(raw)
+          post.content = content
+          post.translation = data
+        } else {
+          const res = await fetch(`/api/nostr-translations/${eventId}`)
+          if (res.ok) {
+            const data = await res.json()
+            post.content = data.content
+            post.translation = data.data
+          }
+        }
       } catch {
-        return null
+        // If the translation cannot be loaded, keep the original content
       }
     }
 
