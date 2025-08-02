@@ -59,4 +59,6 @@ This is a personal blog website built with Next.js, Tailwind CSS, and Shadcn UI.
 
 ## Contributing
 
-Feel free to open issues or pull requests if you have suggestions or improvements.
+Feel free to open issues or pull requests if you have suggestions or improvements. 
+
+Thanks.
