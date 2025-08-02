@@ -161,20 +161,21 @@ export async function fetchNostrProfile(
       profile = {}
     }
 
-    if (locale === "es") {
+    if (locale !== "en") {
       try {
         if (typeof window === "undefined") {
           const fs = await import("fs/promises")
           const path = await import("path")
           const filePath = path.join(
             process.cwd(),
-            "nostr-translations",
-            "es",
+            "public",
+            locale,
+            "nostr",
             "description.md",
           )
           profile.about = (await fs.readFile(filePath, "utf8")).trim()
         } else {
-          const res = await fetch("/api/nostr-profile/description")
+          const res = await fetch(`/api/nostr-profile/description?locale=${locale}`)
           if (res.ok) {
             profile.about = (await res.text()).trim()
           }
@@ -199,7 +200,7 @@ export async function fetchNostrPosts(
 ): Promise<NostrPost[]> {
   try {
     const cacheKey = getCacheKey("posts", `${npub}:${limit}:${locale}`)
-    const useCache = locale !== "es"
+    const useCache = locale === "en"
 
     // Check cache first (skip for Spanish to avoid stale translations)
     if (useCache) {
@@ -302,8 +303,8 @@ export async function fetchNostrPosts(
       return post
     })
 
-    // If Spanish locale, filter posts by available translations
-    if (locale === "es") {
+    // If locale has translations, replace content with local files
+    if (locale !== "en") {
       const translated: NostrPost[] = []
       await Promise.all(
         posts.map(async (post) => {
@@ -314,7 +315,9 @@ export async function fetchNostrPosts(
               const matter = (await import("gray-matter")).default
               const filePath = path.join(
                 process.cwd(),
-                "nostr-translations",
+                "public",
+                locale,
+                "nostr",
                 `${post.id}.md`
               )
               const raw = await fs.readFile(filePath, "utf8")
@@ -323,7 +326,7 @@ export async function fetchNostrPosts(
               post.translation = data
               translated.push(post)
             } else {
-              const res = await fetch(`/api/nostr-translations/${post.id}`)
+              const res = await fetch(`/api/nostr-translations/${post.id}?locale=${locale}`)
               if (!res.ok) return
               const data = await res.json()
               post.content = data.content
@@ -375,7 +378,7 @@ export async function fetchNostrPost(
     }
 
     const cacheKey = getCacheKey("post", `${eventId}:${locale}`)
-    const useCache = locale !== "es"
+    const useCache = locale === "en"
 
     // Check cache first (skip for Spanish translations)
     if (useCache) {
@@ -443,7 +446,7 @@ export async function fetchNostrPost(
       }
     }
 
-    if (locale === "es") {
+    if (locale !== "en") {
       try {
         if (typeof window === "undefined") {
           const fs = await import("fs/promises")
@@ -451,7 +454,9 @@ export async function fetchNostrPost(
           const matter = (await import("gray-matter")).default
           const filePath = path.join(
             process.cwd(),
-            "nostr-translations",
+            "public",
+            locale,
+            "nostr",
             `${eventId}.md`
           )
           const raw = await fs.readFile(filePath, "utf8")
@@ -459,7 +464,7 @@ export async function fetchNostrPost(
           post.content = content
           post.translation = data
         } else {
-          const res = await fetch(`/api/nostr-translations/${eventId}`)
+          const res = await fetch(`/api/nostr-translations/${eventId}?locale=${locale}`)
           if (res.ok) {
             const data = await res.json()
             post.content = data.content
