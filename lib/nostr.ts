@@ -38,6 +38,7 @@ interface NostrPost {
   summary?: string
   image?: string
   published_at?: number
+  translation?: any
 }
 
 // Initialize pool
@@ -165,7 +166,11 @@ export async function fetchNostrProfile(npub: string): Promise<NostrProfile | nu
   }
 }
 
-export async function fetchNostrPosts(npub: string, limit = 50): Promise<NostrPost[]> {
+export async function fetchNostrPosts(
+  npub: string,
+  limit = 50,
+  locale = "en"
+): Promise<NostrPost[]> {
   try {
     const cacheKey = getCacheKey("posts", `${npub}:${limit}`)
 
@@ -231,7 +236,7 @@ export async function fetchNostrPosts(npub: string, limit = 50): Promise<NostrPo
     const profile = await fetchNostrProfile(npub)
 
     // Convert events to posts
-    const posts: NostrPost[] = allEvents.map((event) => {
+    let posts: NostrPost[] = allEvents.map((event) => {
       const post: NostrPost = {
         id: event.id,
         pubkey: event.pubkey,
@@ -268,6 +273,32 @@ export async function fetchNostrPosts(npub: string, limit = 50): Promise<NostrPo
       return post
     })
 
+    // If Spanish locale, filter posts by available translations
+    if (locale === "es") {
+      const translated: NostrPost[] = []
+      const baseUrl =
+        typeof window === "undefined"
+          ? process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+          : ""
+      await Promise.all(
+        posts.map(async (post) => {
+          try {
+            const res = await fetch(
+              `${baseUrl}/api/nostr-translations/${post.id}`
+            )
+            if (!res.ok) return
+            const data = await res.json()
+            post.content = data.content
+            post.translation = data.data
+            translated.push(post)
+          } catch {
+            // ignore missing translations
+          }
+        })
+      )
+      posts = translated
+    }
+
     // Remove any duplicate posts that might come from multiple relays
     const uniquePosts = Array.from(new Map(posts.map((p) => [p.id, p])).values())
 
@@ -285,7 +316,10 @@ export async function fetchNostrPosts(npub: string, limit = 50): Promise<NostrPo
   }
 }
 
-export async function fetchNostrPost(id: string): Promise<NostrPost | null> {
+export async function fetchNostrPost(
+  id: string,
+  locale = "en"
+): Promise<NostrPost | null> {
   try {
     const cacheKey = getCacheKey("post", id)
 
@@ -353,6 +387,22 @@ export async function fetchNostrPost(id: string): Promise<NostrPost | null> {
       }
     }
 
+    if (locale === "es") {
+      const baseUrl =
+        typeof window === "undefined"
+          ? process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+          : ""
+      try {
+        const res = await fetch(`${baseUrl}/api/nostr-translations/${id}`)
+        if (!res.ok) return null
+        const data = await res.json()
+        post.content = data.content
+        post.translation = data.data
+      } catch {
+        return null
+      }
+    }
+
     setCachedData(cacheKey, post)
     return post
   } catch (error) {
@@ -367,12 +417,16 @@ export class NostrClient {
     return fetchNostrProfile(npub)
   }
 
-  async fetchPosts(npub: string, limit?: number): Promise<NostrPost[]> {
-    return fetchNostrPosts(npub, limit)
+  async fetchPosts(
+    npub: string,
+    limit?: number,
+    locale?: string
+  ): Promise<NostrPost[]> {
+    return fetchNostrPosts(npub, limit, locale)
   }
 
-  async fetchPost(id: string): Promise<NostrPost | null> {
-    return fetchNostrPost(id)
+  async fetchPost(id: string, locale?: string): Promise<NostrPost | null> {
+    return fetchNostrPost(id, locale)
   }
 
   clearCache(): void {
