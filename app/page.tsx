@@ -327,7 +327,9 @@ export default function HomePage() {
                 key={post.id}
                 href={
                   post.type === "garden"
-                    ? `/digital-garden/${post.id}`
+                    ? `${locale === "es" ? "/es" : ""}/digital-garden/${post.id}`
+                    : locale === "es"
+                    ? `/es/${post.id}`
                     : `/blog/${post.id}`
                 }
                 className="group block"
