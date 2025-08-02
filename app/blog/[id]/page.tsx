@@ -9,6 +9,8 @@ import { nostrClient, type NostrPost } from "@/lib/nostr"
 import { getNostrSettings } from "@/lib/nostr-settings"
 import { marked } from "marked" // For Markdown rendering
 import { nip19 } from "nostr-tools"
+import fs from "fs"
+import path from "path"
 
 export async function generateStaticParams() {
   const settings = getNostrSettings()
@@ -82,6 +84,9 @@ export default async function BlogPostPage({ params }: { params: { id: string } 
   // Render markdown content
   const renderedContent = marked.parse(post.content || "")
 
+  const translationPath = path.resolve(`./nostr-translations/${post.id}.md`)
+  const hasTranslation = fs.existsSync(translationPath)
+
   const formatDate = (timestamp: number) =>
     new Date(timestamp * 1000).toLocaleDateString("en-US", {
       year: "numeric",
@@ -150,6 +155,16 @@ export default async function BlogPostPage({ params }: { params: { id: string } 
                 </a>
               </Button>
             </div>
+            {hasTranslation && (
+              <div className="mt-4">
+                <Link
+                  href={`/es/note/${post.id}`}
+                  className="text-blue-600 hover:underline"
+                >
+                  🌐 Read in Spanish
+                </Link>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
