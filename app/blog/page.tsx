@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -50,7 +50,7 @@ export default function BlogPage() {
   const [selectedType, setSelectedType] = useState<"all" | "note" | "article">("all")
   const { locale } = useI18n()
 
-  const loadPosts = async () => {
+  const loadPosts = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
@@ -70,11 +70,11 @@ export default function BlogPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [locale])
 
   useEffect(() => {
     loadPosts()
-  }, [])
+  }, [loadPosts])
 
   useEffect(() => {
     let filtered = posts
@@ -99,11 +99,14 @@ export default function BlogPage() {
   }, [posts, searchTerm, selectedType])
 
   const formatDate = (timestamp: number) => {
-    return new Date(timestamp * 1000).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    })
+    return new Date(timestamp * 1000).toLocaleDateString(
+      locale === "es" ? "es-ES" : "en-US",
+      {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      },
+    )
   }
 
   const truncateContent = (content: string, maxLength = 300) => {
