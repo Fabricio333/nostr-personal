@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 import type { Metadata } from "next"
 import { cookies } from "next/headers"
 import Link from "next/link"
@@ -51,12 +51,32 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   }
 }
 
-export default async function BlogPostPage({ params }: { params: { id: string } }) {
+export default async function BlogPostPage({
+  params,
+  searchParams,
+}: {
+  params: { id: string }
+  searchParams: { lang?: "en" | "es" }
+}) {
   const { id } = params
   const settings = getNostrSettings()
   const cookieStore = cookies()
-  const locale =
+  const cookieLocale =
     (cookieStore.get("NEXT_LOCALE")?.value as "en" | "es") || "en"
+  const locale = (searchParams.lang as "en" | "es") || cookieLocale
+
+  if (cookieLocale === "es" && searchParams.lang !== "es") {
+    try {
+      const fs = await import("fs/promises")
+      const path = await import("path")
+      await fs.access(
+        path.join(process.cwd(), "nostr-translations", `${id}.md`),
+      )
+      redirect(`/blog/${id}?lang=es`)
+    } catch {
+      // no translation available - continue without redirect
+    }
+  }
 
   if (!settings.ownerNpub || !settings.ownerNpub.startsWith("npub1")) {
     return (

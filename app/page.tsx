@@ -328,8 +328,9 @@ export default function HomePage() {
                 href={
                   post.type === "garden"
                     ? `/digital-garden/${post.id}`
-                    : `/blog/${post.id}`
+                    : `/blog/${post.id}${locale === "es" ? "?lang=es" : ""}`
                 }
+                prefetch={false}
                 className="group block"
               >
                 <Card
