@@ -10,9 +10,10 @@ export interface DigitalGardenNote {
   content: string
 }
 
-const notesDir = path.join(process.cwd(), 'digital-garden')
+const baseDir = path.join(process.cwd(), 'digital-garden')
 
-export async function getAllNotes(): Promise<DigitalGardenNote[]> {
+export async function getAllNotes(locale: string = 'en'): Promise<DigitalGardenNote[]> {
+  const notesDir = path.join(baseDir, locale)
   const files = await fs.readdir(notesDir)
   const notes: DigitalGardenNote[] = []
   for (const file of files) {
@@ -34,9 +35,10 @@ export async function getAllNotes(): Promise<DigitalGardenNote[]> {
 }
 
 export async function getNote(
-  slug: string
+  slug: string,
+  locale: string = 'en'
 ): Promise<{ title: string; tags: string[]; content: string } | null> {
-  const filePath = path.join(notesDir, `${slug}.md`)
+  const filePath = path.join(baseDir, locale, `${slug}.md`)
   try {
     const content = await fs.readFile(filePath, 'utf8')
     const { data, content: body } = matter(content)
