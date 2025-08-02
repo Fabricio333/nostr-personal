@@ -73,7 +73,7 @@ export default function LifestylePage() {
     }
 
     loadPosts()
-  }, [])
+  }, [locale])
 
   return (
     <div className="container mx-auto px-4 py-8">

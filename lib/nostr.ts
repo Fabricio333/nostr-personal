@@ -273,9 +273,8 @@ export async function fetchNostrPosts(
       return post
     })
 
-    // If Spanish locale, filter posts by available translations
+    // If Spanish locale, try to load available translations
     if (locale === "es") {
-      const translated: NostrPost[] = []
       const baseUrl =
         typeof window === "undefined"
           ? process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
@@ -284,19 +283,17 @@ export async function fetchNostrPosts(
         posts.map(async (post) => {
           try {
             const res = await fetch(
-              `${baseUrl}/api/nostr-translations/${post.id}`
+              `${baseUrl}/api/nostr-translations/${post.id}`,
             )
             if (!res.ok) return
             const data = await res.json()
             post.content = data.content
             post.translation = data.data
-            translated.push(post)
           } catch {
-            // ignore missing translations
+            // ignore missing translations and keep original content
           }
-        })
+        }),
       )
-      posts = translated
     }
 
     // Remove any duplicate posts that might come from multiple relays
@@ -406,12 +403,13 @@ export async function fetchNostrPost(
           : ""
       try {
         const res = await fetch(`${baseUrl}/api/nostr-translations/${eventId}`)
-        if (!res.ok) return null
-        const data = await res.json()
-        post.content = data.content
-        post.translation = data.data
+        if (res.ok) {
+          const data = await res.json()
+          post.content = data.content
+          post.translation = data.data
+        }
       } catch {
-        return null
+        // ignore missing translations and return original post
       }
     }
 

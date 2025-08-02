@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -61,7 +61,7 @@ export default function HomePage() {
   const [selectedType, setSelectedType] = useState<"" | "nostr" | "article" | "garden">("")
   const { t, locale } = useI18n()
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
@@ -116,11 +116,11 @@ export default function HomePage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [t, locale])
 
   useEffect(() => {
     loadData()
-  }, [])
+  }, [loadData])
 
   useEffect(() => {
     let filtered = posts
