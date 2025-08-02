@@ -11,16 +11,8 @@ import { getNostrSettings } from "@/lib/nostr-settings"
 import { marked } from "marked" // For Markdown rendering
 import { nip19 } from "nostr-tools"
 
-export async function generateStaticParams() {
-  const settings = getNostrSettings()
-  if (!settings.ownerNpub) return []
-  try {
-    const posts = await nostrClient.fetchPosts(settings.ownerNpub, settings.maxPosts || 50)
-    return posts.map((post) => ({ id: post.id }))
-  } catch {
-    return []
-  }
-}
+export const dynamic = "force-dynamic"
+export const revalidate = 0
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://example.com"
