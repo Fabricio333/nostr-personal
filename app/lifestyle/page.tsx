@@ -73,7 +73,7 @@ export default function LifestylePage() {
     }
 
     loadPosts()
-  }, [])
+  }, [locale])
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -102,7 +102,9 @@ export default function LifestylePage() {
                         {post.title || "Note"}
                       </CardTitle>
                       <span className="text-sm text-muted-foreground">
-                        {new Date(post.created_at * 1000).toLocaleDateString()}
+                        {new Date(post.created_at * 1000).toLocaleDateString(
+                          locale === "es" ? "es-ES" : "en-US",
+                        )}
                       </span>
                     </div>
                   </CardHeader>

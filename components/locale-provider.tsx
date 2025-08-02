@@ -39,6 +39,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     if (typeof window !== "undefined") {
       localStorage.setItem("locale", locale)
       document.documentElement.lang = locale
+      document.cookie = `NEXT_LOCALE=${locale}; path=/; max-age=31536000`
     }
   }, [locale])
 

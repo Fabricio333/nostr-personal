@@ -172,7 +172,7 @@ export async function fetchNostrPosts(
   locale = "en"
 ): Promise<NostrPost[]> {
   try {
-    const cacheKey = getCacheKey("posts", `${npub}:${limit}`)
+    const cacheKey = getCacheKey("posts", `${npub}:${limit}:${locale}`)
 
     // Check cache first
     let cached = getCachedData(cacheKey)
@@ -333,7 +333,7 @@ export async function fetchNostrPost(
       }
     }
 
-    const cacheKey = getCacheKey("post", eventId)
+    const cacheKey = getCacheKey("post", `${eventId}:${locale}`)
 
     // Check cache first
     let cached = getCachedData(cacheKey)
