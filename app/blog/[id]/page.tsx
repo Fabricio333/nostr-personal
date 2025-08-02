@@ -9,6 +9,9 @@ import { nostrClient, type NostrPost } from "@/lib/nostr"
 import { getNostrSettings } from "@/lib/nostr-settings"
 import { marked } from "marked" // For Markdown rendering
 import { nip19 } from "nostr-tools"
+import fs from "fs"
+import path from "path"
+import matter from "gray-matter"
 
 export async function generateStaticParams() {
   const settings = getNostrSettings()
@@ -102,6 +105,18 @@ export default async function BlogPostPage({ params }: { params: { id: string } 
   const nevent = nip19.neventEncode({ id: post.id })
   const njumpUrl = `https://njump.me/${nevent}`
 
+  const translationPath = path.join(process.cwd(), "nostr-translations", `${id}.md`)
+  let hasTranslation = false
+  if (fs.existsSync(translationPath)) {
+    try {
+      const file = fs.readFileSync(translationPath, "utf8")
+      const { data } = matter(file)
+      hasTranslation = data.lang === "es"
+    } catch {
+      hasTranslation = false
+    }
+  }
+
   return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
         <div className="container mx-auto px-4 py-8">
@@ -150,6 +165,16 @@ export default async function BlogPostPage({ params }: { params: { id: string } 
                 </a>
               </Button>
             </div>
+            {hasTranslation && (
+              <div className="mt-4">
+                <Link
+                  href={`/es/note/${id}`}
+                  className="text-blue-600 hover:underline"
+                >
+                  🌐 Read in Spanish
+                </Link>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
