@@ -6,20 +6,33 @@ import { cookies } from "next/headers"
 import fs from "fs/promises"
 import path from "path"
 import { marked } from "marked"
+import matter from "gray-matter"
 
 export default async function ResumePage() {
   const name = await getSiteName()
   const cookieStore = cookies()
   const locale = (cookieStore.get("NEXT_LOCALE")?.value as "en" | "es") || "en"
-  const filePath = path.join(process.cwd(), "public", locale, "resume.md")
+  const dirPath = path.join(process.cwd(), "public", locale, "resume")
 
-  let markdown = ""
+  let sections: { title: string; order: number; html: string }[] = []
   try {
-    markdown = await fs.readFile(filePath, "utf8")
+    const files = await fs.readdir(dirPath)
+    const mdFiles = files.filter((f) => f.endsWith(".md"))
+    const parsed = await Promise.all(
+      mdFiles.map(async (file) => {
+        const raw = await fs.readFile(path.join(dirPath, file), "utf8")
+        const { data, content } = matter(raw)
+        return {
+          title: (data.title as string) || file,
+          order: (data.order as number) || 0,
+          html: marked.parse(content),
+        }
+      })
+    )
+    sections = parsed.sort((a, b) => a.order - b.order)
   } catch {
-    markdown = "Resume not available."
+    sections = []
   }
-  const html = marked.parse(markdown)
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -63,7 +76,16 @@ export default async function ResumePage() {
 
         <CardContent>
           <article className="prose dark:prose-invert">
-            <div dangerouslySetInnerHTML={{ __html: html }} />
+            {sections.length ? (
+              sections.map((section) => (
+                <section key={section.title} className="mb-8">
+                  <h2>{section.title}</h2>
+                  <div dangerouslySetInnerHTML={{ __html: section.html }} />
+                </section>
+              ))
+            ) : (
+              <p>Resume not available.</p>
+            )}
           </article>
         </CardContent>
       </Card>
