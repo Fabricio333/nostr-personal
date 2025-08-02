@@ -168,13 +168,14 @@ export async function fetchNostrProfile(
           const path = await import("path")
           const filePath = path.join(
             process.cwd(),
-            "nostr-translations",
-            "es",
+            "public",
+            locale,
+            "nostr",
             "description.md",
           )
           profile.about = (await fs.readFile(filePath, "utf8")).trim()
         } else {
-          const res = await fetch("/api/nostr-profile/description")
+          const res = await fetch(`/${locale}/nostr/description.md`)
           if (res.ok) {
             profile.about = (await res.text()).trim()
           }
@@ -314,7 +315,9 @@ export async function fetchNostrPosts(
               const matter = (await import("gray-matter")).default
               const filePath = path.join(
                 process.cwd(),
-                "nostr-translations",
+                "public",
+                locale,
+                "nostr",
                 `${post.id}.md`
               )
               const raw = await fs.readFile(filePath, "utf8")
@@ -323,11 +326,13 @@ export async function fetchNostrPosts(
               post.translation = data
               translated.push(post)
             } else {
-              const res = await fetch(`/api/nostr-translations/${post.id}`)
+              const res = await fetch(`/${locale}/nostr/${post.id}.md`)
               if (!res.ok) return
-              const data = await res.json()
-              post.content = data.content
-              post.translation = data.data
+              const raw = await res.text()
+              const matter = (await import("gray-matter")).default
+              const { data, content } = matter(raw)
+              post.content = content
+              post.translation = data
               translated.push(post)
             }
           } catch {
@@ -451,7 +456,9 @@ export async function fetchNostrPost(
           const matter = (await import("gray-matter")).default
           const filePath = path.join(
             process.cwd(),
-            "nostr-translations",
+            "public",
+            locale,
+            "nostr",
             `${eventId}.md`
           )
           const raw = await fs.readFile(filePath, "utf8")
@@ -459,11 +466,13 @@ export async function fetchNostrPost(
           post.content = content
           post.translation = data
         } else {
-          const res = await fetch(`/api/nostr-translations/${eventId}`)
+          const res = await fetch(`/${locale}/nostr/${eventId}.md`)
           if (res.ok) {
-            const data = await res.json()
-            post.content = data.content
-            post.translation = data.data
+            const raw = await res.text()
+            const matter = (await import("gray-matter")).default
+            const { data, content } = matter(raw)
+            post.content = content
+            post.translation = data
           }
         }
       } catch {
