@@ -1,6 +1,14 @@
 "use client"
 
-import React, {createContext, useContext, useState, useEffect, ReactNode} from "react"
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+  useRef,
+} from "react"
+import { useRouter } from "next/navigation"
 import en from "@/locales/en.json"
 import es from "@/locales/es.json"
 
@@ -35,13 +43,21 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     return "en"
   })
 
+  const router = useRouter()
+  const firstRender = useRef(true)
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       localStorage.setItem("locale", locale)
       document.documentElement.lang = locale
       document.cookie = `NEXT_LOCALE=${locale}; path=/; max-age=31536000`
+      if (firstRender.current) {
+        firstRender.current = false
+      } else {
+        router.refresh()
+      }
     }
-  }, [locale])
+  }, [locale, router])
 
   const t = (key: string) => {
     const value = getNested(translations[locale], key)
