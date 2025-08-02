@@ -12,6 +12,10 @@ const nextConfig = {
   experimental: {
     serverComponentsExternalPackages: ['nostr-tools']
   },
+  i18n: {
+    locales: ['en', 'es'],
+    defaultLocale: 'en',
+  },
   webpack: (config) => {
     config.resolve.fallback = {
       ...config.resolve.fallback,
