@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
+import { cookies } from "next/headers"
 import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -24,7 +25,10 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://example.com"
   try {
-    const post = await nostrClient.fetchPost(params.id)
+    const cookieStore = cookies()
+    const locale =
+      (cookieStore.get("NEXT_LOCALE")?.value as "en" | "es") || "en"
+    const post = await nostrClient.fetchPost(params.id, locale)
     if (!post) {
       return { title: "Post not found" }
     }
@@ -50,6 +54,9 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 export default async function BlogPostPage({ params }: { params: { id: string } }) {
   const { id } = params
   const settings = getNostrSettings()
+  const cookieStore = cookies()
+  const locale =
+    (cookieStore.get("NEXT_LOCALE")?.value as "en" | "es") || "en"
 
   if (!settings.ownerNpub || !settings.ownerNpub.startsWith("npub1")) {
     return (
@@ -70,7 +77,7 @@ export default async function BlogPostPage({ params }: { params: { id: string } 
 
   let post: NostrPost | null = null
   try {
-    post = await nostrClient.fetchPost(id)
+    post = await nostrClient.fetchPost(id, locale)
   } catch (error) {
     console.error("Error fetching blog post:", error)
   }
@@ -83,11 +90,14 @@ export default async function BlogPostPage({ params }: { params: { id: string } 
   const renderedContent = marked.parse(post.content || "")
 
   const formatDate = (timestamp: number) =>
-    new Date(timestamp * 1000).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    })
+    new Date(timestamp * 1000).toLocaleDateString(
+      locale === "es" ? "es-ES" : "en-US",
+      {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      },
+    )
 
   const authorName =
     post.profile?.display_name || post.profile?.name || "Anonymous"
