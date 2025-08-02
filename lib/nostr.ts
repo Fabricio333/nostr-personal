@@ -173,17 +173,20 @@ export async function fetchNostrPosts(
 ): Promise<NostrPost[]> {
   try {
     const cacheKey = getCacheKey("posts", `${npub}:${limit}:${locale}`)
+    const useCache = locale !== "es"
 
-    // Check cache first
-    let cached = getCachedData(cacheKey)
-    if (!cached && typeof window !== "undefined") {
-      cached = getStoredData(cacheKey)
-      if (cached) {
-        setCachedData(cacheKey, cached) // Restore to memory cache
+    // Check cache first (skip for Spanish to avoid stale translations)
+    if (useCache) {
+      let cached = getCachedData(cacheKey)
+      if (!cached && typeof window !== "undefined") {
+        cached = getStoredData(cacheKey)
+        if (cached) {
+          setCachedData(cacheKey, cached) // Restore to memory cache
+        }
       }
-    }
-    if (cached) {
-      return cached
+      if (cached) {
+        return cached
+      }
     }
 
     // Decode npub to hex
@@ -276,21 +279,31 @@ export async function fetchNostrPosts(
     // If Spanish locale, filter posts by available translations
     if (locale === "es") {
       const translated: NostrPost[] = []
-      const baseUrl =
-        typeof window === "undefined"
-          ? process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
-          : ""
       await Promise.all(
         posts.map(async (post) => {
           try {
-            const res = await fetch(
-              `${baseUrl}/api/nostr-translations/${post.id}`
-            )
-            if (!res.ok) return
-            const data = await res.json()
-            post.content = data.content
-            post.translation = data.data
-            translated.push(post)
+            if (typeof window === "undefined") {
+              const fs = await import("fs/promises")
+              const path = await import("path")
+              const matter = (await import("gray-matter")).default
+              const filePath = path.join(
+                process.cwd(),
+                "nostr-translations",
+                `${post.id}.md`
+              )
+              const raw = await fs.readFile(filePath, "utf8")
+              const { data, content } = matter(raw)
+              post.content = content
+              post.translation = data
+              translated.push(post)
+            } else {
+              const res = await fetch(`/api/nostr-translations/${post.id}`)
+              if (!res.ok) return
+              const data = await res.json()
+              post.content = data.content
+              post.translation = data.data
+              translated.push(post)
+            }
           } catch {
             // ignore missing translations
           }
@@ -308,7 +321,9 @@ export async function fetchNostrPosts(
     // Limit results
     const limitedPosts = uniquePosts.slice(0, limit)
 
-    setCachedData(cacheKey, limitedPosts)
+    if (useCache) {
+      setCachedData(cacheKey, limitedPosts)
+    }
     return limitedPosts
   } catch (error) {
     console.error("Error fetching Nostr posts:", error)
@@ -334,17 +349,20 @@ export async function fetchNostrPost(
     }
 
     const cacheKey = getCacheKey("post", `${eventId}:${locale}`)
+    const useCache = locale !== "es"
 
-    // Check cache first
-    let cached = getCachedData(cacheKey)
-    if (!cached && typeof window !== "undefined") {
-      cached = getStoredData(cacheKey)
-      if (cached) {
-        setCachedData(cacheKey, cached) // Restore to memory cache
+    // Check cache first (skip for Spanish translations)
+    if (useCache) {
+      let cached = getCachedData(cacheKey)
+      if (!cached && typeof window !== "undefined") {
+        cached = getStoredData(cacheKey)
+        if (cached) {
+          setCachedData(cacheKey, cached) // Restore to memory cache
+        }
       }
-    }
-    if (cached) {
-      return cached
+      if (cached) {
+        return cached
+      }
     }
 
     const currentPool = getPool()
@@ -400,22 +418,36 @@ export async function fetchNostrPost(
     }
 
     if (locale === "es") {
-      const baseUrl =
-        typeof window === "undefined"
-          ? process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
-          : ""
       try {
-        const res = await fetch(`${baseUrl}/api/nostr-translations/${eventId}`)
-        if (!res.ok) return null
-        const data = await res.json()
-        post.content = data.content
-        post.translation = data.data
+        if (typeof window === "undefined") {
+          const fs = await import("fs/promises")
+          const path = await import("path")
+          const matter = (await import("gray-matter")).default
+          const filePath = path.join(
+            process.cwd(),
+            "nostr-translations",
+            `${eventId}.md`
+          )
+          const raw = await fs.readFile(filePath, "utf8")
+          const { data, content } = matter(raw)
+          post.content = content
+          post.translation = data
+        } else {
+          const res = await fetch(`/api/nostr-translations/${eventId}`)
+          if (res.ok) {
+            const data = await res.json()
+            post.content = data.content
+            post.translation = data.data
+          }
+        }
       } catch {
-        return null
+        // Missing translation - fall back to original content
       }
     }
 
-    setCachedData(cacheKey, post)
+    if (useCache) {
+      setCachedData(cacheKey, post)
+    }
     return post
   } catch (error) {
     console.error("Error fetching Nostr post:", error)
