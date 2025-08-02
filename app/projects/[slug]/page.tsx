@@ -3,6 +3,7 @@ import { cookies } from "next/headers"
 import fs from "fs/promises"
 import path from "path"
 import { marked } from "marked"
+import matter from "gray-matter"
 
 export async function generateStaticParams() {
   const dir = path.join(process.cwd(), "public", "en", "projects")
@@ -23,11 +24,51 @@ export default async function ProjectPage({ params }: { params: { slug: string }
   } catch {
     notFound()
   }
-  const html = marked.parse(markdown || "")
+
+  const { content, data } = matter(markdown || "")
+  const html = marked.parse(content || "")
+  const links = (data as any).links as {
+    demo?: string
+    source?: string
+    website?: string
+  }
+
+  const linkLabels = {
+    demo: locale === "es" ? "Demo en vivo" : "Live Demo",
+    source: locale === "es" ? "Código fuente" : "Source Code",
+    website: locale === "es" ? "Sitio web" : "Website",
+  }
 
   return (
     <div className="container mx-auto max-w-3xl px-4 py-8">
       <article className="prose dark:prose-invert">
+        {data.title && <h1>{data.title as string}</h1>}
+        {data.description && <p>{data.description as string}</p>}
+        {links && (
+          <ul>
+            {links.demo && (
+              <li>
+                <a href={links.demo} target="_blank" rel="noopener noreferrer">
+                  {linkLabels.demo}
+                </a>
+              </li>
+            )}
+            {links.source && (
+              <li>
+                <a href={links.source} target="_blank" rel="noopener noreferrer">
+                  {linkLabels.source}
+                </a>
+              </li>
+            )}
+            {links.website && (
+              <li>
+                <a href={links.website} target="_blank" rel="noopener noreferrer">
+                  {linkLabels.website}
+                </a>
+              </li>
+            )}
+          </ul>
+        )}
         <div dangerouslySetInnerHTML={{ __html: html }} />
       </article>
     </div>
