@@ -2,7 +2,6 @@ import fs from "fs"
 import path from "path"
 import matter from "gray-matter"
 import { marked } from "marked"
-import Link from "next/link"
 import { notFound } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
 
@@ -12,12 +11,12 @@ export async function generateStaticParams() {
   return fs
     .readdirSync(dir)
     .filter((file) => file.endsWith(".md"))
-    .map((file) => ({ id: file.replace(".md", "") }))
+    .map((file) => ({ note_id: file.replace(".md", "") }))
 }
 
-export default function TranslatedNotePage({ params }: { params: { id: string } }) {
-  const { id } = params
-  const filePath = path.join(process.cwd(), "nostr-translations", `${id}.md`)
+export default function TranslatedNotePage({ params }: { params: { note_id: string } }) {
+  const { note_id } = params
+  const filePath = path.join(process.cwd(), "nostr-translations", `${note_id}.md`)
   if (!fs.existsSync(filePath)) {
     notFound()
   }
@@ -38,9 +37,14 @@ export default function TranslatedNotePage({ params }: { params: { id: string } 
               dangerouslySetInnerHTML={{ __html: html }}
             />
             <div className="mt-8">
-              <Link href={`/blog/${id}`} className="text-blue-600 hover:underline">
+              <a
+                href={`https://njump.me/${note_id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:underline"
+              >
                 Ver publicación original
-              </Link>
+              </a>
             </div>
           </CardContent>
         </Card>
