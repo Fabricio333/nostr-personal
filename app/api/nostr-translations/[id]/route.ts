@@ -21,7 +21,13 @@ export async function GET(
       }
     }
 
-    const filePath = path.join(process.cwd(), "nostr-translations", `${id}.md`);
+    const filePath = path.join(
+      process.cwd(),
+      "public",
+      "es",
+      "nostr",
+      `${id}.md`,
+    );
     const raw = await fs.readFile(filePath, "utf8");
     const { data, content } = matter(raw);
     return NextResponse.json({ data, content });

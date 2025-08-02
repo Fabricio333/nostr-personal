@@ -168,8 +168,9 @@ export async function fetchNostrProfile(
           const path = await import("path")
           const filePath = path.join(
             process.cwd(),
-            "nostr-translations",
-            "es",
+            "public",
+            locale,
+            "nostr",
             "description.md",
           )
           profile.about = (await fs.readFile(filePath, "utf8")).trim()
@@ -314,8 +315,10 @@ export async function fetchNostrPosts(
               const matter = (await import("gray-matter")).default
               const filePath = path.join(
                 process.cwd(),
-                "nostr-translations",
-                `${post.id}.md`
+                "public",
+                locale,
+                "nostr",
+                `${post.id}.md`,
               )
               const raw = await fs.readFile(filePath, "utf8")
               const { data, content } = matter(raw)
@@ -451,8 +454,10 @@ export async function fetchNostrPost(
           const matter = (await import("gray-matter")).default
           const filePath = path.join(
             process.cwd(),
-            "nostr-translations",
-            `${eventId}.md`
+            "public",
+            locale,
+            "nostr",
+            `${eventId}.md`,
           )
           const raw = await fs.readFile(filePath, "utf8")
           const { data, content } = matter(raw)
