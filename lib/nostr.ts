@@ -98,6 +98,33 @@ function getStoredData(key: string): any | null {
   return null
 }
 
+async function loadTranslation(
+  id: string,
+): Promise<{ content: string; data: any } | null> {
+  if (typeof window === "undefined") {
+    try {
+      const fs = await import("fs/promises")
+      const path = await import("path")
+      const matter = (await import("gray-matter")).default
+      const filePath = path.join(process.cwd(), "nostr-translations", `${id}.md`)
+      const raw = await fs.readFile(filePath, "utf8")
+      const { data, content } = matter(raw)
+      return { content, data }
+    } catch {
+      return null
+    }
+  }
+
+  try {
+    const res = await fetch(`/api/nostr-translations/${id}`)
+    if (!res.ok) return null
+    const data = await res.json()
+    return { content: data.content, data: data.data }
+  } catch {
+    return null
+  }
+}
+
 export async function fetchNostrProfile(npub: string): Promise<NostrProfile | null> {
   try {
     const cacheKey = getCacheKey("profile", npub)
@@ -276,24 +303,13 @@ export async function fetchNostrPosts(
     // If Spanish locale, filter posts by available translations
     if (locale === "es") {
       const translated: NostrPost[] = []
-      const baseUrl =
-        typeof window === "undefined"
-          ? process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
-          : ""
       await Promise.all(
         posts.map(async (post) => {
-          try {
-            const res = await fetch(
-              `${baseUrl}/api/nostr-translations/${post.id}`
-            )
-            if (!res.ok) return
-            const data = await res.json()
-            post.content = data.content
-            post.translation = data.data
-            translated.push(post)
-          } catch {
-            // ignore missing translations
-          }
+          const translation = await loadTranslation(post.id)
+          if (!translation) return
+          post.content = translation.content
+          post.translation = translation.data
+          translated.push(post)
         })
       )
       posts = translated
@@ -400,19 +416,10 @@ export async function fetchNostrPost(
     }
 
     if (locale === "es") {
-      const baseUrl =
-        typeof window === "undefined"
-          ? process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
-          : ""
-      try {
-        const res = await fetch(`${baseUrl}/api/nostr-translations/${eventId}`)
-        if (!res.ok) return null
-        const data = await res.json()
-        post.content = data.content
-        post.translation = data.data
-      } catch {
-        return null
-      }
+      const translation = await loadTranslation(eventId)
+      if (!translation) return null
+      post.content = translation.content
+      post.translation = translation.data
     }
 
     setCachedData(cacheKey, post)
