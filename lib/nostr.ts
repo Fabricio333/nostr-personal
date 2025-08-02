@@ -98,6 +98,36 @@ function getStoredData(key: string): any | null {
   return null
 }
 
+async function getTranslation(
+  eventId: string,
+): Promise<{ data: any; content: string } | null> {
+  if (typeof window === "undefined") {
+    try {
+      const path = (await import("path")).default
+      const fs = await import("fs")
+      const matter = (await import("gray-matter")).default
+      const filePath = path.join(
+        process.cwd(),
+        "nostr-translations",
+        `${eventId}.md`,
+      )
+      const raw = await fs.promises.readFile(filePath, "utf8")
+      const { data, content } = matter(raw)
+      return { data, content }
+    } catch {
+      return null
+    }
+  } else {
+    try {
+      const res = await fetch(`/api/nostr-translations/${eventId}`)
+      if (!res.ok) return null
+      return await res.json()
+    } catch {
+      return null
+    }
+  }
+}
+
 export async function fetchNostrProfile(npub: string): Promise<NostrProfile | null> {
   try {
     const cacheKey = getCacheKey("profile", npub)
@@ -276,23 +306,13 @@ export async function fetchNostrPosts(
     // If Spanish locale, filter posts by available translations
     if (locale === "es") {
       const translated: NostrPost[] = []
-      const baseUrl =
-        typeof window === "undefined"
-          ? process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
-          : ""
       await Promise.all(
         posts.map(async (post) => {
-          try {
-            const res = await fetch(
-              `${baseUrl}/api/nostr-translations/${post.id}`
-            )
-            if (!res.ok) return
-            const data = await res.json()
+          const data = await getTranslation(post.id)
+          if (data) {
             post.content = data.content
             post.translation = data.data
             translated.push(post)
-          } catch {
-            // ignore missing translations
           }
         })
       )
@@ -400,18 +420,10 @@ export async function fetchNostrPost(
     }
 
     if (locale === "es") {
-      const baseUrl =
-        typeof window === "undefined"
-          ? process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
-          : ""
-      try {
-        const res = await fetch(`${baseUrl}/api/nostr-translations/${eventId}`)
-        if (!res.ok) return null
-        const data = await res.json()
+      const data = await getTranslation(eventId)
+      if (data) {
         post.content = data.content
         post.translation = data.data
-      } catch {
-        return null
       }
     }
 
