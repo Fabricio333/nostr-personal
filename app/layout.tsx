@@ -75,7 +75,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`
   const url = locale === "es" ? `${siteUrl}/es` : siteUrl
-  let profileImage = `${siteUrl}/default-profile.png` // fallback image
+  let profileImage = `${siteUrl}/profile-picture.png` // fallback image
   if (ownerNpub) {
   const cached = await cacheProfilePicture(ownerNpub)
   if (cached) {

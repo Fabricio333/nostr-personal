@@ -1,5 +1,6 @@
 import { promises as fs } from "fs"
 import path from "path"
+import sharp from "sharp"
 import { fetchNostrProfile } from "./nostr"
 
 const CACHE_BASENAME = "profile-picture"
@@ -8,15 +9,13 @@ const MAX_AGE = 24 * 60 * 60 * 1000 // 24 hours
 
 async function getExistingCache(): Promise<string | null> {
   try {
-    const files = await fs.readdir(CACHE_DIR)
-    const file = files.find((f) => f.startsWith(`${CACHE_BASENAME}.`))
-    if (!file) return null
-    const stats = await fs.stat(path.join(CACHE_DIR, file))
+    const filePath = path.join(CACHE_DIR, `${CACHE_BASENAME}.png`)
+    const stats = await fs.stat(filePath)
     if (Date.now() - stats.mtimeMs < MAX_AGE) {
-      return `/${file}`
+      return `/${CACHE_BASENAME}.png`
     }
   } catch {
-    // Ignore missing directory or file access issues
+    // Ignore missing file or access issues
   }
   return null
 }
@@ -34,33 +33,27 @@ export async function cacheProfilePicture(npub: string): Promise<string | null> 
     if (!res.ok) return null
 
     const contentType = res.headers.get("content-type") || ""
-    let ext = ".jpg"
-if (contentType.includes("png")) {
-  ext = ".png"
-} else if (contentType.includes("jpeg") || contentType.includes("jpg")) {
-  ext = ".jpg"
-} else {
-  // Unsupported format like webp or gif — skip caching
-  return null
-}
-
-
-    const buffer = Buffer.from(await res.arrayBuffer())
-
-    // Remove old cached files
-    try {
-      const files = await fs.readdir(CACHE_DIR)
-      await Promise.all(
-        files
-          .filter((f) => f.startsWith(`${CACHE_BASENAME}.`))
-          .map((f) => fs.unlink(path.join(CACHE_DIR, f))),
-      )
-    } catch {
-      // Ignore errors removing old files
+    if (
+      !contentType.includes("png") &&
+      !contentType.includes("jpeg") &&
+      !contentType.includes("jpg")
+    ) {
+      // Unsupported format like webp or gif — skip caching
+      return null
     }
 
-    const fileName = `${CACHE_BASENAME}${ext}`
-    await fs.writeFile(path.join(CACHE_DIR, fileName), buffer)
+    const buffer = Buffer.from(await res.arrayBuffer())
+    const pngBuffer = await sharp(buffer).png().toBuffer()
+
+    // Remove old cached file
+    try {
+      await fs.unlink(path.join(CACHE_DIR, `${CACHE_BASENAME}.png`))
+    } catch {
+      // Ignore errors removing old file
+    }
+
+    const fileName = `${CACHE_BASENAME}.png`
+    await fs.writeFile(path.join(CACHE_DIR, fileName), pngBuffer)
     return `/${fileName}`
   } catch {
     return null
