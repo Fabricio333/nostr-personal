@@ -39,6 +39,10 @@ export function I18nProvider({ children }: { children: ReactNode }) {
       if (stored === "en" || stored === "es") {
         return stored
       }
+      const htmlLang = document.documentElement.lang
+      if (htmlLang === "en" || htmlLang === "es") {
+        return htmlLang as Locale
+      }
     }
     return "en"
   })
