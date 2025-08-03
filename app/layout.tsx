@@ -45,15 +45,12 @@ const SPANISH_COUNTRIES = new Set([
   "VE",
 ])
 
-function detectLocale(setCookie = false): "en" | "es" {
+function detectLocale(): "en" | "es" {
   const cookieStore = cookies()
   let locale = cookieStore.get("NEXT_LOCALE")?.value as "en" | "es" | undefined
   if (!locale) {
     const country = headers().get("x-vercel-ip-country")?.toUpperCase() || ""
     locale = SPANISH_COUNTRIES.has(country) ? "es" : "en"
-    if (setCookie) {
-      cookieStore.set("NEXT_LOCALE", locale, { path: "/", maxAge: 31536000 })
-    }
   }
   return locale
 }
@@ -109,7 +106,7 @@ export default async function RootLayout({
   children: React.ReactNode
 }) {
   const siteName = await getSiteName()
-  const locale = detectLocale(true)
+  const locale = detectLocale()
   return (
     <html lang={locale} suppressHydrationWarning>
         <body className={`${inter.className} w-full`}>
