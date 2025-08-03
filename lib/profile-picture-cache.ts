@@ -35,9 +35,15 @@ export async function cacheProfilePicture(npub: string): Promise<string | null> 
 
     const contentType = res.headers.get("content-type") || ""
     let ext = ".jpg"
-    if (contentType.includes("png")) ext = ".png"
-    else if (contentType.includes("webp")) ext = ".webp"
-    else if (contentType.includes("jpeg")) ext = ".jpg"
+if (contentType.includes("png")) {
+  ext = ".png"
+} else if (contentType.includes("jpeg") || contentType.includes("jpg")) {
+  ext = ".jpg"
+} else {
+  // Unsupported format like webp or gif — skip caching
+  return null
+}
+
 
     const buffer = Buffer.from(await res.arrayBuffer())
 
