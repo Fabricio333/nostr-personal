@@ -61,16 +61,18 @@ export async function generateMetadata(): Promise<Metadata> {
   const ownerNpub = getOwnerNpub()
   const locale = detectLocale()
   const headersList = headers()
-  const host = headersList.get("x-forwarded-host") || headersList.get("host") || "localhost:3000"
+  const host = headersList.get("x-forwarded-host") ||
+    headersList.get("host") ||
+    "localhost:3000"
   const protocol = headersList.get("x-forwarded-proto") || "https"
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`
   const url = locale === "es" ? `${siteUrl}/es` : siteUrl
-  let profileImage = `${siteUrl}/placeholder.jpg`
+  let profileImage = "/icon.svg"
   if (ownerNpub) {
     const cached = await cacheProfilePicture(ownerNpub)
     if (cached) {
-      profileImage = `${siteUrl}${cached}`
+      profileImage = cached
     }
   }
   return {
@@ -95,7 +97,7 @@ export async function generateMetadata(): Promise<Metadata> {
       siteName,
       type: "website",
       locale: locale === "es" ? "es_ES" : "en_US",
-      images: [{ url: profileImage }],
+      images: [profileImage],
     },
     twitter: {
       card: "summary_large_image",
@@ -113,46 +115,34 @@ export default async function RootLayout({
 }) {
   const siteName = await getSiteName()
   const locale = detectLocale()
-  const ownerNpub = getOwnerNpub()
-  const headersList = headers()
-  const host = headersList.get("x-forwarded-host") || headersList.get("host") || "localhost:3000"
-  const protocol = headersList.get("x-forwarded-proto") || "https"
-  const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`
-  let profileImage = `${siteUrl}/placeholder.jpg`
-  if (ownerNpub) {
-    const cached = await cacheProfilePicture(ownerNpub)
-    if (cached) {
-      profileImage = `${siteUrl}${cached}`
-    }
-  }
   return (
     <html lang={locale} suppressHydrationWarning>
-        <head>
-          <meta property="og:image" content={profileImage} />
-          <meta name="twitter:image" content={profileImage} />
-        </head>
-        <body className={`${inter.className} w-full`}>
-          <I18nProvider>
-            <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-              <Navbar siteName={siteName} />
-              {children}
-            </ThemeProvider>
-          </I18nProvider>
-          <Script
-            src="https://www.googletagmanager.com/gtag/js?id=G-G8586BX397"
-            strategy="afterInteractive"
-          />
-          <Script id="google-analytics" strategy="afterInteractive">
-            {`
+      <body className={`${inter.className} w-full`}>
+        <I18nProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <Navbar siteName={siteName} />
+            {children}
+          </ThemeProvider>
+        </I18nProvider>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-G8586BX397"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
               gtag('js', new Date());
 
               gtag('config', 'G-G8586BX397');
             `}
-          </Script>
-        </body>
+        </Script>
+      </body>
     </html>
   )
 }
