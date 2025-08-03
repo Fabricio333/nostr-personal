@@ -241,7 +241,7 @@ export default function BlogPage() {
         </Card>
 
         {/* Posts Grid */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filteredPosts.length === 0 ? (
             <div className="col-span-full">
               <Card className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
