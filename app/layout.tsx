@@ -60,7 +60,11 @@ export async function generateMetadata(): Promise<Metadata> {
   const siteName = await getSiteName()
   const ownerNpub = getOwnerNpub()
   const locale = detectLocale()
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://example.com"
+  const headersList = headers()
+  const host = headersList.get("x-forwarded-host") || headersList.get("host") || "localhost:3000"
+  const protocol = headersList.get("x-forwarded-proto") || "https"
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`
   const url = locale === "es" ? `${siteUrl}/es` : siteUrl
   let profileImage = `${siteUrl}/placeholder.jpg`
   if (ownerNpub) {
@@ -109,8 +113,25 @@ export default async function RootLayout({
 }) {
   const siteName = await getSiteName()
   const locale = detectLocale()
+  const ownerNpub = getOwnerNpub()
+  const headersList = headers()
+  const host = headersList.get("x-forwarded-host") || headersList.get("host") || "localhost:3000"
+  const protocol = headersList.get("x-forwarded-proto") || "https"
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`
+  let profileImage = `${siteUrl}/placeholder.jpg`
+  if (ownerNpub) {
+    const cached = await cacheProfilePicture(ownerNpub)
+    if (cached) {
+      profileImage = `${siteUrl}${cached}`
+    }
+  }
   return (
     <html lang={locale} suppressHydrationWarning>
+        <head>
+          <meta property="og:image" content={profileImage} />
+          <meta name="twitter:image" content={profileImage} />
+        </head>
         <body className={`${inter.className} w-full`}>
           <I18nProvider>
             <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
