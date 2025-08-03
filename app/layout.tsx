@@ -9,7 +9,8 @@ import { ThemeProvider } from "@/components/theme-provider"
 // import { Footer } from "@/components/footer"
 // import { Toaster } from "@/components/ui/toaster"
 import { Navbar } from "@/components/navbar"
-import { getSettings, getSiteName } from "@/lib/settings"
+import { getSettings, getSiteName, getOwnerNpub } from "@/lib/settings"
+import { cacheProfilePicture } from "@/lib/profile-picture-cache"
 import { I18nProvider } from "@/components/locale-provider"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -66,7 +67,14 @@ export async function generateMetadata(): Promise<Metadata> {
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`
   const url = locale === "es" ? `${siteUrl}/es` : siteUrl
-  const profileImage = "/profile-picture.png"
+  let profileImage = "/profile-picture.png"
+  const npub = getOwnerNpub()
+  if (npub) {
+    const cached = await cacheProfilePicture(npub)
+    if (cached) {
+      profileImage = cached
+    }
+  }
 
   return {
     metadataBase: new URL(siteUrl),
