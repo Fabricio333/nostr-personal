@@ -1,14 +1,19 @@
 import Link from 'next/link'
+import { cookies } from 'next/headers'
 import { searchContent, SearchSource } from '@/lib/search'
 
 export default async function SearchPage({
   searchParams,
+  params,
 }: {
   searchParams: { q?: string; source?: SearchSource }
+  params?: { locale?: string }
 }) {
   const query = searchParams.q ?? ''
   const source = searchParams.source as SearchSource | undefined
-  const results = await searchContent(query, source)
+  const cookieLocale = cookies().get('NEXT_LOCALE')?.value as 'en' | 'es' | undefined
+  const locale = (params?.locale as 'en' | 'es') || cookieLocale || 'en'
+  const results = await searchContent(query, source, locale)
 
   return (
     <div className="container mx-auto px-4 py-8">

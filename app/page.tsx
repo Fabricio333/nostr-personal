@@ -21,6 +21,7 @@ import { fetchNostrProfile, fetchNostrPosts } from "@/lib/nostr"
 import { getNostrSettings } from "@/lib/nostr-settings"
 import Link from "next/link"
 import { useI18n } from "@/components/locale-provider"
+import { localizePath } from "@/lib/utils"
 
 interface NostrProfile {
   name?: string
@@ -342,11 +343,12 @@ export default function HomePage() {
             filteredPosts.map((post) => (
               <Link
                 key={post.id}
-                href={
+                href={localizePath(
+                  locale,
                   post.type === "garden"
                     ? `/digital-garden/${post.id}`
-                    : `/blog/${post.id}`
-                }
+                    : `/blog/${post.id}`,
+                )}
                 className="group block"
               >
                 <Card

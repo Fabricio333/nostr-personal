@@ -5,8 +5,11 @@ import { Button } from "@/components/ui/button"
 import { Github, ExternalLink } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
+import { cookies } from "next/headers"
+import { localizePath } from "@/lib/utils"
 
 export default function ProjectsPage() {
+  const locale = (cookies().get("NEXT_LOCALE")?.value || "en") as "en" | "es"
   const projects = [
     {
       id: "1",
@@ -79,7 +82,7 @@ export default function ProjectsPage() {
         {projects.map((project) => (
           <Card key={project.id} className="hover:shadow-lg transition-shadow">
             <CardHeader className="p-4">
-              <Link href={project.link}>
+              <Link href={localizePath(locale, project.link)}>
                 {project.emoji ? (
                   <div
                     className={`w-full aspect-square flex items-center justify-center rounded-md mb-2 ${project.emojiClass ?? "text-6xl"}`}
@@ -98,7 +101,7 @@ export default function ProjectsPage() {
               </Link>
               <CardTitle className="text-xl mb-1">{project.title}</CardTitle>
               <CardDescription className="mb-2">
-                <Link href={project.link} className="hover:underline">
+                <Link href={localizePath(locale, project.link)} className="hover:underline">
                   {project.shortDescription}
                 </Link>
               </CardDescription>

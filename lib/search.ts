@@ -3,6 +3,7 @@ import path from 'path'
 import matter from 'gray-matter'
 import { fetchNostrPosts } from '@/lib/nostr'
 import { getNostrSettings } from '@/lib/nostr-settings'
+import { localizePath } from '@/lib/utils'
 
 export type SearchSource = 'all' | 'nostr' | 'article' | 'garden'
 
@@ -13,7 +14,11 @@ export interface SearchResult {
   snippet: string
 }
 
-export async function searchContent(query: string, source?: SearchSource): Promise<SearchResult[]> {
+export async function searchContent(
+  query: string,
+  source?: SearchSource,
+  locale: 'en' | 'es' = 'en',
+): Promise<SearchResult[]> {
   const q = query.toLowerCase()
   const results: SearchResult[] = []
 
@@ -25,7 +30,7 @@ export async function searchContent(query: string, source?: SearchSource): Promi
 
   if (includeNostr && settings.ownerNpub) {
     try {
-      const posts = await fetchNostrPosts(settings.ownerNpub, settings.maxPosts)
+      const posts = await fetchNostrPosts(settings.ownerNpub, settings.maxPosts, locale)
       for (const post of posts) {
         const postType: Exclude<SearchSource, 'all'> =
           post.type === 'article' ? 'article' : 'nostr'
@@ -35,7 +40,7 @@ export async function searchContent(query: string, source?: SearchSource): Promi
           results.push({
             type: postType,
             title: post.title || (post.content.length > 60 ? post.content.slice(0, 60) + '…' : post.content),
-            url: `/blog/${post.id}`,
+            url: localizePath(locale, `/blog/${post.id}`),
             snippet: post.summary || post.content.slice(0, 200),
           })
         }
@@ -67,7 +72,7 @@ export async function searchContent(query: string, source?: SearchSource): Promi
             results.push({
               type: 'garden',
               title,
-              url: `/digital-garden/${slug}`,
+              url: localizePath(locale, `/digital-garden/${slug}`),
               snippet: content.slice(0, 200),
             })
             seen.add(slug)

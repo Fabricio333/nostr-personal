@@ -13,6 +13,7 @@ import { fetchNostrPosts } from "@/lib/nostr"
 import { getNostrSettings } from "@/lib/nostr-settings"
 import Link from "next/link"
 import { useI18n } from "@/components/locale-provider"
+import { localizePath } from "@/lib/utils"
 
 interface NostrProfile {
   name?: string
@@ -256,7 +257,7 @@ export default function BlogPage() {
             filteredPosts.map((post) => (
               <Link
                 key={post.id}
-                href={`/blog/${post.id}`}
+                href={localizePath(locale, `/blog/${post.id}`)}
                 className="group block"
                 prefetch={false}
               >

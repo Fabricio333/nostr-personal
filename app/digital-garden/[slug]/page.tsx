@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { slugify } from '@/lib/slugify'
 import en from '@/locales/en.json'
 import es from '@/locales/es.json'
+import { localizePath } from '@/lib/utils'
 
 const translations = { en, es } as const
 
@@ -24,7 +25,7 @@ export default async function DigitalGardenNotePage({ params }: { params: { slug
   }
   let content = note.content.replace(/\[\[([^\]]+)\]\]/g, (_match, p1) => {
     const slug = slugify(p1)
-    return `[${p1}](/digital-garden/${slug})`
+    return `[${p1}](${localizePath(locale, `/digital-garden/${slug}`)})`
   })
   const html = marked.parse(content)
   return (
@@ -47,7 +48,7 @@ export default async function DigitalGardenNotePage({ params }: { params: { slug
         <div dangerouslySetInnerHTML={{ __html: html }} />
       </article>
       <div className="mt-8">
-        <Link href="/digital-garden" className="text-blue-600 hover:underline">
+        <Link href={localizePath(locale, '/digital-garden')} className="text-blue-600 hover:underline">
           {t('digital_garden.back')}
         </Link>
       </div>

@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { localizePath } from "@/lib/utils"
 import { nostrClient, type NostrPost } from "@/lib/nostr"
 import { getNostrSettings } from "@/lib/nostr-settings"
 import { marked } from "marked" // For Markdown rendering
@@ -34,7 +35,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     }
     const title = post.title || `${post.content.slice(0, 60)}…`
     const description = post.summary || post.content.slice(0, 160)
-    const url = `${siteUrl}/blog/${post.id}`
+    const url = `${siteUrl}${locale === 'es' ? '/es' : ''}/blog/${post.id}`
     return {
       title,
       description,
@@ -117,7 +118,7 @@ export default async function BlogPostPage({ params }: { params: { id: string } 
         <div className="container mx-auto px-4 py-8">
           <div className="mb-4">
             <Link
-              href="/blog"
+              href={localizePath(locale, "/blog")}
               className="text-blue-600 hover:underline"
               prefetch={false}
             >

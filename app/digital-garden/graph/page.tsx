@@ -5,6 +5,7 @@ import { getAllNotes } from '@/lib/digital-garden'
 import { slugify } from '@/lib/slugify'
 import en from '@/locales/en.json'
 import es from '@/locales/es.json'
+import { localizePath } from '@/lib/utils'
 
 const translations = { en, es } as const
 
@@ -36,7 +37,7 @@ export default async function DigitalGardenGraphPage() {
       <h1 className="mb-4 text-center text-3xl font-bold">{t('digital_garden.garden_graph')}</h1>
       <WikiGraph data={{ nodes, links }} />
       <div className="mt-4 text-center">
-        <Link href="/digital-garden" className="text-blue-600 hover:underline">
+        <Link href={localizePath(locale, '/digital-garden')} className="text-blue-600 hover:underline">
           {t('digital_garden.back')}
         </Link>
       </div>
