@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { cn } from "@/lib/utils"
+import { cn, localizePath } from "@/lib/utils"
 import { Search } from "lucide-react"
 import { useI18n } from "@/components/locale-provider"
 
@@ -18,14 +18,14 @@ export function SearchBar() {
   const [term, setTerm] = useState("")
   const [source, setSource] = useState("all")
   const router = useRouter()
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     const params = new URLSearchParams()
     if (term) params.set("q", term)
     if (source) params.set("source", source)
-    router.push(`/search?${params.toString()}`)
+    router.push(localizePath(locale, `/search?${params.toString()}`))
   }
 
   return (

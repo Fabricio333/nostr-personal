@@ -8,6 +8,7 @@ import { SearchBar } from "@/components/search-bar"
 import { ModeToggle } from "@/components/mode-toggle"
 import { LanguageToggle } from "@/components/language-toggle"
 import { useI18n } from "@/components/locale-provider"
+import { localizePath } from "@/lib/utils"
 
 interface NavbarProps {
   siteName: string
@@ -25,12 +26,12 @@ const links = [
 
 export function Navbar({ siteName }: NavbarProps) {
   const [open, setOpen] = useState(false)
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
 
   return (
     <nav className="border-b bg-background">
       <div className="container flex items-center gap-4 px-4 py-4">
-        <Link href="/" className="flex items-center gap-2 font-bold text-xl">
+        <Link href={localizePath(locale, "/")} className="flex items-center gap-2 font-bold text-xl">
           <Image src="/icon.svg" alt="" width={24} height={24} />
           <span>{siteName}</span>
         </Link>
@@ -38,7 +39,7 @@ export function Navbar({ siteName }: NavbarProps) {
           {links.map((link) => (
             <Link
               key={link.href}
-              href={link.href}
+              href={localizePath(locale, link.href)}
               className="text-muted-foreground hover:text-foreground"
             >
               {t(`navbar.${link.key}`)}
@@ -72,7 +73,7 @@ export function Navbar({ siteName }: NavbarProps) {
             {links.map((link) => (
               <Link
                 key={link.href}
-                href={link.href}
+                href={localizePath(locale, link.href)}
                 onClick={() => setOpen(false)}
                 className="hover:text-primary"
               >

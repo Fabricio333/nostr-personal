@@ -9,7 +9,7 @@ import {
   CardContent,
 } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { cn } from '@/lib/utils'
+import { cn, localizePath } from '@/lib/utils'
 import en from '@/locales/en.json'
 import es from '@/locales/es.json'
 
@@ -42,13 +42,13 @@ export default async function DigitalGardenPage({
         {siteName}&apos;s {t('navbar.garden')}
       </h1>
       <div className="mb-4 text-center">
-        <Link href="/digital-garden/graph" className="text-blue-600 hover:underline">
+        <Link href={localizePath(locale, '/digital-garden/graph')} className="text-blue-600 hover:underline">
           {t('digital_garden.graph_view')}
         </Link>
       </div>
       {allTags.length > 0 && (
         <div className="mb-8 flex flex-wrap justify-center gap-2">
-          <Link href="/digital-garden">
+          <Link href={localizePath(locale, '/digital-garden')}>
             <Badge
               variant="outline"
               className={cn(
@@ -62,7 +62,7 @@ export default async function DigitalGardenPage({
           {allTags.map((tag) => (
             <Link
               key={tag}
-              href={{ pathname: '/digital-garden', query: { tag } }}
+              href={{ pathname: localizePath(locale, '/digital-garden'), query: { tag } }}
             >
               <Badge
                 variant="outline"
@@ -81,7 +81,7 @@ export default async function DigitalGardenPage({
         {filteredNotes.map((note) => (
           <Link
             key={note.slug}
-            href={`/digital-garden/${note.slug}`}
+            href={localizePath(locale, `/digital-garden/${note.slug}`)}
             className="block"
           >
             <Card className="h-full transition-colors hover:bg-muted">
