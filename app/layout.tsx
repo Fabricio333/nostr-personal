@@ -101,14 +101,21 @@ export async function generateMetadata(): Promise<Metadata> {
       icon: "/icon.svg",
     },
     openGraph: {
-      title: siteName,
-      description: settings.siteDescription,
-      url,
-      siteName,
-      type: "website",
-      locale: locale === "es" ? "es_ES" : "en_US",
-      images: [profileImage],
+  title: siteName,
+  description: settings.siteDescription,
+  url,
+  siteName,
+  type: "website",
+  locale: locale === "es" ? "es_ES" : "en_US",
+  images: [
+    {
+      url: profileImage,
+      width: 1200,
+      height: 630,
+      alt: siteName,
     },
+  ],
+},
     twitter: {
       card: "summary_large_image",
       title: siteName,
