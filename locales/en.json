@@ -51,6 +51,7 @@
     "retry": "Retry",
     "latest_posts": "Latest Posts",
     "website": "Website",
+    "type_all": "All",
     "type_nostr": "Nostr",
     "type_article": "Articles",
     "type_garden": "Garden",
