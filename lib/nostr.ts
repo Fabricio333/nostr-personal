@@ -69,23 +69,29 @@ function setCachedData(key: string, data: any): void {
     timestamp: Date.now(),
   })
 
-  // Also store in localStorage for persistence
-  try {
-    localStorage.setItem(
-      key,
-      JSON.stringify({
-        data,
-        timestamp: Date.now(),
-      }),
-    )
-  } catch (error) {
-    console.warn("Failed to store in localStorage:", error)
+  // Also store in localStorage for persistence when available
+  if (typeof window !== "undefined" && typeof window.localStorage !== "undefined") {
+    try {
+      window.localStorage.setItem(
+        key,
+        JSON.stringify({
+          data,
+          timestamp: Date.now(),
+        }),
+      )
+    } catch (error) {
+      console.warn("Failed to store in localStorage:", error)
+    }
   }
 }
 
 function getStoredData(key: string): any | null {
+  if (typeof window === "undefined" || typeof window.localStorage === "undefined") {
+    return null
+  }
+
   try {
-    const stored = localStorage.getItem(key)
+    const stored = window.localStorage.getItem(key)
     if (stored) {
       const parsed = JSON.parse(stored)
       if (Date.now() - parsed.timestamp < CACHE_DURATION) {
