@@ -10,10 +10,11 @@ export interface DigitalGardenNote {
   content: string
 }
 
-const baseDir = path.join(process.cwd(), 'digital-garden')
+// Set baseDir to point to /public/[locale]/digital-garden
+const baseDir = path.join(process.cwd(), 'public')
 
 export async function getAllNotes(locale: string = 'en'): Promise<DigitalGardenNote[]> {
-  const notesDir = path.join(baseDir, locale)
+  const notesDir = path.join(baseDir, locale, 'digital-garden')
   const files = await fs.readdir(notesDir)
   const notes: DigitalGardenNote[] = []
   for (const file of files) {
@@ -24,10 +25,10 @@ export async function getAllNotes(locale: string = 'en'): Promise<DigitalGardenN
     const title = (data as any).title || slug
     const rawTags = (data as any).tags
     const tags = Array.isArray(rawTags)
-      ? rawTags.map(String)
-      : rawTags
-      ? [String(rawTags)]
-      : []
+        ? rawTags.map(String)
+        : rawTags
+            ? [String(rawTags)]
+            : []
     const date = (data as any).date as string | undefined
     notes.push({ slug, title, tags, date, content })
   }
@@ -35,20 +36,20 @@ export async function getAllNotes(locale: string = 'en'): Promise<DigitalGardenN
 }
 
 export async function getNote(
-  slug: string,
-  locale: string = 'en'
+    slug: string,
+    locale: string = 'en'
 ): Promise<{ title: string; tags: string[]; content: string } | null> {
-  const filePath = path.join(baseDir, locale, `${slug}.md`)
+  const filePath = path.join(baseDir, locale, 'digital-garden', `${slug}.md`)
   try {
     const content = await fs.readFile(filePath, 'utf8')
     const { data, content: body } = matter(content)
     const title = (data as any).title || slug
     const rawTags = (data as any).tags
     const tags = Array.isArray(rawTags)
-      ? rawTags.map(String)
-      : rawTags
-      ? [String(rawTags)]
-      : []
+        ? rawTags.map(String)
+        : rawTags
+            ? [String(rawTags)]
+            : []
     return { title, tags, content: body }
   } catch {
     return null
