@@ -26,6 +26,9 @@ export async function cacheProfilePicture(npub: string): Promise<string | null> 
   if (cached) return cached
 
   try {
+    // Ensure the cache directory exists so writes don't fail at runtime
+    await fs.mkdir(CACHE_DIR, { recursive: true })
+
     const profile = await fetchNostrProfile(npub)
     const url = profile?.picture
     if (!url) return null

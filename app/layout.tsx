@@ -91,13 +91,18 @@ export async function generateMetadata(): Promise<Metadata> {
       siteName,
       type: "website",
       locale: locale === "es" ? "es_ES" : "en_US",
-      images: [{ url: profileImage }],
+      images: [
+        {
+          url: profileImage,
+          alt: siteName,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title: siteName,
       description: settings.siteDescription,
-      images: [profileImage],
+      images: [{ url: profileImage, alt: siteName }],
     },
   }
 }
