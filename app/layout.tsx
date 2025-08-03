@@ -9,19 +9,11 @@ import { ThemeProvider } from "@/components/theme-provider"
 // import { Footer } from "@/components/footer"
 // import { Toaster } from "@/components/ui/toaster"
 import { Navbar } from "@/components/navbar"
-import { getSettings, getSiteName, getOwnerNpub } from "@/lib/settings"
-import { cacheProfilePicture } from "@/lib/profile-picture-cache"
+import { getSettings, getSiteName } from "@/lib/settings"
 import { I18nProvider } from "@/components/locale-provider"
 
 const inter = Inter({ subsets: ["latin"] })
 
-// Pre-cache the owner's profile picture on startup for social metadata
-const ownerNpub = getOwnerNpub()
-if (ownerNpub && typeof window === "undefined") {
-  cacheProfilePicture(ownerNpub).catch((err) => {
-    console.warn("Failed to cache profile picture", err)
-  })
-}
 
 
 export const viewport: Viewport = {
@@ -75,15 +67,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`
   const url = locale === "es" ? `${siteUrl}/es` : siteUrl
-  let profileImage = `${siteUrl}/profile-picture.png` // fallback image
-  if (ownerNpub) {
-  const cached = await cacheProfilePicture(ownerNpub)
-  if (cached) {
-    profileImage = cached.startsWith("http")
-      ? cached
-      : `${siteUrl}${cached}`
-  }
-}
+  const profileImage = `${siteUrl}/profile-picture.png`
 
   return {
     metadataBase: new URL(siteUrl),
