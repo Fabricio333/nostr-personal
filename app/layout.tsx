@@ -62,11 +62,11 @@ export async function generateMetadata(): Promise<Metadata> {
   const locale = detectLocale()
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://example.com"
   const url = locale === "es" ? `${siteUrl}/es` : siteUrl
-  let profileImage = "/icon.svg"
+  let profileImage = `${siteUrl}/icon.svg`
   if (ownerNpub) {
     const cached = await cacheProfilePicture(ownerNpub)
     if (cached) {
-      profileImage = cached
+      profileImage = `${siteUrl}${cached}`
     }
   }
   return {
@@ -89,10 +89,10 @@ export async function generateMetadata(): Promise<Metadata> {
       description: settings.siteDescription,
       url,
       locale: locale === "es" ? "es_ES" : "en_US",
-      images: [profileImage],
+      images: [{ url: profileImage }],
     },
     twitter: {
-      card: "summary",
+      card: "summary_large_image",
       title: siteName,
       description: settings.siteDescription,
       images: [profileImage],
