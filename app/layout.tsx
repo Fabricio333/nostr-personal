@@ -15,6 +15,14 @@ import { I18nProvider } from "@/components/locale-provider"
 
 const inter = Inter({ subsets: ["latin"] })
 
+// Pre-cache the owner's profile picture on startup for social metadata
+const ownerNpub = getOwnerNpub()
+if (ownerNpub && typeof window === "undefined") {
+  cacheProfilePicture(ownerNpub).catch((err) => {
+    console.warn("Failed to cache profile picture", err)
+  })
+}
+
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -58,7 +66,6 @@ function detectLocale(): "en" | "es" {
 export async function generateMetadata(): Promise<Metadata> {
   const settings = getSettings()
   const siteName = await getSiteName()
-  const ownerNpub = getOwnerNpub()
   const locale = detectLocale()
   const headersList = headers()
   const host = headersList.get("x-forwarded-host") ||

@@ -4,7 +4,7 @@ This is a personal blog website built with Next.js, Tailwind CSS, and Shadcn UI.
 
 ## Features
 
-- **Nostr Integration** – Fetches NIP‑23 long‑form articles and NIP‑01 notes from the relays listed in `settings.json`. Posts are cached to `public/<locale>/nostr` so they can be served as static pages for search engines. Profile information is also pulled from Nostr and cached locally.
+- **Nostr Integration** – Fetches NIP‑23 long‑form articles and NIP‑01 notes from the relays listed in `settings.json`. Posts are cached to `public/<locale>/nostr` so they can be served as static pages for search engines. Profile information and the profile picture are pulled from Nostr and cached locally for metadata.
 - **Blog** – Lists your posts with search and type filters. Each post has its own page with Markdown rendering and optional tags.
 - **Digital Garden** – Markdown notes in `digital-garden/` are rendered with `[[wikilink]]` style linking between pages.
 - **Lifestyle Page** – Shows posts tagged `#lifestyle` from Nostr alongside configurable lists of workouts, nutrition, biohacks and routines.
