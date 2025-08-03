@@ -66,7 +66,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`
   const url = locale === "es" ? `${siteUrl}/es` : siteUrl
-  const profileImage = "/public/profile-picture.png"
+  const profileImage = "/profile-picture.png"
 
   return {
     metadataBase: new URL(siteUrl),
