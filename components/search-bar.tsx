@@ -16,7 +16,7 @@ import { useI18n } from "@/components/locale-provider"
 
 export function SearchBar() {
   const [term, setTerm] = useState("")
-  const [source, setSource] = useState("nostr")
+  const [source, setSource] = useState("all")
   const router = useRouter()
   const { t } = useI18n()
 
@@ -43,6 +43,7 @@ export function SearchBar() {
         <SelectTrigger
           className={cn(
             "w-[130px]",
+            source === "all" && "text-blue-500",
             source === "nostr" && "text-purple-500",
             source === "article" && "text-orange-500",
             source === "garden" && "text-green-500"
@@ -51,6 +52,9 @@ export function SearchBar() {
           <SelectValue placeholder={t("search.filter")} />
         </SelectTrigger>
         <SelectContent>
+          <SelectItem value="all" className="text-blue-500">
+            {t("search.all")}
+          </SelectItem>
           <SelectItem value="nostr" className="text-purple-500">
             {t("search.nostr")}
           </SelectItem>
