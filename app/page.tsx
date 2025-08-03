@@ -83,9 +83,11 @@ export default function HomePage() {
       }
 
       // Fetch profile, nostr posts, and garden notes
+      const fetchLimit =
+        locale === "es" ? settings.maxPosts * 10 : settings.maxPosts
       const [profileData, nostrData, gardenData] = await Promise.all([
         fetchNostrProfile(settings.ownerNpub, locale),
-        fetchNostrPosts(settings.ownerNpub, settings.maxPosts, locale),
+        fetchNostrPosts(settings.ownerNpub, fetchLimit, locale),
         fetch("/api/digital-garden").then((res) => res.json()),
       ])
 
@@ -111,11 +113,13 @@ export default function HomePage() {
         }
       })
 
-      const combined = [...nostrPosts, ...gardenPosts].sort((a, b) => {
-        const aDate = a.published_at ?? a.created_at
-        const bDate = b.published_at ?? b.created_at
-        return bDate - aDate
-      })
+      const combined = [...nostrPosts, ...gardenPosts]
+        .sort((a, b) => {
+          const aDate = a.published_at ?? a.created_at
+          const bDate = b.published_at ?? b.created_at
+          return bDate - aDate
+        })
+        .slice(0, settings.maxPosts)
 
       setProfile(profileData)
       setPosts(combined)
