@@ -1,6 +1,6 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next"
-import { cookies } from "next/headers"
+import { cookies, headers } from "next/headers"
 import { Inter } from "next/font/google"
 import Script from "next/script"
 import "./globals.css"
@@ -21,12 +21,48 @@ export const viewport: Viewport = {
   initialScale: 1,
 }
 
+const SPANISH_COUNTRIES = new Set([
+  "AR",
+  "BO",
+  "CL",
+  "CO",
+  "CR",
+  "CU",
+  "DO",
+  "EC",
+  "ES",
+  "GQ",
+  "GT",
+  "HN",
+  "MX",
+  "NI",
+  "PA",
+  "PE",
+  "PR",
+  "PY",
+  "SV",
+  "UY",
+  "VE",
+])
+
+function detectLocale(setCookie = false): "en" | "es" {
+  const cookieStore = cookies()
+  let locale = cookieStore.get("NEXT_LOCALE")?.value as "en" | "es" | undefined
+  if (!locale) {
+    const country = headers().get("x-vercel-ip-country")?.toUpperCase() || ""
+    locale = SPANISH_COUNTRIES.has(country) ? "es" : "en"
+    if (setCookie) {
+      cookieStore.set("NEXT_LOCALE", locale, { path: "/", maxAge: 31536000 })
+    }
+  }
+  return locale
+}
+
 export async function generateMetadata(): Promise<Metadata> {
   const settings = getSettings()
   const siteName = await getSiteName()
   const ownerNpub = getOwnerNpub()
-  const cookieStore = cookies()
-  const locale = (cookieStore.get("NEXT_LOCALE")?.value as "en" | "es") || "en"
+  const locale = detectLocale()
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://example.com"
   const url = locale === "es" ? `${siteUrl}/es` : siteUrl
   let profileImage = "/icon.svg"
@@ -73,8 +109,7 @@ export default async function RootLayout({
   children: React.ReactNode
 }) {
   const siteName = await getSiteName()
-  const cookieStore = cookies()
-  const locale = (cookieStore.get("NEXT_LOCALE")?.value as "en" | "es") || "en"
+  const locale = detectLocale(true)
   return (
     <html lang={locale} suppressHydrationWarning>
         <body className={`${inter.className} w-full`}>
