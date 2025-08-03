@@ -1,5 +1,6 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next"
+import { cookies } from "next/headers"
 import { Inter } from "next/font/google"
 import Script from "next/script"
 import "./globals.css"
@@ -24,6 +25,10 @@ export async function generateMetadata(): Promise<Metadata> {
   const settings = getSettings()
   const siteName = await getSiteName()
   const ownerNpub = getOwnerNpub()
+  const cookieStore = cookies()
+  const locale = (cookieStore.get("NEXT_LOCALE")?.value as "en" | "es") || "en"
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://example.com"
+  const url = locale === "es" ? `${siteUrl}/es` : siteUrl
   let profileImage = "/icon.svg"
   if (ownerNpub) {
     const cached = await cacheProfilePicture(ownerNpub)
@@ -32,6 +37,14 @@ export async function generateMetadata(): Promise<Metadata> {
     }
   }
   return {
+    metadataBase: new URL(siteUrl),
+    alternates: {
+      canonical: url,
+      languages: {
+        en: siteUrl,
+        es: `${siteUrl}/es`,
+      },
+    },
     title: siteName,
     description: settings.siteDescription,
     generator: "v0.dev",
@@ -41,6 +54,8 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       title: siteName,
       description: settings.siteDescription,
+      url,
+      locale: locale === "es" ? "es_ES" : "en_US",
       images: [profileImage],
     },
     twitter: {
@@ -58,8 +73,10 @@ export default async function RootLayout({
   children: React.ReactNode
 }) {
   const siteName = await getSiteName()
+  const cookieStore = cookies()
+  const locale = (cookieStore.get("NEXT_LOCALE")?.value as "en" | "es") || "en"
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
         <body className={`${inter.className} w-full`}>
           <I18nProvider>
             <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
