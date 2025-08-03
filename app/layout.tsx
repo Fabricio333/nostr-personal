@@ -9,8 +9,9 @@ import { ThemeProvider } from "@/components/theme-provider"
 // import { Footer } from "@/components/footer"
 // import { Toaster } from "@/components/ui/toaster"
 import { Navbar } from "@/components/navbar"
-import { getSettings, getSiteName } from "@/lib/settings"
+import { getSettings, getSiteName, getOwnerNpub } from "@/lib/settings"
 import { I18nProvider } from "@/components/locale-provider"
+import { fetchNostrProfile } from "@/lib/nostr"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -66,7 +67,18 @@ export async function generateMetadata(): Promise<Metadata> {
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`
   const url = locale === "es" ? `${siteUrl}/es` : siteUrl
-  const profileImage = "/profile-picture.png"
+  const npub = getOwnerNpub()
+  let profileImage = "/profile-picture.png"
+  if (npub) {
+    try {
+      const profile = await fetchNostrProfile(npub)
+      if (profile?.picture) {
+        profileImage = profile.picture
+      }
+    } catch {
+      // ignore errors and use default
+    }
+  }
 
   return {
     metadataBase: new URL(siteUrl),
