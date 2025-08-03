@@ -98,6 +98,67 @@ function getStoredData(key: string): any | null {
   return null
 }
 
+async function loadNostrTranslations(locale: string) {
+  const translations = new Map<string, { content: string; data: any }>()
+  try {
+    if (typeof window === "undefined") {
+      const fs = await import("fs/promises")
+      const path = await import("path")
+      const matter = (await import("gray-matter")).default
+      const dir = path.join(process.cwd(), "public", locale, "nostr")
+      const files = await fs.readdir(dir)
+      await Promise.all(
+        files.map(async (file) => {
+          if (!file.endsWith(".md") || file === "description.md") return
+          try {
+            const raw = await fs.readFile(path.join(dir, file), "utf8")
+            const { data, content } = matter(raw)
+            let id =
+              data.id || data.note || data.event || file.replace(/\.md$/, "")
+            if (typeof id === "string") {
+              if (id.startsWith("note")) {
+                try {
+                  const decoded = nip19.decode(id)
+                  if (decoded.type === "note") {
+                    id = decoded.data as string
+                  }
+                } catch {
+                  // ignore decode errors
+                }
+              }
+              translations.set(id, { content, data })
+            }
+          } catch (error) {
+            console.error("Failed to load translation file:", file, error)
+          }
+        }),
+      )
+    } else {
+      const res = await fetch(`/api/nostr-translations?locale=${locale}`)
+      if (res.ok) {
+        const items = await res.json()
+        for (const item of items) {
+          let id = item.id as string
+          if (id.startsWith("note")) {
+            try {
+              const decoded = nip19.decode(id)
+              if (decoded.type === "note") {
+                id = decoded.data as string
+              }
+            } catch {
+              // ignore decode errors
+            }
+          }
+          translations.set(id, { content: item.content, data: item.data })
+        }
+      }
+    }
+  } catch (error) {
+    console.error("Error loading translations:", error)
+  }
+  return translations
+}
+
 export async function fetchNostrProfile(
   npub: string,
   locale = "en",
@@ -305,40 +366,16 @@ export async function fetchNostrPosts(
 
     // If Spanish locale, filter posts by available translations
     if (locale === "es") {
-      const translated: NostrPost[] = []
-      await Promise.all(
-        posts.map(async (post) => {
-          try {
-            if (typeof window === "undefined") {
-              const fs = await import("fs/promises")
-              const path = await import("path")
-              const matter = (await import("gray-matter")).default
-              const filePath = path.join(
-                process.cwd(),
-                "public",
-                locale,
-                "nostr",
-                `${post.id}.md`,
-              )
-              const raw = await fs.readFile(filePath, "utf8")
-              const { data, content } = matter(raw)
-              post.content = content
-              post.translation = data
-              translated.push(post)
-            } else {
-              const res = await fetch(`/api/nostr-translations/${post.id}`)
-              if (!res.ok) return
-              const data = await res.json()
-              post.content = data.content
-              post.translation = data.data
-              translated.push(post)
-            }
-          } catch {
-            // ignore missing translations
-          }
-        })
-      )
-      posts = translated
+      const translations = await loadNostrTranslations(locale)
+      posts = posts.reduce((acc: NostrPost[], post) => {
+        const t = translations.get(post.id)
+        if (t) {
+          post.content = t.content
+          post.translation = t.data
+          acc.push(post)
+        }
+        return acc
+      }, [])
     }
 
     // Remove any duplicate posts that might come from multiple relays
@@ -447,35 +484,13 @@ export async function fetchNostrPost(
     }
 
     if (locale === "es") {
-      try {
-        if (typeof window === "undefined") {
-          const fs = await import("fs/promises")
-          const path = await import("path")
-          const matter = (await import("gray-matter")).default
-          const filePath = path.join(
-            process.cwd(),
-            "public",
-            locale,
-            "nostr",
-            `${eventId}.md`,
-          )
-          const raw = await fs.readFile(filePath, "utf8")
-          const { data, content } = matter(raw)
-          post.content = content
-          post.translation = data
-        } else {
-          const res = await fetch(`/api/nostr-translations/${eventId}`)
-          if (res.ok) {
-            const data = await res.json()
-            post.content = data.content
-            post.translation = data.data
-          }
-        }
-      } catch {
-        // Missing translation - fall back to original content
+      const translations = await loadNostrTranslations(locale)
+      const t = translations.get(eventId)
+      if (t) {
+        post.content = t.content
+        post.translation = t.data
       }
     }
-
     if (useCache) {
       setCachedData(cacheKey, post)
     }
