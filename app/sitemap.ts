@@ -3,7 +3,7 @@ import { getNostrSettings } from "@/lib/nostr-settings"
 import { fetchNostrPosts } from "@/lib/nostr"
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://example.com"
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://fabri.lat"
   const routes: MetadataRoute.Sitemap = [
     { url: siteUrl, lastModified: new Date() },
     { url: `${siteUrl}/blog`, lastModified: new Date() },
