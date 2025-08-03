@@ -54,7 +54,14 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     if (typeof window !== "undefined") {
       localStorage.setItem("locale", locale)
       document.documentElement.lang = locale
-      document.cookie = `NEXT_LOCALE=${locale}; path=/; max-age=31536000`
+      const setCookie = async () => {
+        await fetch("/api/locale", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ locale }),
+        })
+      }
+      setCookie()
       if (firstRender.current) {
         firstRender.current = false
       } else {
