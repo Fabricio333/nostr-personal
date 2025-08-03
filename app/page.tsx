@@ -8,7 +8,15 @@ import { cn } from "@/lib/utils"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { FileText, MessageSquare, Calendar, ExternalLink, RefreshCw, Leaf } from "lucide-react"
+import {
+  FileText,
+  MessageSquare,
+  Calendar,
+  ExternalLink,
+  RefreshCw,
+  Leaf,
+  List,
+} from "lucide-react"
 import { fetchNostrProfile, fetchNostrPosts } from "@/lib/nostr"
 import { getNostrSettings } from "@/lib/nostr-settings"
 import Link from "next/link"
@@ -58,7 +66,9 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
-  const [selectedType, setSelectedType] = useState<"" | "nostr" | "article" | "garden">("")
+  const [selectedType, setSelectedType] = useState<
+    "all" | "nostr" | "article" | "garden"
+  >("all")
   const { t, locale } = useI18n()
 
   const loadData = useCallback(async () => {
@@ -126,7 +136,7 @@ export default function HomePage() {
     let filtered = posts
 
     // Filter by type
-    if (selectedType) {
+    if (selectedType !== "all") {
       filtered = filtered.filter((post) => post.type === selectedType)
     }
 
@@ -267,14 +277,16 @@ export default function HomePage() {
         {/* Posts */}
         <h2 className="text-2xl font-bold mb-4">{t("home.latest_posts")}</h2>
         <div className="flex gap-2 mb-4">
-          {["nostr", "article", "garden"].map((type) => {
+          {["all", "nostr", "article", "garden"].map((type) => {
             const isActive = selectedType === type
             const color =
               type === "nostr"
                 ? "purple"
                 : type === "article"
                 ? "orange"
-                : "green"
+                : type === "garden"
+                ? "green"
+                : "blue"
             return (
               <Button
                 key={type}
@@ -283,8 +295,8 @@ export default function HomePage() {
                 onClick={() =>
                   setSelectedType(
                     selectedType === type
-                      ? ""
-                      : (type as "nostr" | "article" | "garden"),
+                      ? "all"
+                      : (type as "all" | "nostr" | "article" | "garden"),
                   )
                 }
                 className={cn(
@@ -302,10 +314,15 @@ export default function HomePage() {
                     <FileText className="h-4 w-4 mr-2" />
                     {t("home.type_article")}
                   </>
-                ) : (
+                ) : type === "garden" ? (
                   <>
                     <Leaf className="h-4 w-4 mr-2" />
                     {t("home.type_garden")}
+                  </>
+                ) : (
+                  <>
+                    <List className="h-4 w-4 mr-2" />
+                    {t("home.type_all")}
                   </>
                 )}
               </Button>
