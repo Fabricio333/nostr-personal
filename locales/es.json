@@ -17,6 +17,7 @@
   "search": {
     "placeholder": "Buscar...",
     "filter": "Filtrar",
+    "all": "🌐 Todos",
     "nostr": "⚡ Nostr",
     "articles": "📝 Artículos",
     "garden": "🌱 Jardín"

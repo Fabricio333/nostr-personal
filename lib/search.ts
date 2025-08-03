@@ -4,7 +4,7 @@ import matter from 'gray-matter'
 import { fetchNostrPosts } from '@/lib/nostr'
 import { getNostrSettings } from '@/lib/nostr-settings'
 
-export type SearchSource = 'nostr' | 'article' | 'garden'
+export type SearchSource = 'nostr' | 'article' | 'garden' | 'all'
 
 export interface SearchResult {
   type: SearchSource
@@ -19,15 +19,16 @@ export async function searchContent(query: string, source?: SearchSource): Promi
 
   const settings = getNostrSettings()
 
-  const includeNostr = !source || source === 'nostr' || source === 'article'
-  const includeGarden = !source || source === 'garden'
+  const includeNostr =
+    !source || source === 'nostr' || source === 'article' || source === 'all'
+  const includeGarden = !source || source === 'garden' || source === 'all'
 
   if (includeNostr && settings.ownerNpub) {
     try {
       const posts = await fetchNostrPosts(settings.ownerNpub, settings.maxPosts)
       for (const post of posts) {
         const postType: SearchSource = post.type === 'article' ? 'article' : 'nostr'
-        if (source && source !== postType) continue
+        if (source && source !== postType && source !== 'all') continue
         const text = `${post.title ?? ''} ${post.summary ?? ''} ${post.content}`.toLowerCase()
         if (!q || text.includes(q)) {
           results.push({
