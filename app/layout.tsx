@@ -75,13 +75,16 @@ export async function generateMetadata(): Promise<Metadata> {
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`
   const url = locale === "es" ? `${siteUrl}/es` : siteUrl
-  let profileImage = "/icon.svg"
+  let profileImage = `${siteUrl}/default-profile.png` // fallback image
   if (ownerNpub) {
-    const cached = await cacheProfilePicture(ownerNpub)
-    if (cached) {
-      profileImage = cached
-    }
+  const cached = await cacheProfilePicture(ownerNpub)
+  if (cached) {
+    profileImage = cached.startsWith("http")
+      ? cached
+      : `${siteUrl}${cached}`
   }
+}
+
   return {
     metadataBase: new URL(siteUrl),
     alternates: {
