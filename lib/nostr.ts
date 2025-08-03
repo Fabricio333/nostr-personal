@@ -104,6 +104,57 @@ function getStoredData(key: string): any | null {
   return null
 }
 
+// File system caching for server-side usage
+async function readPostFromDisk(id: string, locale: string): Promise<NostrPost | null> {
+  try {
+    const fs = await import("fs/promises")
+    const path = await import("path")
+    const filePath = path.join(
+      process.cwd(),
+      "public",
+      locale,
+      "nostr",
+      `${id}.json`,
+    )
+    const raw = await fs.readFile(filePath, "utf8")
+    return JSON.parse(raw) as NostrPost
+  } catch {
+    return null
+  }
+}
+
+async function readPostsFromDisk(locale: string): Promise<NostrPost[] | null> {
+  try {
+    const fs = await import("fs/promises")
+    const path = await import("path")
+    const dir = path.join(process.cwd(), "public", locale, "nostr")
+    const files = await fs.readdir(dir)
+    const posts: NostrPost[] = []
+    for (const file of files) {
+      if (!file.endsWith(".json")) continue
+      const raw = await fs.readFile(path.join(dir, file), "utf8")
+      posts.push(JSON.parse(raw) as NostrPost)
+    }
+    posts.sort((a, b) => b.created_at - a.created_at)
+    return posts
+  } catch {
+    return null
+  }
+}
+
+async function writePostToDisk(post: NostrPost, locale: string): Promise<void> {
+  try {
+    const fs = await import("fs/promises")
+    const path = await import("path")
+    const dir = path.join(process.cwd(), "public", locale, "nostr")
+    await fs.mkdir(dir, { recursive: true })
+    const filePath = path.join(dir, `${post.id}.json`)
+    await fs.writeFile(filePath, JSON.stringify(post, null, 2), "utf8")
+  } catch {
+    // ignore write errors
+  }
+}
+
 export async function fetchNostrProfile(
   npub: string,
   locale = "en",
@@ -219,6 +270,14 @@ export async function fetchNostrPosts(
       }
       if (cached) {
         return cached
+      }
+    }
+
+    // Check disk cache on the server
+    if (typeof window === "undefined" && locale !== "es") {
+      const diskPosts = await readPostsFromDisk(locale)
+      if (diskPosts && diskPosts.length > 0) {
+        return diskPosts.slice(0, limit)
       }
     }
 
@@ -356,6 +415,10 @@ export async function fetchNostrPosts(
     // Limit results
     const limitedPosts = uniquePosts.slice(0, limit)
 
+    if (typeof window === "undefined" && locale !== "es") {
+      await Promise.all(limitedPosts.map((p) => writePostToDisk(p, locale)))
+    }
+
     if (useCache) {
       setCachedData(cacheKey, limitedPosts)
     }
@@ -380,6 +443,13 @@ export async function fetchNostrPost(
         }
       } catch {
         // ignore decode errors and use id as-is
+      }
+    }
+
+    if (typeof window === "undefined" && locale !== "es") {
+      const diskPost = await readPostFromDisk(eventId, locale)
+      if (diskPost) {
+        return diskPost
       }
     }
 
@@ -480,6 +550,10 @@ export async function fetchNostrPost(
       } catch {
         // Missing translation - fall back to original content
       }
+    }
+
+    if (typeof window === "undefined" && locale !== "es") {
+      await writePostToDisk(post, locale)
     }
 
     if (useCache) {
