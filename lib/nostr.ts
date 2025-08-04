@@ -303,16 +303,19 @@ export async function fetchNostrPosts(
     const currentPool = getPool()
 
     // Fetch both notes (kind 1) and long-form articles (kind 30023)
+    // We fetch extra events to account for posts that might be filtered out
+    // due to missing translations or duplicates.
+    const fetchLimit = limit * 3
     const filters: Filter[] = [
       {
         kinds: [1], // Notes
         authors: [pubkeyHex],
-        limit: Math.ceil(limit / 2),
+        limit: fetchLimit,
       },
       {
         kinds: [30023], // Long-form articles
         authors: [pubkeyHex],
-        limit: Math.ceil(limit / 2),
+        limit: fetchLimit,
       },
     ]
 
