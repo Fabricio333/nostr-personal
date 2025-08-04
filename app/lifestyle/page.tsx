@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import lifestyleConfig from "@/lib/lifestyle-config.json"
+import enLifestyle from "@/locales/en/lifestyle.json"
+import esLifestyle from "@/locales/es/lifestyle.json"
 import { fetchNostrPosts } from "@/lib/nostr"
 import { getNostrSettings } from "@/lib/nostr-settings"
 import { useI18n } from "@/components/locale-provider"
@@ -36,16 +37,17 @@ interface NostrPost {
 }
 
 export default function LifestylePage() {
-  const { workouts, nutrition, biohacks, routines } = lifestyleConfig as {
-    workouts: string[]
-    nutrition: string[]
-    biohacks: string[]
-    routines: string[]
-  }
+  const { locale } = useI18n()
+  const { workouts, nutrition, biohacks, routines } =
+    (locale === "es" ? esLifestyle : enLifestyle) as {
+      workouts: string[]
+      nutrition: string[]
+      biohacks: string[]
+      routines: string[]
+    }
 
   const [posts, setPosts] = useState<NostrPost[]>([])
   const [loadingPosts, setLoadingPosts] = useState(true)
-  const { locale } = useI18n()
 
   useEffect(() => {
     const loadPosts = async () => {
