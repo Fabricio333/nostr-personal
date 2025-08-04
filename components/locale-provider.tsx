@@ -32,23 +32,26 @@ function getNested(obj: any, path: string) {
   return path.split(".").reduce((o, k) => (o ? o[k] : undefined), obj)
 }
 
-export function I18nProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocale] = useState<Locale>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("locale")
-      if (stored === "en" || stored === "es") {
-        return stored
-      }
-      const htmlLang = document.documentElement.lang
-      if (htmlLang === "en" || htmlLang === "es") {
-        return htmlLang as Locale
-      }
-    }
-    return "en"
-  })
+export function I18nProvider({
+  children,
+  initialLocale,
+}: {
+  children: ReactNode
+  initialLocale: Locale
+}) {
+  const [locale, setLocale] = useState<Locale>(initialLocale)
 
   const router = useRouter()
   const firstRender = useRef(true)
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("locale")
+      if (stored === "en" || stored === "es") {
+        setLocale(stored as Locale)
+      }
+    }
+  }, [])
 
   useEffect(() => {
     if (typeof window !== "undefined") {
