@@ -15,6 +15,8 @@ import es from '@/locales/es.json'
 
 const translations = { en, es } as const
 
+export const revalidate = 60 * 60 * 24
+
 function getT(locale: keyof typeof translations) {
   return (key: string) =>
     key.split('.').reduce((o: any, k) => (o ? o[k] : undefined), translations[locale]) || key
