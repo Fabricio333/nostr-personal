@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+import { cn, extractImageUrl } from "@/lib/utils"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -20,6 +20,7 @@ import {
 import { fetchNostrProfile, fetchNostrPosts } from "@/lib/nostr"
 import { getNostrSettings } from "@/lib/nostr-settings"
 import Link from "next/link"
+import Image from "next/image"
 import { useI18n } from "@/components/locale-provider"
 
 interface NostrProfile {
@@ -58,6 +59,7 @@ interface Post {
   created_at: number
   type: "nostr" | "article" | "garden"
   translation?: any
+  image?: string
 }
 
 export default function HomePage() {
@@ -99,6 +101,7 @@ export default function HomePage() {
         created_at: p.created_at,
         type: p.type === "note" ? "nostr" : "article",
         translation: p.translation,
+        image: p.image,
       }))
 
       const gardenPosts: Post[] = gardenData.map((n: any) => {
@@ -341,78 +344,88 @@ export default function HomePage() {
               </CardContent>
             </Card>
           ) : (
-            filteredPosts.map((post) => (
-              <Link
-                key={post.id}
-                href={
-                  post.type === "garden"
-                    ? locale === "es"
-                      ? `/es/digital-garden/${post.id}`
-                      : `/digital-garden/${post.id}`
-                    : locale === "es" && post.translation
-                    ? `/es/blog/${post.id}`
-                    : `/blog/${post.id}`
-                }
-                className="group block"
-              >
-                <Card
-                  className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm transition-all duration-300 group-hover:shadow-xl group-hover:-translate-y-1"
+            filteredPosts.map((post) => {
+              const imageUrl = post.image || extractImageUrl(post.content)
+              return (
+                <Link
+                  key={post.id}
+                  href={
+                    post.type === "garden"
+                      ? locale === "es"
+                        ? `/es/digital-garden/${post.id}`
+                        : `/digital-garden/${post.id}`
+                      : locale === "es" && post.translation
+                      ? `/es/blog/${post.id}`
+                      : `/blog/${post.id}`
+                  }
+                  className="group block"
                 >
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <Badge
-                        variant="secondary"
-                        className={cn(
-                          post.type === "article"
-                            ? "bg-orange-100 text-orange-700"
-                            : post.type === "garden"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-purple-100 text-purple-700",
-                        )}
-                      >
-                        {post.type === "article" ? (
-                          <>
-                            <FileText className="h-3 w-3 mr-1" />
-                            {t("home.type_article")}
-                          </>
-                        ) : post.type === "garden" ? (
-                          <>
-                            <Leaf className="h-3 w-3 mr-1" />
-                            {t("home.type_garden")}
-                          </>
-                        ) : (
-                          <>
-                            <MessageSquare className="h-3 w-3 mr-1" />
-                            {t("home.type_nostr")}
-                          </>
-                        )}
-                      </Badge>
-                      <div className="flex items-center text-sm text-slate-500 dark:text-slate-400">
-                        <Calendar className="h-4 w-4 mr-1" />
-                        {formatDate(post.published_at || post.created_at)}
+                  <Card className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm transition-all duration-300 group-hover:shadow-xl group-hover:-translate-y-1">
+                    {imageUrl && (
+                      <Image
+                        src={imageUrl}
+                        alt={post.title || "Post image"}
+                        width={600}
+                        height={300}
+                        className="h-48 w-full object-cover rounded-t-lg"
+                      />
+                    )}
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <Badge
+                          variant="secondary"
+                          className={cn(
+                            post.type === "article"
+                              ? "bg-orange-100 text-orange-700"
+                              : post.type === "garden"
+                              ? "bg-green-100 text-green-700"
+                              : "bg-purple-100 text-purple-700",
+                          )}
+                        >
+                          {post.type === "article" ? (
+                            <>
+                              <FileText className="h-3 w-3 mr-1" />
+                              {t("home.type_article")}
+                            </>
+                          ) : post.type === "garden" ? (
+                            <>
+                              <Leaf className="h-3 w-3 mr-1" />
+                              {t("home.type_garden")}
+                            </>
+                          ) : (
+                            <>
+                              <MessageSquare className="h-3 w-3 mr-1" />
+                              {t("home.type_nostr")}
+                            </>
+                          )}
+                        </Badge>
+                        <div className="flex items-center text-sm text-slate-500 dark:text-slate-400">
+                          <Calendar className="h-4 w-4 mr-1" />
+                          {formatDate(post.published_at || post.created_at)}
+                        </div>
                       </div>
-                    </div>
-                    {post.title && (
-                      <CardTitle className="text-xl bg-gradient-to-r from-slate-900 to-slate-600 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
-                        {post.title}
-                      </CardTitle>
-                    )}
-                    {post.summary && (
-                      <CardDescription className="text-slate-600 dark:text-slate-300 leading-relaxed">
-                        {post.summary}
-                      </CardDescription>
-                    )}
-                  </CardHeader>
-                  <CardContent>
-                    <div className="prose prose-slate dark:prose-invert max-w-none w-full">
-                      <p className="text-slate-700 dark:text-slate-300 leading-relaxed break-words overflow-hidden line-clamp-3">
-                        {truncateContent(post.content)}
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))
+                      {post.title && (
+                        <CardTitle className="text-xl bg-gradient-to-r from-slate-900 to-slate-600 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
+                          {post.title}
+                        </CardTitle>
+                      )}
+                      {post.summary && (
+                        <CardDescription className="text-slate-600 dark:text-slate-300 leading-relaxed">
+                          {post.summary}
+                        </CardDescription>
+                      )}
+                    </CardHeader>
+                    <CardContent>
+                      <div className="prose prose-slate dark:prose-invert max-w-none w-full">
+                        <p className="text-slate-700 dark:text-slate-300 leading-relaxed break-words overflow-hidden line-clamp-3">
+                          {truncateContent(post.content)}
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              )
+            })
           )}
         </div>
 
