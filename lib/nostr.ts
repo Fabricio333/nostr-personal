@@ -268,7 +268,10 @@ export async function fetchNostrPosts(
     const posts = await Promise.all(
       specificIds.map((id) => fetchNostrPost(id, locale)),
     )
-    const validPosts = posts.filter((p): p is NostrPost => p !== null)
+    let validPosts = posts.filter((p): p is NostrPost => p !== null)
+    if (locale === "es") {
+      validPosts = validPosts.filter((p) => p.translation)
+    }
     validPosts.sort((a, b) => b.created_at - a.created_at)
     return validPosts.slice(0, limit)
   }
@@ -426,7 +429,7 @@ export async function fetchNostrPosts(
           processed.push(post)
         })
       )
-      posts = processed
+      posts = processed.filter((p) => p.translation)
     }
 
     // Remove any duplicate posts that might come from multiple relays
