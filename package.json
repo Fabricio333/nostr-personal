@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "next build",
+    "build": "node scripts/fetch-profile-picture.mjs && next build",
     "dev": "next dev",
     "lint": "next lint",
     "start": "next start"
@@ -42,6 +42,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "latest",
+    "d3": "latest",
     "embla-carousel-react": "latest",
     "gray-matter": "^4.0.3",
     "input-otp": "latest",
@@ -50,7 +51,6 @@
     "next": "14.2.16",
     "next-themes": "latest",
     "nostr-tools": "latest",
-    "d3": "latest",
     "react": "^18",
     "react-day-picker": "latest",
     "react-dom": "^18",
@@ -61,7 +61,8 @@
     "sonner": "latest",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
-    "vaul": "latest"
+    "vaul": "latest",
+    "ws": "^8.18.3"
   },
   "devDependencies": {
     "@types/node": "^22",
