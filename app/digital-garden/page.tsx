@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { cookies } from 'next/headers'
 import { getAllNotes } from '@/lib/digital-garden'
-import { getSiteName } from '@/lib/settings'
+import { getSiteName } from '@/lib/site'
 import {
   Card,
   CardHeader,

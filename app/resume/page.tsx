@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { MapPin, Linkedin, Github } from "lucide-react"
-import { getSiteName } from "@/lib/settings"
+import { getSiteName } from "@/lib/site"
 import { cookies } from "next/headers"
 import fs from "fs/promises"
 import path from "path"
