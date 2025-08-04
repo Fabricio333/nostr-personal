@@ -124,7 +124,15 @@ export default function HomePage() {
         }
       })
 
-      const combined = [...nostrPosts, ...gardenPosts].sort((a, b) => {
+      let combined = [...nostrPosts, ...gardenPosts]
+
+      if (locale === "es") {
+        combined = combined.filter(
+          (post) => post.type === "garden" || post.translation,
+        )
+      }
+
+      combined.sort((a, b) => {
         const aDate = a.published_at ?? a.created_at
         const bDate = b.published_at ?? b.created_at
         return bDate - aDate
