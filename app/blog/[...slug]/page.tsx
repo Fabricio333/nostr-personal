@@ -17,20 +17,41 @@ export async function generateStaticParams() {
   const settings = getNostrSettings()
   if (!settings.ownerNpub) return []
   try {
-    const posts = await nostrClient.fetchPosts(settings.ownerNpub, settings.maxPosts || 50)
-    return posts.map((post) => ({ id: post.id }))
+    const posts = await nostrClient.fetchPosts(
+      settings.ownerNpub,
+      settings.maxPosts || 50,
+    )
+    const translated = await nostrClient.fetchPosts(
+      settings.ownerNpub,
+      settings.maxPosts || 50,
+      "es",
+    )
+    const translatedIds = new Set(translated.map((p) => p.id))
+    return posts.flatMap((post) => {
+      const paths = [{ slug: [post.id] }]
+      if (translatedIds.has(post.id)) paths.push({ slug: ["es", post.id] })
+      return paths
+    })
   } catch {
     return []
   }
 }
 
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string[] }
+}): Promise<Metadata> {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://example.com"
   try {
+    const slug = params.slug
+    const pathLocale = slug.length > 1 && slug[0] === "es" ? "es" : undefined
+    const id = slug.length > 1 ? slug[1] : slug[0]
     const cookieStore = cookies()
-    const locale =
+    const cookieLocale =
       (cookieStore.get("NEXT_LOCALE")?.value as "en" | "es") || "en"
-    const post = await nostrClient.fetchPost(params.id, locale)
+    const locale = pathLocale || cookieLocale
+    const post = await nostrClient.fetchPost(id, locale)
     if (!post) {
       return { title: "Post not found" }
     }
@@ -55,12 +76,19 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   }
 }
 
-export default async function BlogPostPage({ params }: { params: { id: string } }) {
-  const { id } = params
+export default async function BlogPostPage({
+  params,
+}: {
+  params: { slug: string[] }
+}) {
+  const slug = params.slug
+  const pathLocale = slug.length > 1 && slug[0] === "es" ? "es" : undefined
+  const id = slug.length > 1 ? slug[1] : slug[0]
   const settings = getNostrSettings()
   const cookieStore = cookies()
-  const locale =
+  const cookieLocale =
     (cookieStore.get("NEXT_LOCALE")?.value as "en" | "es") || "en"
+  const locale = pathLocale || cookieLocale
 
   if (!settings.ownerNpub || !settings.ownerNpub.startsWith("npub1")) {
     return (
