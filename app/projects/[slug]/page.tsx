@@ -5,6 +5,8 @@ import path from "path"
 import { marked } from "marked"
 import matter from "gray-matter"
 
+export const revalidate = 60 * 60 * 24
+
 export async function generateStaticParams() {
   const dir = path.join(process.cwd(), "public", "en", "projects")
   const files = await fs.readdir(dir)

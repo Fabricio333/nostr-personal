@@ -11,17 +11,26 @@ import { getNostrSettings } from "@/lib/nostr-settings"
 import { marked } from "marked" // For Markdown rendering
 import { nip19 } from "nostr-tools"
 
-export const dynamic = "force-static"
+export const revalidate = 60 * 60 * 24
 
 export async function generateStaticParams() {
   const settings = getNostrSettings()
   if (!settings.ownerNpub) return []
   try {
-    const posts = await nostrClient.fetchPosts(
-      settings.ownerNpub,
-      settings.maxPosts || 50,
-    )
-    return posts.map((post) => ({ slug: [post.id] }))
+    const [postsEn, postsEs] = await Promise.all([
+      nostrClient.fetchPosts(
+        settings.ownerNpub,
+        settings.maxPosts || 50,
+        "en",
+      ),
+      nostrClient.fetchPosts(
+        settings.ownerNpub,
+        settings.maxPosts || 50,
+        "es",
+      ),
+    ])
+    const ids = new Set([...postsEn, ...postsEs].map((p) => p.id))
+    return Array.from(ids).map((id) => ({ slug: [id] }))
   } catch {
     return []
   }

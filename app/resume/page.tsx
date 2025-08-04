@@ -8,6 +8,8 @@ import path from "path"
 import { marked } from "marked"
 import matter from "gray-matter"
 
+export const revalidate = 60 * 60 * 24
+
 export default async function ResumePage() {
   const name = await getSiteName()
   const cookieStore = cookies()
