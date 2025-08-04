@@ -25,7 +25,15 @@ export async function searchContent(query: string, source?: SearchSource): Promi
 
   if (includeNostr && settings.ownerNpub) {
     try {
-      const posts = await fetchNostrPosts(settings.ownerNpub, settings.maxPosts)
+      const posts = await fetchNostrPosts(
+        settings.ownerNpub,
+        settings.maxPosts,
+        "en",
+        {
+          noteIds: settings.noteEventIds,
+          articleIds: settings.articleEventIds,
+        },
+      )
       for (const post of posts) {
         const postType: Exclude<SearchSource, 'all'> =
           post.type === 'article' ? 'article' : 'nostr'

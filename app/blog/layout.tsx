@@ -18,7 +18,15 @@ export async function generateMetadata(): Promise<Metadata> {
 
   try {
     if (settings.ownerNpub) {
-      const posts = await fetchNostrPosts(settings.ownerNpub, 3, locale)
+      const posts = await fetchNostrPosts(
+        settings.ownerNpub,
+        3,
+        locale,
+        {
+          noteIds: settings.noteEventIds,
+          articleIds: settings.articleEventIds,
+        },
+      )
       const titles = posts
         .map((p) => p.title || p.content.slice(0, 50))
         .filter(Boolean)

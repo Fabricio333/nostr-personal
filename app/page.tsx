@@ -88,7 +88,15 @@ export default function HomePage() {
       // Fetch profile, nostr posts, and garden notes
       const [profileData, nostrData, gardenData] = await Promise.all([
         fetchNostrProfile(settings.ownerNpub, locale),
-        fetchNostrPosts(settings.ownerNpub, settings.maxPosts, locale),
+        fetchNostrPosts(
+          settings.ownerNpub,
+          settings.maxPosts,
+          locale,
+          {
+            noteIds: settings.noteEventIds,
+            articleIds: settings.articleEventIds,
+          },
+        ),
         fetch("/api/digital-garden").then((res) => res.json()),
       ])
 

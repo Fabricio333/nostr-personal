@@ -23,11 +23,19 @@ export async function generateStaticParams() {
         settings.ownerNpub,
         settings.maxPosts || 50,
         "en",
+        {
+          noteIds: settings.noteEventIds,
+          articleIds: settings.articleEventIds,
+        },
       ),
       nostrClient.fetchPosts(
         settings.ownerNpub,
         settings.maxPosts || 50,
         "es",
+        {
+          noteIds: settings.noteEventIds,
+          articleIds: settings.articleEventIds,
+        },
       ),
     ])
     const ids = new Set([...postsEn, ...postsEs].map((p) => p.id))

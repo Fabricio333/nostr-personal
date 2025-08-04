@@ -58,7 +58,15 @@ export default function LifestylePage() {
           return
         }
 
-        const allPosts = await fetchNostrPosts(settings.ownerNpub, 20, locale)
+        const allPosts = await fetchNostrPosts(
+          settings.ownerNpub,
+          20,
+          locale,
+          {
+            noteIds: settings.noteEventIds,
+            articleIds: settings.articleEventIds,
+          },
+        )
         const lifestylePosts = allPosts.filter(
           (post) =>
             post.tags.some(

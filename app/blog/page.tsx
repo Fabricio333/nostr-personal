@@ -63,7 +63,15 @@ export default function BlogPage() {
         return
       }
 
-      const postsData = await fetchNostrPosts(settings.ownerNpub, 100, locale)
+      const postsData = await fetchNostrPosts(
+        settings.ownerNpub,
+        100,
+        locale,
+        {
+          noteIds: settings.noteEventIds,
+          articleIds: settings.articleEventIds,
+        },
+      )
       setPosts(postsData)
       setFilteredPosts(postsData)
     } catch (err) {
