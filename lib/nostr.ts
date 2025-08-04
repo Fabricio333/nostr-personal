@@ -256,6 +256,7 @@ export async function fetchNostrPosts(
   locale = "en"
 ): Promise<NostrPost[]> {
   try {
+    const fetchLimit = locale === "es" ? limit * 3 : limit
     const cacheKey = getCacheKey("posts", `${npub}:${limit}:${locale}`)
     const useCache = locale !== "es"
 
@@ -307,12 +308,12 @@ export async function fetchNostrPosts(
       {
         kinds: [1], // Notes
         authors: [pubkeyHex],
-        limit: Math.ceil(limit / 2),
+        limit: Math.ceil(fetchLimit / 2),
       },
       {
         kinds: [30023], // Long-form articles
         authors: [pubkeyHex],
-        limit: Math.ceil(limit / 2),
+        limit: Math.ceil(fetchLimit / 2),
       },
     ]
 
