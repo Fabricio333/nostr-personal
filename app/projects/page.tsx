@@ -1,3 +1,5 @@
+"use client"
+
 import { CardDescription } from "@/components/ui/card"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -5,14 +7,15 @@ import { Button } from "@/components/ui/button"
 import { Github, ExternalLink } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
+import { useI18n } from "@/components/locale-provider"
 
 export default function ProjectsPage() {
+  const { t } = useI18n()
   const projects = [
     {
       id: "1",
       title: "WeAreBitcoin.org",
-      shortDescription:
-        "Bitcoin education platform focused on self-custody and sound money principles.",
+      shortDescription: t("projects.list.wearebitcoin.short_description"),
       description:
         "Content Writer and Developer at WeAreBitcoin.org, a Bitcoin education platform focused on self-custody and sound money principles.",
       responsibilities: [
@@ -31,8 +34,7 @@ export default function ProjectsPage() {
     {
       id: "2",
       title: "Web WorkOut Timer",
-      shortDescription:
-        "Customizable web timer for managing workout and rest intervals.",
+      shortDescription: t("projects.list.webworkouttimer.short_description"),
       description:
         "A simple browser-based timer that lets users configure exercise and break periods for workouts.",
       responsibilities: [
@@ -49,8 +51,7 @@ export default function ProjectsPage() {
     {
       id: "3",
       title: "Password Manager v2",
-      shortDescription:
-        "Deterministic password vault with decentralized Nostr backup.",
+      shortDescription: t("projects.list.passwordmanagerweb.short_description"),
       description:
         "Browser-based, offline-capable password manager using seed phrases and encrypted Nostr backups.",
       responsibilities: [
@@ -70,9 +71,11 @@ export default function ProjectsPage() {
 
   return (
     <div className="container mx-auto px-4 py-4">
-      <h1 className="text-3xl font-bold mb-4 text-center">Projects</h1>
+      <h1 className="text-3xl font-bold mb-4 text-center">
+        {t("projects.title")}
+      </h1>
       <p className="text-lg text-muted-foreground text-center mb-6">
-        A collection of my work, showcasing various technologies and problem-solving approaches.
+        {t("projects.subtitle")}
       </p>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -116,7 +119,7 @@ export default function ProjectsPage() {
                   <Button asChild variant="outline" size="sm">
                     <a href={project.github} target="_blank" rel="noopener noreferrer">
                       <Github className="mr-2 h-4 w-4" />
-                      GitHub
+                      {t("projects.github")}
                     </a>
                   </Button>
                 )}
@@ -124,7 +127,7 @@ export default function ProjectsPage() {
                   <Button asChild size="sm">
                     <a href={project.live} target="_blank" rel="noopener noreferrer">
                       <ExternalLink className="mr-2 h-4 w-4" />
-                      Live Demo
+                      {t("projects.live_demo")}
                     </a>
                   </Button>
                 )}
@@ -137,7 +140,7 @@ export default function ProjectsPage() {
       {projects.length === 0 && (
         <Card className="max-w-md mx-auto mt-8">
           <CardContent className="py-8 text-center">
-            <p className="text-muted-foreground">No projects to display yet. Check back soon!</p>
+            <p className="text-muted-foreground">{t("projects.no_projects")}</p>
           </CardContent>
         </Card>
       )}
