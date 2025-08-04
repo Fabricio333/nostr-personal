@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { MapPin, Linkedin, Github } from "lucide-react"
 import { getSiteName } from "@/lib/settings"
+import type { Metadata } from "next"
 import { cookies } from "next/headers"
 import fs from "fs/promises"
 import path from "path"
@@ -9,6 +10,24 @@ import { marked } from "marked"
 import matter from "gray-matter"
 
 export const revalidate = 60 * 60 * 24
+
+export async function generateMetadata(): Promise<Metadata> {
+  const name = await getSiteName()
+  const title = `${name} | Resume`
+  const description = `Resume of ${name}`
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+    },
+    twitter: {
+      title,
+      description,
+    },
+  }
+}
 
 export default async function ResumePage() {
   const name = await getSiteName()
