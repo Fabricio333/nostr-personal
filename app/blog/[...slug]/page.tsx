@@ -185,8 +185,8 @@ export default async function BlogPostPage({
               ← Back to Blog
             </Link>
           </div>
-          <Card className="mx-auto max-w-3xl border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
-            <CardContent className="p-6">
+          <Card className="mx-auto max-w-3xl border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm break-words">
+            <CardContent className="p-6 break-words">
             <div className="mb-6 flex items-center gap-4">
               <Avatar className="h-10 w-10">
                 <AvatarImage src={profilePic} alt={authorName} />
@@ -201,7 +201,7 @@ export default async function BlogPostPage({
             </div>
 
             <article
-              className="prose dark:prose-invert max-w-none"
+              className="prose dark:prose-invert max-w-none break-words"
               dangerouslySetInnerHTML={{ __html: renderedContent }}
             />
 
