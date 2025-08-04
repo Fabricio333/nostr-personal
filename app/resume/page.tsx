@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { MapPin, Linkedin, Github } from "lucide-react"
-import { getSiteName } from "@/lib/settings"
+import { getSettings } from "@/lib/settings"
 import type { Metadata } from "next"
 import { cookies } from "next/headers"
 import fs from "fs/promises"
@@ -12,9 +12,39 @@ import matter from "gray-matter"
 export const revalidate = 60 * 60 * 24
 
 export async function generateMetadata(): Promise<Metadata> {
-  const name = await getSiteName()
-  const title = `${name} | Resume`
-  const description = `Resume of ${name}`
+  const { siteName } = getSettings()
+  const cookieStore = cookies()
+  const locale = (cookieStore.get("NEXT_LOCALE")?.value as "en" | "es") || "en"
+  const dirPath = path.join(process.cwd(), "public", locale, "resume")
+
+  let description = ""
+  try {
+    const files = await fs.readdir(dirPath)
+    const mdFiles = files.filter((f) => f.endsWith(".md"))
+    const parsed = await Promise.all(
+      mdFiles.map(async (file) => {
+        const raw = await fs.readFile(path.join(dirPath, file), "utf8")
+        const { data, content } = matter(raw)
+        return {
+          order: (data.order as number) || 0,
+          content,
+        }
+      })
+    )
+    const first = parsed.sort((a, b) => a.order - b.order)[0]
+    if (first?.content) {
+      const firstParagraph = first.content
+        .trim()
+        .split(/\n\s*\n/)[0]
+        .replace(/\n/g, " ")
+        .trim()
+      description = firstParagraph
+    }
+  } catch {
+    description = ""
+  }
+
+  const title = siteName
   return {
     title,
     description,
@@ -30,7 +60,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ResumePage() {
-  const name = await getSiteName()
+  const { siteName: name } = getSettings()
   const cookieStore = cookies()
   const locale = (cookieStore.get("NEXT_LOCALE")?.value as "en" | "es") || "en"
   const dirPath = path.join(process.cwd(), "public", locale, "resume")
