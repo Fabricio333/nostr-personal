@@ -13,6 +13,7 @@ export interface Settings {
 
 import config from "@/settings.json";
 import { fetchNostrProfile } from "./nostr";
+import { getCachedProfile } from "./profile-cache";
 
 export function getSettings(): Settings {
   const site = (config as any).site as Settings;
@@ -25,7 +26,7 @@ export async function getSiteName(): Promise<string> {
   if (!npub) return site.siteName;
 
   try {
-    const profile = await fetchNostrProfile(npub);
+    const profile = getCachedProfile() || (await fetchNostrProfile(npub));
     const name =
       profile?.display_name ||
       profile?.name ||

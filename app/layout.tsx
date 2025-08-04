@@ -11,9 +11,14 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { Navbar } from "@/components/navbar"
 import { getSettings, getSiteName, getOwnerNpub } from "@/lib/settings"
 import { I18nProvider } from "@/components/locale-provider"
-import { fetchNostrProfile } from "@/lib/nostr"
+import { initProfileCache, getCachedProfileImage } from "@/lib/profile-cache"
 
 const inter = Inter({ subsets: ["latin"] })
+
+const ownerNpub = getOwnerNpub()
+if (ownerNpub) {
+  void initProfileCache(ownerNpub)
+}
 
 
 export const viewport: Viewport = {
@@ -67,18 +72,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`
   const url = locale === "es" ? `${siteUrl}/es` : siteUrl
-  const npub = getOwnerNpub()
-  let profileImage = "/profile-picture.png"
-  if (npub) {
-    try {
-      const profile = await fetchNostrProfile(npub)
-      if (profile?.picture) {
-        profileImage = profile.picture
-      }
-    } catch {
-      // ignore errors and use default
-    }
-  }
+  const profileImage = await getCachedProfileImage()
 
   return {
     metadataBase: new URL(siteUrl),
