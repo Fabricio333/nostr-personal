@@ -42,6 +42,19 @@ interface NostrPost {
   translation?: any
 }
 
+const extractImageUrl = (content: string): string | null => {
+  const urlRegex = /(https?:\/\/[^\s]+)/g
+  const urls = content.match(urlRegex)
+  if (!urls) return null
+  for (const url of urls) {
+    const cleaned = url.replace(/[),.?!'"\]]*$/, "")
+    if (/\.(png|jpe?g|gif|webp)$/i.test(cleaned)) {
+      return cleaned
+    }
+  }
+  return null
+}
+
 export default function BlogPage() {
   const [posts, setPosts] = useState<NostrPost[]>([])
   const [filteredPosts, setFilteredPosts] = useState<NostrPost[]>([])
@@ -254,21 +267,23 @@ export default function BlogPage() {
               </Card>
             </div>
           ) : (
-            filteredPosts.map((post) => (
-              <Link
-                key={post.id}
-                href={
-                  locale === "es" && post.translation
-                    ? `/es/blog/${post.id}`
-                    : `/blog/${post.id}`
-                }
-                className="group block"
-                prefetch={false}
-              >
-                <Card
-                  className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm transition-all duration-300 group-hover:shadow-xl group-hover:-translate-y-1"
+            filteredPosts.map((post) => {
+              const imageUrl = post.image || extractImageUrl(post.content)
+              return (
+                <Link
+                  key={post.id}
+                  href={
+                    locale === "es" && post.translation
+                      ? `/es/blog/${post.id}`
+                      : `/blog/${post.id}`
+                  }
+                  className="group block"
+                  prefetch={false}
                 >
-                  <CardHeader>
+                  <Card
+                    className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm transition-all duration-300 group-hover:shadow-xl group-hover:-translate-y-1"
+                  >
+                    <CardHeader>
                     <div className="flex items-center justify-between mb-2">
                       <Badge
                         variant="secondary"
@@ -309,6 +324,13 @@ export default function BlogPage() {
                   )}
                   </CardHeader>
                   <CardContent>
+                    {imageUrl && (
+                      <img
+                        src={imageUrl}
+                        alt=""
+                        className="mb-4 h-48 w-full rounded-md object-cover"
+                      />
+                    )}
                     <div className="prose prose-slate dark:prose-invert max-w-none w-full break-words">
                       <p className="text-slate-700 dark:text-slate-300 leading-relaxed break-all overflow-hidden line-clamp-3">
                         {truncateContent(post.content)}
@@ -317,8 +339,9 @@ export default function BlogPage() {
                   </CardContent>
                 </Card>
               </Link>
-            ))
-          )}
+            )
+          })
+        )}
         </div>
       </div>
     </div>
