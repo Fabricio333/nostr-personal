@@ -43,13 +43,18 @@ interface NostrPost {
 }
 
 const extractImageUrl = (content: string): string | null => {
-  const urlRegex = /(https?:\/\/[^\s]+)/g
+  const urlRegex = /https?:\/\/[^\s)\]]+/g
   const urls = content.match(urlRegex)
   if (!urls) return null
   for (const url of urls) {
-    const cleaned = url.replace(/[),.?!'"\]]*$/, "")
-    if (/\.(png|jpe?g|gif|webp)$/i.test(cleaned)) {
-      return cleaned
+    const cleaned = url.replace(/[.,?!'"\]]*$/, "")
+    try {
+      const parsed = new URL(cleaned)
+      if (/\.(png|jpe?g|gif|webp|svg|avif)$/i.test(parsed.pathname)) {
+        return cleaned
+      }
+    } catch {
+      continue
     }
   }
   return null
