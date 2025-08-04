@@ -18,14 +18,15 @@ export function SearchBar() {
   const [term, setTerm] = useState("")
   const [source, setSource] = useState("all")
   const router = useRouter()
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     const params = new URLSearchParams()
     if (term) params.set("q", term)
     if (source) params.set("source", source)
-    router.push(`/search?${params.toString()}`)
+    const base = locale === 'es' ? '/es/search' : '/search'
+    router.push(`${base}?${params.toString()}`)
   }
 
   return (

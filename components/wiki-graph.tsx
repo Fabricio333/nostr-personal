@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { useI18n } from '@/components/locale-provider'
 import { useTheme } from 'next-themes'
 import * as d3 from 'd3'
 
@@ -12,6 +13,7 @@ interface GraphData {
 export default function WikiGraph({ data }: { data: GraphData }) {
   const ref = useRef<SVGSVGElement>(null)
   const { resolvedTheme } = useTheme()
+  const { locale } = useI18n()
 
   useEffect(() => {
     const svg = d3.select(ref.current)
@@ -54,7 +56,8 @@ export default function WikiGraph({ data }: { data: GraphData }) {
       .attr('r', 8)
       .attr('fill', nodeColor)
       .on('click', (_event, d: any) => {
-        window.location.href = `/digital-garden/${d.id}`
+        const base = locale === 'es' ? '/es/digital-garden' : '/digital-garden'
+        window.location.href = `${base}/${d.id}`
       })
       .call(
         d3
@@ -104,7 +107,7 @@ export default function WikiGraph({ data }: { data: GraphData }) {
     return () => {
       simulation.stop()
     }
-  }, [data, resolvedTheme])
+  }, [data, resolvedTheme, locale])
 
   return <svg ref={ref} className="h-[600px] w-full"></svg>
 }

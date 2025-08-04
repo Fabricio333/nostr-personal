@@ -21,17 +21,7 @@ export async function generateStaticParams() {
       settings.ownerNpub,
       settings.maxPosts || 50,
     )
-    const translated = await nostrClient.fetchPosts(
-      settings.ownerNpub,
-      settings.maxPosts || 50,
-      "es",
-    )
-    const translatedIds = new Set(translated.map((p) => p.id))
-    return posts.flatMap((post) => {
-      const paths = [{ slug: [post.id] }]
-      if (translatedIds.has(post.id)) paths.push({ slug: ["es", post.id] })
-      return paths
-    })
+    return posts.map((post) => ({ slug: [post.id] }))
   } catch {
     return []
   }
@@ -45,21 +35,20 @@ export async function generateMetadata({
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://example.com"
   try {
     const slug = params.slug
-    const pathLocale = slug.length > 1 && slug[0] === "es" ? "es" : undefined
-    const id = slug.length > 1 ? slug[1] : slug[0]
+    const id = slug[0]
     const cookieStore = cookies()
-    const cookieLocale =
+    const locale =
       (cookieStore.get("NEXT_LOCALE")?.value as "en" | "es") || "en"
-    const locale = pathLocale || cookieLocale
     const post = await nostrClient.fetchPost(id, locale)
     if (!post) {
       return { title: "Post not found" }
     }
     const title = post.title || `${post.content.slice(0, 60)}…`
     const description = post.summary || post.content.slice(0, 160)
-    const url = `${siteUrl}/blog/${
-      locale === "es" && post.translation ? `es/${post.id}` : post.id
-    }`
+    const url =
+      locale === "es" && post.translation
+        ? `${siteUrl}/es/blog/${post.id}`
+        : `${siteUrl}/blog/${post.id}`
     return {
       title,
       description,
@@ -82,13 +71,11 @@ export default async function BlogPostPage({
   params: { slug: string[] }
 }) {
   const slug = params.slug
-  const pathLocale = slug.length > 1 && slug[0] === "es" ? "es" : undefined
-  const id = slug.length > 1 ? slug[1] : slug[0]
+  const id = slug[0]
   const settings = getNostrSettings()
   const cookieStore = cookies()
-  const cookieLocale =
+  const locale =
     (cookieStore.get("NEXT_LOCALE")?.value as "en" | "es") || "en"
-  const locale = pathLocale || cookieLocale
 
   if (!settings.ownerNpub || !settings.ownerNpub.startsWith("npub1")) {
     return (
@@ -149,7 +136,7 @@ export default async function BlogPostPage({
         <div className="container mx-auto px-4 py-8">
           <div className="mb-4">
             <Link
-              href="/blog"
+              href={locale === "es" ? "/es/blog" : "/blog"}
               className="text-blue-600 hover:underline"
               prefetch={false}
             >

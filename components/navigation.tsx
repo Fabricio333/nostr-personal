@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useI18n } from "@/components/locale-provider"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { ModeToggle } from "@/components/mode-toggle"
@@ -25,6 +26,9 @@ const navigation = [
 export function Navigation() {
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
+  const { locale } = useI18n()
+  const withLocale = (href: string) =>
+    locale === "es" ? (href === "/" ? "/es" : `/es${href}`) : href
   const [firstName, setFirstName] = useState(() => getSettings().siteName)
 
   useEffect(() => {
@@ -52,10 +56,12 @@ export function Navigation() {
             {navigation.map((item) => (
               <Link
                 key={item.name}
-                href={item.href}
+                href={withLocale(item.href)}
                 className={cn(
                   "transition-colors hover:text-foreground/80",
-                  pathname === item.href ? "text-foreground" : "text-foreground/60",
+                  pathname === withLocale(item.href)
+                    ? "text-foreground"
+                    : "text-foreground/60",
                 )}
               >
                 {item.name}
@@ -74,7 +80,11 @@ export function Navigation() {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="pr-0">
-            <Link href="/" className="flex items-center" onClick={() => setIsOpen(false)}>
+            <Link
+              href={withLocale("/")}
+              className="flex items-center"
+              onClick={() => setIsOpen(false)}
+            >
               <span className="font-bold">{firstName}</span>
             </Link>
             <div className="my-4 h-[calc(100vh-8rem)] pb-10 pl-6">
@@ -82,11 +92,13 @@ export function Navigation() {
                 {navigation.map((item) => (
                   <Link
                     key={item.name}
-                    href={item.href}
+                    href={withLocale(item.href)}
                     onClick={() => setIsOpen(false)}
                     className={cn(
                       "flex items-center space-x-2 text-sm font-medium transition-colors hover:text-foreground/80",
-                      pathname === item.href ? "text-foreground" : "text-foreground/60",
+                      pathname === withLocale(item.href)
+                        ? "text-foreground"
+                        : "text-foreground/60",
                     )}
                   >
                     <item.icon className="h-4 w-4" />
@@ -100,7 +112,7 @@ export function Navigation() {
         </Sheet>
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
           <div className="w-full flex-1 md:w-auto md:flex-none">
-            <Link href="/" className="flex items-center space-x-2 md:hidden">
+            <Link href={withLocale("/")} className="flex items-center space-x-2 md:hidden">
               <span className="font-bold">{firstName}</span>
             </Link>
           </div>

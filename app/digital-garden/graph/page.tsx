@@ -36,7 +36,10 @@ export default async function DigitalGardenGraphPage() {
       <h1 className="mb-4 text-center text-3xl font-bold">{t('digital_garden.garden_graph')}</h1>
       <WikiGraph data={{ nodes, links }} />
       <div className="mt-4 text-center">
-        <Link href="/digital-garden" className="text-blue-600 hover:underline">
+        <Link
+          href={locale === 'es' ? '/es/digital-garden' : '/digital-garden'}
+          className="text-blue-600 hover:underline"
+        >
           {t('digital_garden.back')}
         </Link>
       </div>

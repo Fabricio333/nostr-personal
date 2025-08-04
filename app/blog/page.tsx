@@ -259,7 +259,7 @@ export default function BlogPage() {
                 key={post.id}
                 href={
                   locale === "es" && post.translation
-                    ? `/blog/es/${post.id}`
+                    ? `/es/blog/${post.id}`
                     : `/blog/${post.id}`
                 }
                 className="group block"
