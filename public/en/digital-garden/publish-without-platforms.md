@@ -1,6 +1,6 @@
 ---
 title: Publish Without Platforms
-date: 2025-08-02
+date: 2025-04-13
 tags: [writing]
 ---
 

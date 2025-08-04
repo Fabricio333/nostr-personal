@@ -1,6 +1,6 @@
 ---
 title: Biohacking
-date: 2025-07-31
+date: 2025-07-04
 tags: [biohacking]
 ---
 

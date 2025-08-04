@@ -1,6 +1,6 @@
 ---
 title: Soberanía Financiera
-date: 2025-08-02
+date: 2025-11-14
 tags: [finanzas]
 ---
 

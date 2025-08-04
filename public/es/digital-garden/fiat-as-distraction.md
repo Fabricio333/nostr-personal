@@ -1,6 +1,6 @@
 ---
 title: Fiat como Distracción
-date: 2025-08-02
+date: 2024-12-03
 tags: [economía]
 ---
 

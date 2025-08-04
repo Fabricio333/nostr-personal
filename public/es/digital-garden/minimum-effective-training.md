@@ -1,6 +1,6 @@
 ---
 title: Entrenamiento Mínimo Efectivo
-date: 2025-08-02
+date: 2023-06-13
 tags: [salud]
 ---
 
