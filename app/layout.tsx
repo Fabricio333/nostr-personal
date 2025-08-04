@@ -118,7 +118,7 @@ export default async function RootLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <body className={`${inter.className} w-full`}>
-        <I18nProvider>
+        <I18nProvider initialLocale={locale}>
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
