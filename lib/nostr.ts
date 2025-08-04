@@ -303,16 +303,20 @@ export async function fetchNostrPosts(
     const currentPool = getPool()
 
     // Fetch both notes (kind 1) and long-form articles (kind 30023)
+    // When using translated content (Spanish), we need to fetch more events
+    // to account for posts that don't yet have translations available. This
+    // ensures we still return enough translated posts after filtering.
+    const fetchLimit = locale === "es" ? limit * 3 : limit
     const filters: Filter[] = [
       {
         kinds: [1], // Notes
         authors: [pubkeyHex],
-        limit: Math.ceil(limit / 2),
+        limit: Math.ceil(fetchLimit / 2),
       },
       {
         kinds: [30023], // Long-form articles
         authors: [pubkeyHex],
-        limit: Math.ceil(limit / 2),
+        limit: Math.ceil(fetchLimit / 2),
       },
     ]
 
