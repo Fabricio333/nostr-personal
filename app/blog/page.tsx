@@ -39,6 +39,7 @@ interface NostrPost {
   summary?: string
   image?: string
   published_at?: number
+  translation?: any
 }
 
 export default function BlogPage() {
@@ -256,7 +257,11 @@ export default function BlogPage() {
             filteredPosts.map((post) => (
               <Link
                 key={post.id}
-                href={`/blog/${post.id}`}
+                href={
+                  locale === "es" && post.translation
+                    ? `/blog/es/${post.id}`
+                    : `/blog/${post.id}`
+                }
                 className="group block"
                 prefetch={false}
               >
