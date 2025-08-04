@@ -9,3 +9,5 @@ yarn-error.log*
 .vercel/
 *.tgz
 .DS_Store
+
+public/profile-picture.png
