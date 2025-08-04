@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { cookies } from 'next/headers'
 import { searchContent, SearchSource } from '@/lib/search'
 
 export default async function SearchPage({
@@ -6,6 +7,7 @@ export default async function SearchPage({
 }: {
   searchParams: { q?: string; source?: SearchSource }
 }) {
+  const locale = (cookies().get('NEXT_LOCALE')?.value || 'en') as 'en' | 'es'
   const query = searchParams.q ?? ''
   const source = searchParams.source as SearchSource | undefined
   const results = await searchContent(query, source)
@@ -20,7 +22,10 @@ export default async function SearchPage({
           {results.map((res, idx) => (
             <li key={idx} className="rounded border p-4">
               <div className="mb-1 text-sm capitalize text-muted-foreground">{res.type}</div>
-              <Link href={res.url} className="font-semibold hover:underline">
+              <Link
+                href={locale === 'es' ? `/es${res.url}` : res.url}
+                className="font-semibold hover:underline"
+              >
                 {res.title}
               </Link>
               <p className="text-sm text-muted-foreground">{res.snippet}</p>

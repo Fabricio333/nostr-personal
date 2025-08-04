@@ -58,10 +58,19 @@ export function I18nProvider({
       localStorage.setItem("locale", locale)
       document.documentElement.lang = locale
       document.cookie = `NEXT_LOCALE=${locale}; path=/; max-age=31536000`
+      const path = window.location.pathname
       if (firstRender.current) {
         firstRender.current = false
       } else {
-        router.refresh()
+        if (locale === "es" && !path.startsWith("/es")) {
+          const target = path === "/" ? "/es" : `/es${path}`
+          router.push(target)
+        } else if (locale === "en" && path.startsWith("/es")) {
+          const target = path.replace(/^\/es/, "") || "/"
+          router.push(target)
+        } else {
+          router.refresh()
+        }
       }
     }
   }, [locale, router])

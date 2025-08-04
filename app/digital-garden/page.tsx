@@ -42,13 +42,16 @@ export default async function DigitalGardenPage({
         {siteName}&apos;s {t('navbar.garden')}
       </h1>
       <div className="mb-4 text-center">
-        <Link href="/digital-garden/graph" className="text-blue-600 hover:underline">
+        <Link
+          href={locale === 'es' ? '/es/digital-garden/graph' : '/digital-garden/graph'}
+          className="text-blue-600 hover:underline"
+        >
           {t('digital_garden.graph_view')}
         </Link>
       </div>
       {allTags.length > 0 && (
         <div className="mb-8 flex flex-wrap justify-center gap-2">
-          <Link href="/digital-garden">
+          <Link href={locale === 'es' ? '/es/digital-garden' : '/digital-garden'}>
             <Badge
               variant="outline"
               className={cn(
@@ -62,7 +65,10 @@ export default async function DigitalGardenPage({
           {allTags.map((tag) => (
             <Link
               key={tag}
-              href={{ pathname: '/digital-garden', query: { tag } }}
+              href={{
+                pathname: locale === 'es' ? '/es/digital-garden' : '/digital-garden',
+                query: { tag },
+              }}
             >
               <Badge
                 variant="outline"
@@ -81,7 +87,11 @@ export default async function DigitalGardenPage({
         {filteredNotes.map((note) => (
           <Link
             key={note.slug}
-            href={`/digital-garden/${note.slug}`}
+            href={
+              locale === 'es'
+                ? `/es/digital-garden/${note.slug}`
+                : `/digital-garden/${note.slug}`
+            }
             className="block"
           >
             <Card className="h-full transition-colors hover:bg-muted">

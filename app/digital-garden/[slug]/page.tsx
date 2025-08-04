@@ -24,7 +24,8 @@ export default async function DigitalGardenNotePage({ params }: { params: { slug
   }
   let content = note.content.replace(/\[\[([^\]]+)\]\]/g, (_match, p1) => {
     const slug = slugify(p1)
-    return `[${p1}](/digital-garden/${slug})`
+    const base = locale === 'es' ? '/es/digital-garden' : '/digital-garden'
+    return `[${p1}](${base}/${slug})`
   })
   const html = marked.parse(content)
   return (
@@ -47,7 +48,10 @@ export default async function DigitalGardenNotePage({ params }: { params: { slug
         <div dangerouslySetInnerHTML={{ __html: html }} />
       </article>
       <div className="mt-8">
-        <Link href="/digital-garden" className="text-blue-600 hover:underline">
+        <Link
+          href={locale === 'es' ? '/es/digital-garden' : '/digital-garden'}
+          className="text-blue-600 hover:underline"
+        >
           {t('digital_garden.back')}
         </Link>
       </div>

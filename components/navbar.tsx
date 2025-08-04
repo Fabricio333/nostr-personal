@@ -25,12 +25,15 @@ const links = [
 
 export function Navbar({ siteName }: NavbarProps) {
   const [open, setOpen] = useState(false)
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
+
+  const withLocale = (href: string) =>
+    locale === "es" ? (href === "/" ? "/es" : `/es${href}`) : href
 
   return (
     <nav className="border-b bg-background">
       <div className="container flex items-center gap-4 px-4 py-4">
-        <Link href="/" className="flex items-center gap-2 font-bold text-xl">
+        <Link href={withLocale("/")} className="flex items-center gap-2 font-bold text-xl">
           <Image src="/icon.svg" alt="" width={24} height={24} />
           <span>{siteName}</span>
         </Link>
@@ -38,7 +41,7 @@ export function Navbar({ siteName }: NavbarProps) {
           {links.map((link) => (
             <Link
               key={link.href}
-              href={link.href}
+              href={withLocale(link.href)}
               className="text-muted-foreground hover:text-foreground"
             >
               {t(`navbar.${link.key}`)}
@@ -72,7 +75,7 @@ export function Navbar({ siteName }: NavbarProps) {
             {links.map((link) => (
               <Link
                 key={link.href}
-                href={link.href}
+                href={withLocale(link.href)}
                 onClick={() => setOpen(false)}
                 className="hover:text-primary"
               >
