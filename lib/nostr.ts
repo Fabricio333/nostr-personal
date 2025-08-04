@@ -41,6 +41,11 @@ interface NostrPost {
   translation?: any
 }
 
+export interface FetchPostsOptions {
+  noteIds?: string[]
+  articleIds?: string[]
+}
+
 // Initialize pool
 let pool: SimplePool | null = null
 
@@ -253,9 +258,23 @@ export async function fetchNostrProfile(
 export async function fetchNostrPosts(
   npub: string,
   limit = 50,
-  locale = "en"
+  locale = "en",
+  options: FetchPostsOptions = {},
 ): Promise<NostrPost[]> {
+  const { noteIds = [], articleIds = [] } = options
+  const specificIds = [...noteIds, ...articleIds].filter(Boolean)
+
+  if (specificIds.length > 0) {
+    const posts = await Promise.all(
+      specificIds.map((id) => fetchNostrPost(id, locale)),
+    )
+    const validPosts = posts.filter((p): p is NostrPost => p !== null)
+    validPosts.sort((a, b) => b.created_at - a.created_at)
+    return validPosts.slice(0, limit)
+  }
+
   try {
+
     const cacheKey = getCacheKey("posts", `${npub}:${limit}:${locale}`)
     const useCache = locale !== "es"
 
@@ -372,9 +391,9 @@ export async function fetchNostrPosts(
       return post
     })
 
-    // If Spanish locale, filter posts by available translations
+    // If Spanish locale, attempt to load translations but include all posts
     if (locale === "es") {
-      const translated: NostrPost[] = []
+      const processed: NostrPost[] = []
       await Promise.all(
         posts.map(async (post) => {
           try {
@@ -393,21 +412,21 @@ export async function fetchNostrPosts(
               const { data, content } = matter(raw)
               post.content = content
               post.translation = data
-              translated.push(post)
             } else {
               const res = await fetch(`/api/nostr-translations/${post.id}`)
-              if (!res.ok) return
-              const data = await res.json()
-              post.content = data.content
-              post.translation = data.data
-              translated.push(post)
+              if (res.ok) {
+                const data = await res.json()
+                post.content = data.content
+                post.translation = data.data
+              }
             }
           } catch {
             // ignore missing translations
           }
+          processed.push(post)
         })
       )
-      posts = translated
+      posts = processed
     }
 
     // Remove any duplicate posts that might come from multiple relays
@@ -582,9 +601,10 @@ export class NostrClient {
   async fetchPosts(
     npub: string,
     limit?: number,
-    locale?: string
+    locale?: string,
+    options?: FetchPostsOptions,
   ): Promise<NostrPost[]> {
-    return fetchNostrPosts(npub, limit, locale)
+    return fetchNostrPosts(npub, limit, locale, options)
   }
 
   async fetchPost(id: string, locale?: string): Promise<NostrPost | null> {

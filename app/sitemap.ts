@@ -63,8 +63,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const settings = getNostrSettings()
     if (settings.ownerNpub) {
       const [postsEn, postsEs] = await Promise.all([
-        fetchNostrPosts(settings.ownerNpub, settings.maxPosts || 50, "en"),
-        fetchNostrPosts(settings.ownerNpub, settings.maxPosts || 50, "es"),
+        fetchNostrPosts(
+          settings.ownerNpub,
+          settings.maxPosts || 50,
+          "en",
+          {
+            noteIds: settings.noteEventIds,
+            articleIds: settings.articleEventIds,
+          },
+        ),
+        fetchNostrPosts(
+          settings.ownerNpub,
+          settings.maxPosts || 50,
+          "es",
+          {
+            noteIds: settings.noteEventIds,
+            articleIds: settings.articleEventIds,
+          },
+        ),
       ])
       const esMap = new Map(postsEs.map((p) => [p.id, p]))
       postsEn.forEach((post) => {
