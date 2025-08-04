@@ -18,16 +18,8 @@ export async function generateStaticParams() {
   if (!settings.ownerNpub) return []
   try {
     const [postsEn, postsEs] = await Promise.all([
-      nostrClient.fetchPosts(
-        settings.ownerNpub,
-        settings.maxPosts || 50,
-        "en",
-      ),
-      nostrClient.fetchPosts(
-        settings.ownerNpub,
-        settings.maxPosts || 50,
-        "es",
-      ),
+      nostrClient.fetchPosts(settings.ownerNpub, undefined, "en"),
+      nostrClient.fetchPosts(settings.ownerNpub, undefined, "es"),
     ])
     const ids = new Set([...postsEn, ...postsEs].map((p) => p.id))
     return Array.from(ids).map((id) => ({ slug: [id] }))

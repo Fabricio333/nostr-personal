@@ -11,12 +11,21 @@ export interface Settings {
   };
 }
 
+export interface PinnedPosts {
+  blog: string[]
+  digitalGarden: string[]
+}
+
 import config from "@/settings.json";
 import { fetchNostrProfile } from "./nostr";
 
 export function getSettings(): Settings {
   const site = (config as any).site as Settings;
   return site;
+}
+
+export function getPinnedPosts(): PinnedPosts {
+  return (config as any).pinnedPosts || { blog: [], digitalGarden: [] }
 }
 
 export async function getSiteName(): Promise<string> {

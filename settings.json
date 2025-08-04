@@ -16,8 +16,11 @@
     "relays": ["wss://relay.damus.io", "wss://relay.snort.social", "wss://nostr.wine"],
     "noteEventIds": [],
     "articleEventIds": [],
-    "maxPosts": 10,
     "enableComments": true,
     "enableViews": true
+  },
+  "pinnedPosts": {
+    "blog": [],
+    "digitalGarden": []
   }
 }

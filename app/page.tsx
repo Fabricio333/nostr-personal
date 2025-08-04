@@ -19,6 +19,7 @@ import {
 } from "lucide-react"
 import { fetchNostrProfile, fetchNostrPosts } from "@/lib/nostr"
 import { getNostrSettings } from "@/lib/nostr-settings"
+import { getPinnedPosts } from "@/lib/settings"
 import Link from "next/link"
 import { useI18n } from "@/components/locale-provider"
 
@@ -86,7 +87,7 @@ export default function HomePage() {
       // Fetch profile, nostr posts, and garden notes
       const [profileData, nostrData, gardenData] = await Promise.all([
         fetchNostrProfile(settings.ownerNpub, locale),
-        fetchNostrPosts(settings.ownerNpub, settings.maxPosts, locale),
+        fetchNostrPosts(settings.ownerNpub, undefined, locale),
         fetch("/api/digital-garden").then((res) => res.json()),
       ])
 
@@ -119,9 +120,23 @@ export default function HomePage() {
         return bDate - aDate
       })
 
+      const pinned = getPinnedPosts()
+      const pinnedBlog = pinned.blog
+        .map((id) => combined.find((p) => p.id === id && p.type !== "garden"))
+        .filter(Boolean) as Post[]
+      const pinnedGarden = pinned.digitalGarden
+        .map((id) => combined.find((p) => p.id === id && p.type === "garden"))
+        .filter(Boolean) as Post[]
+      const pinnedPosts = [...pinnedBlog, ...pinnedGarden]
+      const remaining = combined.filter(
+        (p) =>
+          !pinned.blog.includes(p.id) && !pinned.digitalGarden.includes(p.id),
+      )
+      const finalPosts = [...pinnedPosts, ...remaining]
+
       setProfile(profileData)
-      setPosts(combined)
-      setFilteredPosts(combined)
+      setPosts(finalPosts)
+      setFilteredPosts(finalPosts)
     } catch (err) {
       console.error("Error loading data:", err)
       setError(t("home.failed_load"))

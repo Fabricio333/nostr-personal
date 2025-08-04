@@ -20,7 +20,6 @@ export default function NostrSettingsPage() {
     relays: ["wss://relay.damus.io", "wss://relay.snort.social", "wss://nostr.wine"],
     noteEventIds: [],
     articleEventIds: [],
-    maxPosts: 10,
     enableComments: true,
     enableViews: true,
   })
@@ -40,10 +39,6 @@ export default function NostrSettingsPage() {
     setSettings((prev) => ({ ...prev, [id]: value }))
   }
 
-  const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { id, value } = e.target
-    setSettings((prev) => ({ ...prev, [id]: Number.parseInt(value, 10) || 0 }))
-  }
 
   const handleSwitchChange = (id: keyof NostrSettings) => (checked: boolean) => {
     setSettings((prev) => ({ ...prev, [id]: checked }))
@@ -235,23 +230,6 @@ export default function NostrSettingsPage() {
                   </Badge>
                 ))}
               </div>
-            </div>
-
-            {/* Max Posts */}
-            <div className="space-y-2">
-              <Label htmlFor="maxPosts" className="text-sm font-medium">
-                Max Posts on Homepage
-              </Label>
-              <Input
-                id="maxPosts"
-                type="number"
-                value={settings.maxPosts}
-                onChange={handleNumberInputChange}
-                min={1}
-                max={50}
-                className="bg-white/50 dark:bg-slate-700/50 border-slate-200 dark:border-slate-600"
-              />
-              <p className="text-xs text-muted-foreground">Number of latest posts to display on the homepage (1-50).</p>
             </div>
 
             {/* Enable Comments */}

@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { cookies } from 'next/headers'
 import { getAllNotes } from '@/lib/digital-garden'
-import { getSiteName } from '@/lib/settings'
+import { getSiteName, getPinnedPosts } from '@/lib/settings'
 import {
   Card,
   CardHeader,
@@ -29,10 +29,16 @@ export default async function DigitalGardenPage({
 }) {
   const locale = (cookies().get('NEXT_LOCALE')?.value || 'en') as 'en' | 'es'
   const t = getT(locale)
-  const [notes, siteName] = await Promise.all([
+  const [allNotes, siteName] = await Promise.all([
     getAllNotes(locale),
     getSiteName(),
   ])
+  const pinned = getPinnedPosts().digitalGarden
+  const pinnedNotes = pinned
+    .map((id) => allNotes.find((n) => n.slug === id))
+    .filter(Boolean)
+  const remaining = allNotes.filter((n) => !pinned.includes(n.slug))
+  const notes = [...pinnedNotes, ...remaining]
   const allTags = Array.from(new Set(notes.flatMap((n) => n.tags))).sort()
   const activeTag = searchParams.tag
   const filteredNotes = activeTag

@@ -252,11 +252,11 @@ export async function fetchNostrProfile(
 
 export async function fetchNostrPosts(
   npub: string,
-  limit = 50,
+  limit?: number,
   locale = "en"
 ): Promise<NostrPost[]> {
   try {
-    const cacheKey = getCacheKey("posts", `${npub}:${limit}:${locale}`)
+    const cacheKey = getCacheKey("posts", `${npub}:${limit ?? "all"}:${locale}`)
     const useCache = locale !== "es"
 
     // Check cache first (skip for Spanish to avoid stale translations)
@@ -277,7 +277,7 @@ export async function fetchNostrPosts(
     if (typeof window === "undefined" && locale !== "es") {
       const diskPosts = await readPostsFromDisk(locale)
       if (diskPosts && diskPosts.length > 0) {
-        return diskPosts.slice(0, limit)
+        return limit ? diskPosts.slice(0, limit) : diskPosts
       }
     }
 
@@ -303,20 +303,21 @@ export async function fetchNostrPosts(
     const currentPool = getPool()
 
     // Fetch both notes (kind 1) and long-form articles (kind 30023)
-    // When using translated content (Spanish), we need to fetch more events
+    // When using translated content (Spanish), we may need to fetch more events
     // to account for posts that don't yet have translations available. This
     // ensures we still return enough translated posts after filtering.
-    const fetchLimit = locale === "es" ? limit * 3 : limit
+    const fetchLimit = limit ? (locale === "es" ? limit * 3 : limit) : undefined
+    const halfLimit = fetchLimit ? Math.ceil(fetchLimit / 2) : undefined
     const filters: Filter[] = [
       {
         kinds: [1], // Notes
         authors: [pubkeyHex],
-        limit: Math.ceil(fetchLimit / 2),
+        ...(halfLimit ? { limit: halfLimit } : {}),
       },
       {
         kinds: [30023], // Long-form articles
         authors: [pubkeyHex],
-        limit: Math.ceil(fetchLimit / 2),
+        ...(halfLimit ? { limit: halfLimit } : {}),
       },
     ]
 

@@ -11,6 +11,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Search, FileText, MessageSquare, Calendar, RefreshCw } from "lucide-react"
 import { fetchNostrPosts } from "@/lib/nostr"
 import { getNostrSettings } from "@/lib/nostr-settings"
+import { getPinnedPosts } from "@/lib/settings"
 import Link from "next/link"
 import { useI18n } from "@/components/locale-provider"
 
@@ -62,9 +63,15 @@ export default function BlogPage() {
         return
       }
 
-      const postsData = await fetchNostrPosts(settings.ownerNpub, 100, locale)
-      setPosts(postsData)
-      setFilteredPosts(postsData)
+      const postsData = await fetchNostrPosts(settings.ownerNpub, undefined, locale)
+      const pinned = getPinnedPosts().blog
+      const pinnedPosts = pinned
+        .map((id) => postsData.find((p) => p.id === id))
+        .filter(Boolean) as NostrPost[]
+      const remaining = postsData.filter((p) => !pinned.includes(p.id))
+      const ordered = [...pinnedPosts, ...remaining]
+      setPosts(ordered)
+      setFilteredPosts(ordered)
     } catch (err) {
       console.error("Error loading posts:", err)
       setError(t("home.failed_load"))
