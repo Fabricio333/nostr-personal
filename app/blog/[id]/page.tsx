@@ -36,7 +36,9 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     }
     const title = post.title || `${post.content.slice(0, 60)}…`
     const description = post.summary || post.content.slice(0, 160)
-    const url = `${siteUrl}/blog/${post.id}`
+    const url = `${siteUrl}/blog/${
+      locale === "es" && post.translation ? `es/${post.id}` : post.id
+    }`
     return {
       title,
       description,

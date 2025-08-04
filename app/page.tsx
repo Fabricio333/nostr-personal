@@ -57,6 +57,7 @@ interface Post {
   published_at?: number
   created_at: number
   type: "nostr" | "article" | "garden"
+  translation?: any
 }
 
 export default function HomePage() {
@@ -97,6 +98,7 @@ export default function HomePage() {
         published_at: p.published_at,
         created_at: p.created_at,
         type: p.type === "note" ? "nostr" : "article",
+        translation: p.translation,
       }))
 
       const gardenPosts: Post[] = gardenData.map((n: any) => {
@@ -345,6 +347,8 @@ export default function HomePage() {
                 href={
                   post.type === "garden"
                     ? `/digital-garden/${post.id}`
+                    : locale === "es" && post.translation
+                    ? `/blog/es/${post.id}`
                     : `/blog/${post.id}`
                 }
                 className="group block"
