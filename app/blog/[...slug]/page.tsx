@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 import type { Metadata } from "next"
 import { cookies } from "next/headers"
 import Link from "next/link"
@@ -29,16 +29,22 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: { slug: string[] }
+  searchParams: { [key: string]: string | string[] | undefined }
 }): Promise<Metadata> {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://example.com"
   try {
     const slug = params.slug
     const id = slug[0]
+    const forcedLocale =
+      typeof searchParams?.forceLocale === "string"
+        ? (searchParams.forceLocale as "en" | "es")
+        : undefined
     const cookieStore = cookies()
     const locale =
-      (cookieStore.get("NEXT_LOCALE")?.value as "en" | "es") || "en"
+      forcedLocale || (cookieStore.get("NEXT_LOCALE")?.value as "en" | "es") || "en"
     const post = await nostrClient.fetchPost(id, locale)
     if (!post) {
       return { title: "Post not found" }
@@ -67,15 +73,21 @@ export async function generateMetadata({
 
 export default async function BlogPostPage({
   params,
+  searchParams,
 }: {
   params: { slug: string[] }
+  searchParams: { [key: string]: string | string[] | undefined }
 }) {
   const slug = params.slug
   const id = slug[0]
   const settings = getNostrSettings()
+  const forcedLocale =
+    typeof searchParams?.forceLocale === "string"
+      ? (searchParams.forceLocale as "en" | "es")
+      : undefined
   const cookieStore = cookies()
   const locale =
-    (cookieStore.get("NEXT_LOCALE")?.value as "en" | "es") || "en"
+    forcedLocale || (cookieStore.get("NEXT_LOCALE")?.value as "en" | "es") || "en"
 
   if (!settings.ownerNpub || !settings.ownerNpub.startsWith("npub1")) {
     return (
@@ -103,6 +115,10 @@ export default async function BlogPostPage({
 
   if (!post) {
     notFound()
+  }
+
+  if (locale === "es" && !post.translation) {
+    redirect(`/blog/${id}?forceLocale=en`)
   }
 
   // Render markdown content
