@@ -12,8 +12,14 @@ async function getExistingCache(): Promise<string | null> {
     const filePath = path.join(CACHE_DIR, `${CACHE_BASENAME}.png`)
     const stats = await fs.stat(filePath)
     if (Date.now() - stats.mtimeMs < MAX_AGE) {
-      return `/${CACHE_BASENAME}.png`
-    }
+      const buffer = await fs.readFile(filePath)
+      const pngSignature = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
+      if (buffer.slice(0, 8).equals(pngSignature)) {
+        return `/${CACHE_BASENAME}.png`
+      }
+
+      // Remove corrupted file so a fresh image can be fetched
+      await fs.unlink(filePath)    }
   } catch {
     // Ignore missing file or access issues
   }
