@@ -10,6 +10,7 @@ import { nostrClient, type NostrPost } from "@/lib/nostr"
 import { getNostrSettings } from "@/lib/nostr-settings"
 import { marked } from "marked" // For Markdown rendering
 import { nip19 } from "nostr-tools"
+import { isImageUrl } from "@/lib/utils"
 
 export const revalidate = 60 * 60 * 24
 
@@ -130,8 +131,16 @@ export default async function BlogPostPage({
     redirect(`/blog/${id}?forceLocale=en`)
   }
 
-  // Render markdown content
-  const renderedContent = marked.parse(post.content || "")
+  // Render markdown content and convert image links to images
+  const renderer = new marked.Renderer()
+  const originalLink = renderer.link.bind(renderer)
+  renderer.link = (href, title, text) => {
+    if (href && isImageUrl(href)) {
+      return `<img src="${href}" alt="${text || ""}" />`
+    }
+    return originalLink(href, title, text)
+  }
+  const renderedContent = marked.parse(post.content || "", { renderer })
 
   const formatDate = (timestamp: number) =>
     new Date(timestamp * 1000).toLocaleDateString(

@@ -306,11 +306,11 @@ export default function BlogPage() {
                         </div>
                       </div>
                       {post.title ? (
-                        <CardTitle className="text-lg leading-tight bg-gradient-to-r from-slate-900 to-slate-600 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
+                        <CardTitle className="text-lg leading-tight bg-gradient-to-r from-slate-900 to-slate-600 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent break-all">
                           {post.title}
                         </CardTitle>
                       ) : (
-                        <CardTitle className="text-lg leading-tight bg-gradient-to-r from-slate-900 to-slate-600 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
+                        <CardTitle className="text-lg leading-tight bg-gradient-to-r from-slate-900 to-slate-600 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent break-all">
                           {truncateContent(post.content, 60)}
                         </CardTitle>
                       )}
