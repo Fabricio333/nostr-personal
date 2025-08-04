@@ -70,6 +70,24 @@
     "article": "Article",
     "note": "Note"
   },
+  "projects": {
+    "title": "Projects",
+    "subtitle": "A collection of my work, showcasing various technologies and problem-solving approaches.",
+    "github": "GitHub",
+    "live_demo": "Live Demo",
+    "no_projects": "No projects to display yet. Check back soon!",
+    "list": {
+      "wearebitcoin": {
+        "short_description": "Bitcoin education platform focused on self-custody and sound money principles."
+      },
+      "webworkouttimer": {
+        "short_description": "Customizable web timer for managing workout and rest intervals."
+      },
+      "passwordmanagerweb": {
+        "short_description": "Deterministic password vault with decentralized Nostr backup."
+      }
+    }
+  },
   "digital_garden": {
     "graph_view": "Graph View",
     "all": "All",
