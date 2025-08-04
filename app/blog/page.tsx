@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+import { cn, extractImageUrl } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -12,6 +12,7 @@ import { Search, FileText, MessageSquare, Calendar, RefreshCw } from "lucide-rea
 import { fetchNostrPosts } from "@/lib/nostr"
 import { getNostrSettings } from "@/lib/nostr-settings"
 import Link from "next/link"
+import Image from "next/image"
 import { useI18n } from "@/components/locale-provider"
 
 interface NostrProfile {
@@ -254,70 +255,82 @@ export default function BlogPage() {
               </Card>
             </div>
           ) : (
-            filteredPosts.map((post) => (
-              <Link
-                key={post.id}
-                href={
-                  locale === "es" && post.translation
-                    ? `/es/blog/${post.id}`
-                    : `/blog/${post.id}`
-                }
-                className="group block"
-                prefetch={false}
-              >
-                <Card
-                  className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm transition-all duration-300 group-hover:shadow-xl group-hover:-translate-y-1"
+            filteredPosts.map((post) => {
+              const imageUrl = post.image || extractImageUrl(post.content)
+              return (
+                <Link
+                  key={post.id}
+                  href={
+                    locale === "es" && post.translation
+                      ? `/es/blog/${post.id}`
+                      : `/blog/${post.id}`
+                  }
+                  className="group block"
+                  prefetch={false}
                 >
-                  <CardHeader>
-                    <div className="flex items-center justify-between mb-2">
-                      <Badge
-                        variant="secondary"
-                        className={cn(
-                          post.type === "article"
-                            ? "bg-orange-100 text-orange-700"
-                            : "bg-purple-100 text-purple-700",
-                        )}
-                      >
-                        {post.type === "article" ? (
-                          <>
-                            <FileText className="h-3 w-3 mr-1" />
-                          {t("blog.article")}
-                        </>
+                  <Card className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm transition-all duration-300 group-hover:shadow-xl group-hover:-translate-y-1">
+                    {imageUrl && (
+                      <Image
+                        src={imageUrl}
+                        alt={post.title || "Post image"}
+                        width={600}
+                        height={300}
+                        className="h-48 w-full object-cover rounded-t-lg"
+                      />
+                    )}
+                    <CardHeader>
+                      <div className="flex items-center justify-between mb-2">
+                        <Badge
+                          variant="secondary"
+                          className={cn(
+                            post.type === "article"
+                              ? "bg-orange-100 text-orange-700"
+                              : "bg-purple-100 text-purple-700",
+                          )}
+                        >
+                          {post.type === "article" ? (
+                            <>
+                              <FileText className="h-3 w-3 mr-1" />
+                              {t("blog.article")}
+                            </>
+                          ) : (
+                            <>
+                              <MessageSquare className="h-3 w-3 mr-1" />
+                              {t("blog.note")}
+                            </>
+                          )}
+                        </Badge>
+                        <div className="flex items-center text-xs text-slate-500 dark:text-slate-400">
+                          <Calendar className="h-3 w-3 mr-1" />
+                          {formatDate(post.published_at || post.created_at)}
+                        </div>
+                      </div>
+                      {post.title ? (
+                        <CardTitle className="text-lg leading-tight bg-gradient-to-r from-slate-900 to-slate-600 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
+                          {post.title}
+                        </CardTitle>
                       ) : (
-                        <>
-                          <MessageSquare className="h-3 w-3 mr-1" />
-                          {t("blog.note")}
-                        </>
+                        <CardTitle className="text-lg leading-tight bg-gradient-to-r from-slate-900 to-slate-600 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
+                          {truncateContent(post.content, 60)}
+                        </CardTitle>
                       )}
-                      </Badge>
-                    <div className="flex items-center text-xs text-slate-500 dark:text-slate-400">
-                      <Calendar className="h-3 w-3 mr-1" />
-                      {formatDate(post.published_at || post.created_at)}
-                    </div>
-                  </div>
-                  {post.title ? (
-                    <CardTitle className="text-lg leading-tight bg-gradient-to-r from-slate-900 to-slate-600 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
-                      {post.title}
-                    </CardTitle>
-                  ) : (
-                    <CardTitle className="text-lg leading-tight bg-gradient-to-r from-slate-900 to-slate-600 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
-                      {truncateContent(post.content, 60)}
-                    </CardTitle>
-                  )}
-                  {post.summary && (
-                    <CardDescription className="text-slate-600 dark:text-slate-300">{post.summary}</CardDescription>
-                  )}
-                  </CardHeader>
-                  <CardContent>
-                    <div className="prose prose-slate dark:prose-invert max-w-none w-full break-words">
-                      <p className="text-slate-700 dark:text-slate-300 leading-relaxed break-all overflow-hidden line-clamp-3">
-                        {truncateContent(post.content)}
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))
+                      {post.summary && (
+                        <CardDescription className="text-slate-600 dark:text-slate-300">
+                          {post.summary}
+                        </CardDescription>
+                      )}
+                    </CardHeader>
+                    <CardContent>
+                      <div className="prose prose-slate dark:prose-invert max-w-none w-full break-words">
+                        <p className="text-slate-700 dark:text-slate-300 leading-relaxed break-all overflow-hidden line-clamp-3">
+                          {truncateContent(post.content)}
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              )
+            })
           )}
         </div>
       </div>
