@@ -1,6 +1,6 @@
 ---
 title: Sistema vs Fuerza de Voluntad
-date: 2025-08-02
+date: 2023-06-01
 tags: [productividad]
 ---
 

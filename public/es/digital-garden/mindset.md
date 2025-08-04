@@ -1,6 +1,6 @@
 ---
 title: Mentalidad
-date: 2025-07-31
+date: 2024-05-26
 tags: [psicología]
 ---
 

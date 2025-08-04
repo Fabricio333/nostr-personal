@@ -1,6 +1,6 @@
 ---
 title: Propiedad de claves
-date: 2025-08-02
+date: 2025-06-07
 tags: [seguridad]
 ---
 

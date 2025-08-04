@@ -1,6 +1,6 @@
 ---
 title: Publicar sin plataformas
-date: 2025-08-02
+date: 2025-04-13
 tags: [escritura]
 ---
 

@@ -1,6 +1,6 @@
 ---
 title: Fitness
-date: 2025-07-31
+date: 2025-02-27
 tags: [health]
 ---
 

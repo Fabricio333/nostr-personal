@@ -1,6 +1,6 @@
 ---
 title: Minimum Effective Training
-date: 2025-08-02
+date: 2023-06-13
 tags: [fitness]
 ---
 

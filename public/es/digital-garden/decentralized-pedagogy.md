@@ -1,6 +1,6 @@
 ---
 title: Pedagogía Descentralizada
-date: 2025-08-02
+date: 2023-05-22
 tags: [educacion]
 ---
 

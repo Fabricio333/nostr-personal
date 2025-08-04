@@ -1,6 +1,6 @@
 ---
 title: Financial Sovereignty
-date: 2025-08-02
+date: 2025-11-14
 tags: [finance]
 ---
 

@@ -1,6 +1,6 @@
 ---
 title: Herramientas para el Alto Rendimiento
-date: 2025-08-02
+date: 2024-11-29
 tags: [tecnologia]
 ---
 
