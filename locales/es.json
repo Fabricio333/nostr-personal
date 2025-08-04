@@ -70,6 +70,24 @@
     "article": "Artículo",
     "note": "Nota"
   },
+  "projects": {
+    "title": "Proyectos",
+    "subtitle": "Una colección de mi trabajo, que muestra diversas tecnologías y enfoques para resolver problemas.",
+    "github": "GitHub",
+    "live_demo": "Demo en vivo",
+    "no_projects": "No hay proyectos para mostrar todavía. ¡Vuelve pronto!",
+    "list": {
+      "wearebitcoin": {
+        "short_description": "Plataforma educativa sobre Bitcoin enfocada en la autocustodia y los principios del dinero sano."
+      },
+      "webworkouttimer": {
+        "short_description": "Temporizador web personalizable para gestionar intervalos de ejercicio y descanso."
+      },
+      "passwordmanagerweb": {
+        "short_description": "Gestor de contraseñas determinista con copia de seguridad descentralizada en Nostr."
+      }
+    }
+  },
   "digital_garden": {
     "graph_view": "Vista de Grafo",
     "all": "Todo",
