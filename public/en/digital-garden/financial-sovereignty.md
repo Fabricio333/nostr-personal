@@ -1,7 +1,7 @@
 ---
 title: Financial Sovereignty
 date: 2025-11-14
-tags: [finance]
+tags: [biohacking, economics, bitcoin]
 ---
 
 Ability to control your wealth without relying on banks or governments. Achieved with hard money like [[Bitcoin]], your own keys, and personal custody.
