@@ -1,7 +1,8 @@
 ---
 title: Austrian Economics
 date: 2023-03-28
-tags: [economics]
+tags:
+  - economics
+last_revision: 2025-08-04
 ---
-
-Austrian Economics focuses on individual choice and market processes, ideas that inspire approaches in [[Biohacking]], [[Fitness]], [[Mindset]], and developments in [[Tech]].
+Austrian Economics focuses on individual choice and market processes, ideas that lead to development, growth and can lead us to happier and fulfilling lives. 
