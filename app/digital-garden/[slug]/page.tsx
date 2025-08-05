@@ -29,10 +29,20 @@ export default async function DigitalGardenNotePage({ params }: { params: { slug
     const base = locale === 'es' ? '/es/digital-garden' : '/digital-garden'
     return `[${p1}](${base}/${slug})`
   })
-  const html = marked.parse(content)
+  const renderer = new marked.Renderer()
+  const originalImage = renderer.image.bind(renderer)
+  renderer.image = (href, title, text) => {
+    const size = text.match(/^(\d+)x(\d+)$/)
+    if (size) {
+      const [_, width, height] = size
+      return `<img src="${href}" width="${width}" height="${height}" alt="" />`
+    }
+    return originalImage(href, title, text)
+  }
+  const html = marked.parse(content, { renderer })
   return (
     <div className="container mx-auto max-w-3xl px-4 py-8">
-      <article className="prose dark:prose-invert [&_img]:h-auto [&_img]:w-16">
+      <article className="prose dark:prose-invert [&_img]:h-auto">
         <h1>{note.title}</h1>
         {note.tags.length > 0 && (
           <div className="mb-4 flex flex-wrap gap-2">
