@@ -1,6 +1,5 @@
 import { notFound, redirect } from "next/navigation"
 import type { Metadata } from "next"
-import { cookies } from "next/headers"
 import Link from "next/link"
 import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
@@ -13,6 +12,7 @@ import { marked } from "marked" // For Markdown rendering
 import { nip19 } from "nostr-tools"
 import { isImageUrl } from "@/lib/utils"
 import { getCanonicalUrl } from "@/utils/getCanonicalUrl"
+import { getLocaleFromPath } from "@/utils/getLocaleFromPath"
 
 export const revalidate = 60 * 60 * 24
 
@@ -62,9 +62,7 @@ export async function generateMetadata({
       typeof searchParams?.forceLocale === "string"
         ? (searchParams.forceLocale as "en" | "es")
         : undefined
-    const cookieStore = cookies()
-    const locale =
-      forcedLocale || (cookieStore.get("NEXT_LOCALE")?.value as "en" | "es") || "en"
+    const locale = forcedLocale || getLocaleFromPath()
     const post = await nostrClient.fetchPost(id, locale)
     if (!post) {
       return { title: "Post not found" }
@@ -105,9 +103,7 @@ export default async function BlogPostPage({
     typeof searchParams?.forceLocale === "string"
       ? (searchParams.forceLocale as "en" | "es")
       : undefined
-  const cookieStore = cookies()
-  const locale =
-    forcedLocale || (cookieStore.get("NEXT_LOCALE")?.value as "en" | "es") || "en"
+  const locale = forcedLocale || getLocaleFromPath()
 
   if (!settings.ownerNpub || !settings.ownerNpub.startsWith("npub1")) {
     return (
