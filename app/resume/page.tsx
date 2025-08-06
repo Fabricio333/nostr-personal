@@ -3,8 +3,7 @@ import { Separator } from "@/components/ui/separator"
 import { MapPin, Linkedin, Github } from "lucide-react"
 import { getSettings } from "@/lib/settings"
 import type { Metadata } from "next"
-import { getCanonicalUrl } from "@/utils/getCanonicalUrl"
-import { getLocaleFromPath } from "@/utils/getLocaleFromPath"
+import { cookies } from "next/headers"
 import fs from "fs/promises"
 import path from "path"
 import { marked } from "marked"
@@ -14,7 +13,8 @@ export const revalidate = 60 * 60 * 24
 
 export async function generateMetadata(): Promise<Metadata> {
   const { siteName } = getSettings()
-  const locale = getLocaleFromPath()
+  const cookieStore = cookies()
+  const locale = (cookieStore.get("NEXT_LOCALE")?.value as "en" | "es") || "en"
   const dirPath = path.join(process.cwd(), "public", locale, "resume")
 
   let description = ""
@@ -46,16 +46,12 @@ export async function generateMetadata(): Promise<Metadata> {
 
   const title = siteName
   const image = "/linkedin-picture.jpeg"
-  const siteUrl = getCanonicalUrl()
-  const url = `${siteUrl}${locale === "es" ? "/es" : ""}/resume`
   return {
     title,
     description,
-    alternates: { canonical: url },
     openGraph: {
       title,
       description,
-      url,
       images: [
         {
           url: image,
@@ -76,7 +72,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function ResumePage() {
   const { siteName: name } = getSettings()
-  const locale = getLocaleFromPath()
+  const cookieStore = cookies()
+  const locale = (cookieStore.get("NEXT_LOCALE")?.value as "en" | "es") || "en"
   const dirPath = path.join(process.cwd(), "public", locale, "resume")
 
   let sections: { title: string; order: number; html: string }[] = []

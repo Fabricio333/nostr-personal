@@ -12,6 +12,7 @@ import { getNostrSettings } from "@/lib/nostr-settings"
 import { marked } from "marked" // For Markdown rendering
 import { nip19 } from "nostr-tools"
 import { isImageUrl } from "@/lib/utils"
+import { getCanonicalUrl } from "@/utils/getCanonicalUrl"
 
 export const revalidate = 60 * 60 * 24
 
@@ -53,7 +54,7 @@ export async function generateMetadata({
   params: { slug: string[] }
   searchParams: { [key: string]: string | string[] | undefined }
 }): Promise<Metadata> {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://example.com"
+  const siteUrl = getCanonicalUrl()
   try {
     const slug = params.slug
     const id = slug[0]
@@ -74,28 +75,15 @@ export async function generateMetadata({
       locale === "es" && post.translation
         ? `${siteUrl}/es/blog/${post.id}`
         : `${siteUrl}/blog/${post.id}`
-    const languageAlternates = post.translation
-      ? {
-          en: `${siteUrl}/blog/${post.id}`,
-          es: `${siteUrl}/es/blog/${post.id}`,
-        }
-      : {
-          en: `${siteUrl}/blog/${post.id}`,
-        }
-    const ogLocale = locale === "es" ? "es_ES" : "en_US"
     return {
       title,
       description,
-      alternates: { canonical: url, languages: languageAlternates },
+      alternates: { canonical: url },
       openGraph: {
         title,
         description,
         url,
         type: "article",
-        locale: ogLocale,
-        ...(post.translation
-          ? { alternateLocale: ogLocale === "es_ES" ? ["en_US"] : ["es_ES"] }
-          : {}),
       },
     }
   } catch {
