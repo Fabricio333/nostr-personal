@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation"
 import type { Metadata } from "next"
 import { cookies } from "next/headers"
 import Link from "next/link"
+import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -187,7 +188,21 @@ export default async function BlogPostPage({
             </Link>
           </div>
           <Card className="mx-auto max-w-3xl border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm break-words">
+            {post.image && (
+              <Image
+                src={post.image}
+                alt={post.title || "Cover image"}
+                width={1200}
+                height={630}
+                className="w-full h-auto rounded-t-lg object-cover"
+              />
+            )}
             <CardContent className="p-6 break-words">
+            {post.title && (
+              <h1 className="text-3xl font-bold mb-6 bg-gradient-to-r from-slate-900 to-slate-600 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent break-words">
+                {post.title}
+              </h1>
+            )}
             <div className="mb-6 flex items-center gap-4">
               <Avatar className="h-10 w-10">
                 <AvatarImage src={profilePic} alt={authorName} />
