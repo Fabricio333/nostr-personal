@@ -16,6 +16,9 @@
     "relays": ["wss://relay.damus.io", "wss://relay.snort.social", "wss://nostr.wine"],
     "noteEventIds": [],
     "articleEventIds": [],
+    "blacklistEventIds": [
+      "a7e85bf8eb7c7c811eb049b17a64d0ae69282ce2eebabb3aa3035223be56edb3"
+    ],
     "maxPosts": 10,
     "enableComments": true,
     "enableViews": true

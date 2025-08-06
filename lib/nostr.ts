@@ -1,4 +1,5 @@
 import { SimplePool, type Event, type Filter, nip19 } from "nostr-tools"
+import { getNostrSettings } from "@/lib/nostr-settings"
 
 // Default relays
 const DEFAULT_RELAYS = [
@@ -257,12 +258,14 @@ export async function fetchNostrProfile(
 
 export async function fetchNostrPosts(
   npub: string,
-  limit = 50,
+  limit?: number,
   locale = "en",
   options: FetchPostsOptions = {},
 ): Promise<NostrPost[]> {
   const { noteIds = [], articleIds = [] } = options
   const specificIds = [...noteIds, ...articleIds].filter(Boolean)
+  const settings = getNostrSettings()
+  const blacklist = new Set(settings.blacklistEventIds || [])
 
   if (specificIds.length > 0) {
     const posts = await Promise.all(
@@ -272,13 +275,15 @@ export async function fetchNostrPosts(
     if (locale === "es") {
       validPosts = validPosts.filter((p) => p.translation)
     }
+    validPosts = validPosts.filter((p) => !blacklist.has(p.id))
     validPosts.sort((a, b) => b.created_at - a.created_at)
-    return validPosts.slice(0, limit)
+    return limit ? validPosts.slice(0, limit) : validPosts
   }
 
   try {
 
-    const cacheKey = getCacheKey("posts", `${npub}:${limit}:${locale}`)
+    const limitKey = limit ?? "all"
+    const cacheKey = getCacheKey("posts", `${npub}:${limitKey}:${locale}`)
     const useCache = locale !== "es"
 
     // Check cache first (skip for Spanish to avoid stale translations)
@@ -291,7 +296,7 @@ export async function fetchNostrPosts(
         }
       }
       if (cached) {
-        return cached
+        return cached.filter((p: NostrPost) => !blacklist.has(p.id))
       }
     }
 
@@ -299,7 +304,10 @@ export async function fetchNostrPosts(
     if (typeof window === "undefined" && locale !== "es") {
       const diskPosts = await readPostsFromDisk(locale)
       if (diskPosts && diskPosts.length > 0) {
-        return diskPosts.slice(0, limit)
+        const filteredDiskPosts = diskPosts.filter((p) => !blacklist.has(p.id))
+        return limit
+          ? filteredDiskPosts.slice(0, limit)
+          : filteredDiskPosts
       }
     }
 
@@ -328,17 +336,21 @@ export async function fetchNostrPosts(
     // When using translated content (Spanish), we need to fetch more events
     // to account for posts that don't yet have translations available. This
     // ensures we still return enough translated posts after filtering.
-    const fetchLimit = locale === "es" ? limit * 3 : limit
+    const fetchLimit = limit ? (locale === "es" ? limit * 3 : limit) : undefined
     const filters: Filter[] = [
       {
         kinds: [1], // Notes
         authors: [pubkeyHex],
-        limit: Math.ceil(fetchLimit / 2),
+        ...(fetchLimit
+          ? { limit: Math.ceil(fetchLimit / 2) }
+          : {}),
       },
       {
         kinds: [30023], // Long-form articles
         authors: [pubkeyHex],
-        limit: Math.ceil(fetchLimit / 2),
+        ...(fetchLimit
+          ? { limit: Math.ceil(fetchLimit / 2) }
+          : {}),
       },
     ]
 
@@ -441,11 +453,14 @@ export async function fetchNostrPosts(
     // Remove any duplicate posts that might come from multiple relays
     const uniquePosts = Array.from(new Map(posts.map((p) => [p.id, p])).values())
 
+    // Filter out blacklisted posts
+    const filteredPosts = uniquePosts.filter((p) => !blacklist.has(p.id))
+
     // Sort by creation time (newest first)
-    uniquePosts.sort((a, b) => b.created_at - a.created_at)
+    filteredPosts.sort((a, b) => b.created_at - a.created_at)
 
     // Limit results
-    const limitedPosts = uniquePosts.slice(0, limit)
+    const limitedPosts = limit ? filteredPosts.slice(0, limit) : filteredPosts
 
     if (typeof window === "undefined" && locale !== "es") {
       await Promise.all(limitedPosts.map((p) => writePostToDisk(p, locale)))
@@ -476,6 +491,11 @@ export async function fetchNostrPost(
       } catch {
         // ignore decode errors and use id as-is
       }
+    }
+
+    const settings = getNostrSettings()
+    if (settings.blacklistEventIds?.includes(eventId)) {
+      return null
     }
 
     if (typeof window === "undefined" && locale !== "es") {

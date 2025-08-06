@@ -3,6 +3,7 @@ export interface NostrSettings {
   relays: string[];
   noteEventIds: string[];
   articleEventIds: string[];
+  blacklistEventIds: string[];
   maxPosts: number;
   enableComments: boolean;
   enableViews: boolean;
