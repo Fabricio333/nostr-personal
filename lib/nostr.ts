@@ -415,12 +415,18 @@ export async function fetchNostrPosts(
               const { data, content } = matter(raw)
               post.content = content
               post.translation = data
+              if (data.title) {
+                post.title = data.title
+              }
             } else {
               const res = await fetch(`/api/nostr-translations/${post.id}`)
               if (res.ok) {
                 const data = await res.json()
                 post.content = data.content
                 post.translation = data.data
+                if (data.data?.title) {
+                  post.title = data.data.title
+                }
               }
             }
           } catch {
@@ -565,12 +571,18 @@ export async function fetchNostrPost(
           const { data, content } = matter(raw)
           post.content = content
           post.translation = data
+          if (data.title) {
+            post.title = data.title
+          }
         } else {
           const res = await fetch(`/api/nostr-translations/${eventId}`)
           if (res.ok) {
             const data = await res.json()
             post.content = data.content
             post.translation = data.data
+            if (data.data?.title) {
+              post.title = data.data.title
+            }
           }
         }
       } catch {
