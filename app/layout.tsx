@@ -12,6 +12,7 @@ import { Navbar } from "@/components/navbar"
 import { getSettings, getSiteName, getOwnerNpub } from "@/lib/settings"
 import { fetchNostrProfile } from "@/lib/nostr"
 import { I18nProvider } from "@/components/locale-provider"
+import { getCanonicalUrl } from "@/utils/getCanonicalUrl"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -59,13 +60,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const settings = getSettings()
   const siteName = await getSiteName()
   const locale = detectLocale()
-  const headersList = headers()
-  const host = headersList.get("x-forwarded-host") ||
-    headersList.get("host") ||
-    "localhost:3000"
-  const protocol = headersList.get("x-forwarded-proto") || "https"
-  const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`
+  const siteUrl = getCanonicalUrl()
   const url = locale === "es" ? `${siteUrl}/es` : siteUrl
   const profileImage = "/profile-picture.png"
 

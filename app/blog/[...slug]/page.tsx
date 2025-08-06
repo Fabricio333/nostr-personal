@@ -11,6 +11,7 @@ import { getNostrSettings } from "@/lib/nostr-settings"
 import { marked } from "marked" // For Markdown rendering
 import { nip19 } from "nostr-tools"
 import { isImageUrl } from "@/lib/utils"
+import { getCanonicalUrl } from "@/utils/getCanonicalUrl"
 
 export const revalidate = 60 * 60 * 24
 
@@ -52,7 +53,7 @@ export async function generateMetadata({
   params: { slug: string[] }
   searchParams: { [key: string]: string | string[] | undefined }
 }): Promise<Metadata> {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://example.com"
+  const siteUrl = getCanonicalUrl()
   try {
     const slug = params.slug
     const id = slug[0]
