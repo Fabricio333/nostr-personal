@@ -66,6 +66,7 @@ export default function HomePage() {
   const [profile, setProfile] = useState<NostrProfile | null>(null)
   const [posts, setPosts] = useState<Post[]>([])
   const [filteredPosts, setFilteredPosts] = useState<Post[]>([])
+  const [visibleCount, setVisibleCount] = useState(20)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
@@ -173,6 +174,7 @@ export default function HomePage() {
     }
 
     setFilteredPosts(filtered)
+    setVisibleCount(20)
   }, [posts, searchTerm, selectedType])
 
   const formatDate = (timestamp: number) => {
@@ -187,6 +189,8 @@ export default function HomePage() {
     if (content.length <= maxLength) return content
     return content.slice(0, maxLength) + "…"
   }
+
+  const visiblePosts = filteredPosts.slice(0, visibleCount)
 
   if (loading) {
     return (
@@ -360,7 +364,7 @@ export default function HomePage() {
               </CardContent>
             </Card>
           ) : (
-            filteredPosts.map((post) => {
+            visiblePosts.map((post) => {
               const imageUrl = post.image || extractImageUrl(post.content)
               return (
                 <Link
@@ -444,6 +448,13 @@ export default function HomePage() {
             })
           )}
         </div>
+        {visibleCount < filteredPosts.length && (
+          <div className="mt-6 flex justify-center">
+            <Button onClick={() => setVisibleCount((c) => c + 20)} variant="outline">
+              {t("show_more")}
+            </Button>
+          </div>
+        )}
 
       </div>
     </div>
