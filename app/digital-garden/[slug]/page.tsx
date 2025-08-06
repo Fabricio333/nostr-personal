@@ -1,12 +1,13 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import { cookies, headers } from 'next/headers'
+import { cookies } from 'next/headers'
 import { marked } from 'marked'
 import { getNote } from '@/lib/digital-garden'
 import { getSiteName } from '@/lib/settings'
 import { Badge } from '@/components/ui/badge'
 import { slugify } from '@/lib/slugify'
+import { getCanonicalUrl } from '@/utils/getCanonicalUrl'
 import en from '@/locales/en.json'
 import es from '@/locales/es.json'
 
@@ -27,17 +28,11 @@ export async function generateMetadata({
   if (!note) {
     return { title: gardenTitle }
   }
-  const headersList = headers()
-  const host =
-    headersList.get('x-forwarded-host') ||
-    headersList.get('host') ||
-    'localhost:3000'
-  const protocol = headersList.get('x-forwarded-proto') || 'https'
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`
-  const url =
+  const path =
     locale === 'es'
-      ? `${siteUrl}/es/digital-garden/${params.slug}`
-      : `${siteUrl}/digital-garden/${params.slug}`
+      ? `/es/digital-garden/${params.slug}`
+      : `/digital-garden/${params.slug}`
+  const url = getCanonicalUrl(path)
   const title = `${note.title} – ${gardenTitle}`
   const description = note.content
     .replace(/\[\[([^\]]+)\]\]/g, '$1')
@@ -48,8 +43,8 @@ export async function generateMetadata({
     alternates: {
       canonical: url,
       languages: {
-        en: `${siteUrl}/digital-garden/${params.slug}`,
-        es: `${siteUrl}/es/digital-garden/${params.slug}`,
+        en: getCanonicalUrl(`/digital-garden/${params.slug}`),
+        es: getCanonicalUrl(`/es/digital-garden/${params.slug}`),
       },
     },
     openGraph: {

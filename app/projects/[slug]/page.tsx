@@ -8,6 +8,7 @@ import type { Metadata } from "next"
 import { getSettings } from "@/lib/settings"
 import en from "@/locales/en.json"
 import es from "@/locales/es.json"
+import { getCanonicalUrl } from "@/utils/getCanonicalUrl"
 
 export const revalidate = 60 * 60 * 24
 
@@ -36,9 +37,13 @@ export async function generateMetadata({
     const shortDescription =
       translations[locale]?.projects?.list?.[params.slug]?.short_description as string | undefined
 
+    const canonicalPath = locale === "es" ? `/es/projects/${params.slug}` : `/projects/${params.slug}`
     return {
       title: `${data.title as string} - ${siteName}`,
       description: shortDescription || (data.description as string | undefined),
+      alternates: {
+        canonical: getCanonicalUrl(canonicalPath),
+      },
     }
   } catch {
     return {}

@@ -12,6 +12,7 @@ import { Navbar } from "@/components/navbar"
 import { getSettings, getSiteName, getOwnerNpub } from "@/lib/settings"
 import { fetchNostrProfile } from "@/lib/nostr"
 import { I18nProvider } from "@/components/locale-provider"
+import { getCanonicalUrl } from "@/utils/getCanonicalUrl"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -59,14 +60,8 @@ export async function generateMetadata(): Promise<Metadata> {
   const settings = getSettings()
   const siteName = await getSiteName()
   const locale = detectLocale()
-  const headersList = headers()
-  const host = headersList.get("x-forwarded-host") ||
-    headersList.get("host") ||
-    "localhost:3000"
-  const protocol = headersList.get("x-forwarded-proto") || "https"
-  const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`
-  const url = locale === "es" ? `${siteUrl}/es` : siteUrl
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://fabri.lat"
+  const canonical = getCanonicalUrl(locale === "es" ? "/es" : "")
   const profileImage = "/profile-picture.png"
 
   let description = settings.siteDescription
@@ -83,12 +78,12 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 
   return {
-    metadataBase: new URL(siteUrl),
+    metadataBase: new URL(baseUrl),
     alternates: {
-      canonical: url,
+      canonical: canonical,
       languages: {
-        en: siteUrl,
-        es: `${siteUrl}/es`,
+        en: getCanonicalUrl(),
+        es: getCanonicalUrl("/es"),
       },
     },
     title: siteName,
@@ -100,7 +95,7 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       title: siteName,
       description,
-      url,
+      url: canonical,
       siteName,
       type: "website",
       locale: locale === "es" ? "es_ES" : "en_US",

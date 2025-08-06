@@ -1,11 +1,12 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import { cookies, headers } from 'next/headers'
+import { cookies } from 'next/headers'
 import { getAllNotes } from '@/lib/digital-garden'
 import { getSiteName } from '@/lib/settings'
 import DigitalGardenList from '@/components/digital-garden-list'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
+import { getCanonicalUrl } from '@/utils/getCanonicalUrl'
 import en from '@/locales/en.json'
 import es from '@/locales/es.json'
 
@@ -23,20 +24,16 @@ export async function generateMetadata(): Promise<Metadata> {
   const cookieStore = cookies()
   const locale = (cookieStore.get('NEXT_LOCALE')?.value || 'en') as 'en' | 'es'
   const t = getT(locale)
-  const headersList = headers()
-  const host =
-    headersList.get('x-forwarded-host') || headersList.get('host') || 'localhost:3000'
-  const protocol = headersList.get('x-forwarded-proto') || 'https'
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`
-  const url = locale === 'es' ? `${siteUrl}/es/digital-garden` : `${siteUrl}/digital-garden`
+  const canonicalPath = locale === 'es' ? '/es/digital-garden' : '/digital-garden'
+  const url = getCanonicalUrl(canonicalPath)
   const title = `${siteName}'s ${t('navbar.garden')}`
   return {
     title,
     alternates: {
       canonical: url,
       languages: {
-        en: `${siteUrl}/digital-garden`,
-        es: `${siteUrl}/es/digital-garden`,
+        en: getCanonicalUrl('/digital-garden'),
+        es: getCanonicalUrl('/es/digital-garden'),
       },
     },
     openGraph: {
