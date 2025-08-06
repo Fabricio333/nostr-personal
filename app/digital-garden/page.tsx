@@ -1,5 +1,6 @@
 import Link from 'next/link'
-import { cookies } from 'next/headers'
+import type { Metadata } from 'next'
+import { cookies, headers } from 'next/headers'
 import { getAllNotes } from '@/lib/digital-garden'
 import { getSiteName } from '@/lib/settings'
 import {
@@ -20,6 +21,39 @@ export const revalidate = 60 * 60 * 24
 function getT(locale: keyof typeof translations) {
   return (key: string) =>
     key.split('.').reduce((o: any, k) => (o ? o[k] : undefined), translations[locale]) || key
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const siteName = await getSiteName()
+  const cookieStore = cookies()
+  const locale = (cookieStore.get('NEXT_LOCALE')?.value || 'en') as 'en' | 'es'
+  const t = getT(locale)
+  const headersList = headers()
+  const host =
+    headersList.get('x-forwarded-host') || headersList.get('host') || 'localhost:3000'
+  const protocol = headersList.get('x-forwarded-proto') || 'https'
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`
+  const url = locale === 'es' ? `${siteUrl}/es/digital-garden` : `${siteUrl}/digital-garden`
+  const title = `${siteName}'s ${t('navbar.garden')}`
+  return {
+    title,
+    alternates: {
+      canonical: url,
+      languages: {
+        en: `${siteUrl}/digital-garden`,
+        es: `${siteUrl}/es/digital-garden`,
+      },
+    },
+    openGraph: {
+      title,
+      url,
+      images: ['/digital-garden.png'],
+    },
+    twitter: {
+      title,
+      images: ['/digital-garden.png'],
+    },
+  }
 }
 
 export default async function DigitalGardenPage({
