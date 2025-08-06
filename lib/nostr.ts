@@ -332,135 +332,141 @@ export async function fetchNostrPosts(
 
     const currentPool = getPool()
 
-    // Fetch both notes (kind 1) and long-form articles (kind 30023)
-    // When using translated content (Spanish), we need to fetch more events
-    // to account for posts that don't yet have translations available. This
-    // ensures we still return enough translated posts after filtering.
-    const fetchLimit = limit ? (locale === "es" ? limit * 3 : limit) : undefined
-    const filters: Filter[] = [
-      {
-        kinds: [1], // Notes
-        authors: [pubkeyHex],
-        ...(fetchLimit
-          ? { limit: Math.ceil(fetchLimit / 2) }
-          : {}),
-      },
-      {
-        kinds: [30023], // Long-form articles
-        authors: [pubkeyHex],
-        ...(fetchLimit
-          ? { limit: Math.ceil(fetchLimit / 2) }
-          : {}),
-      },
-    ]
-
-    const allEvents: Event[] = []
-
-    for (const filter of filters) {
-      try {
-        const events = await currentPool.querySync(DEFAULT_RELAYS, filter)
-        allEvents.push(...events)
-      } catch (error) {
-        console.error("Error fetching events with filter:", filter, error)
-      }
-    }
-
-    // Get profile for the author
+    // Iteratively fetch both notes (kind 1) and long-form articles (kind 30023)
+    // using the until parameter to ensure enough posts are gathered after
+    // applying filters like translations or blacklists.
     const profile = await fetchNostrProfile(npub, locale)
+    const batchSize = limit ? Math.max(limit * 2, 20) : 50
+    let posts: NostrPost[] = []
+    let until: number | undefined
 
-    // Convert events to posts
-    let posts: NostrPost[] = allEvents.map((event) => {
-      const post: NostrPost = {
-        id: event.id,
-        pubkey: event.pubkey,
-        created_at: event.created_at,
-        kind: event.kind,
-        tags: event.tags,
-        content: event.content,
-        sig: event.sig,
-        profile,
-        type: event.kind === 30023 ? "article" : "note",
-      }
+    while (!limit || posts.length < limit) {
+      const filters: Filter[] = [
+        {
+          kinds: [1],
+          authors: [pubkeyHex],
+          limit: batchSize,
+          ...(until ? { until } : {}),
+        },
+        {
+          kinds: [30023],
+          authors: [pubkeyHex],
+          limit: batchSize,
+          ...(until ? { until } : {}),
+        },
+      ]
 
-      // For long-form articles, extract metadata from tags
-      if (event.kind === 30023) {
-        const titleTag = event.tags.find((tag) => tag[0] === "title")
-        const summaryTag = event.tags.find((tag) => tag[0] === "summary")
-        const imageTag = event.tags.find((tag) => tag[0] === "image")
-        const publishedAtTag = event.tags.find((tag) => tag[0] === "published_at")
-
-        if (titleTag && titleTag[1]) {
-          post.title = titleTag[1]
-        }
-        if (summaryTag && summaryTag[1]) {
-          post.summary = summaryTag[1]
-        }
-        if (imageTag && imageTag[1]) {
-          post.image = imageTag[1]
-        }
-        if (publishedAtTag && publishedAtTag[1]) {
-          post.published_at = Number.parseInt(publishedAtTag[1])
+      const batchEvents: Event[] = []
+      for (const filter of filters) {
+        try {
+          const events = await currentPool.querySync(DEFAULT_RELAYS, filter)
+          batchEvents.push(...events)
+        } catch (error) {
+          console.error("Error fetching events with filter:", filter, error)
         }
       }
 
-      return post
-    })
+      if (batchEvents.length === 0) {
+        break
+      }
 
-    // If Spanish locale, attempt to load translations but include all posts
-    if (locale === "es") {
-      const processed: NostrPost[] = []
-      await Promise.all(
-        posts.map(async (post) => {
-          try {
-            if (typeof window === "undefined") {
-              const fs = await import("fs/promises")
-              const path = await import("path")
-              const matter = (await import("gray-matter")).default
-              const filePath = path.join(
-                process.cwd(),
-                "public",
-                locale,
-                "nostr",
-                `${post.id}.md`,
-              )
-              const raw = await fs.readFile(filePath, "utf8")
-              const { data, content } = matter(raw)
-              post.content = content
-              post.translation = data
-              if (data.title) {
-                post.title = data.title
-              }
-            } else {
-              const res = await fetch(`/api/nostr-translations/${post.id}`)
-              if (res.ok) {
-                const data = await res.json()
-                post.content = data.content
-                post.translation = data.data
-                if (data.data?.title) {
-                  post.title = data.data.title
+      const uniqueBatchEvents = Array.from(
+        new Map(batchEvents.map((e) => [e.id, e])).values(),
+      )
+
+      let batchPosts: NostrPost[] = uniqueBatchEvents.map((event) => {
+        const post: NostrPost = {
+          id: event.id,
+          pubkey: event.pubkey,
+          created_at: event.created_at,
+          kind: event.kind,
+          tags: event.tags,
+          content: event.content,
+          sig: event.sig,
+          profile,
+          type: event.kind === 30023 ? "article" : "note",
+        }
+
+        if (event.kind === 30023) {
+          const titleTag = event.tags.find((tag) => tag[0] === "title")
+          const summaryTag = event.tags.find((tag) => tag[0] === "summary")
+          const imageTag = event.tags.find((tag) => tag[0] === "image")
+          const publishedAtTag = event.tags.find(
+            (tag) => tag[0] === "published_at",
+          )
+
+          if (titleTag && titleTag[1]) {
+            post.title = titleTag[1]
+          }
+          if (summaryTag && summaryTag[1]) {
+            post.summary = summaryTag[1]
+          }
+          if (imageTag && imageTag[1]) {
+            post.image = imageTag[1]
+          }
+          if (publishedAtTag && publishedAtTag[1]) {
+            post.published_at = Number.parseInt(publishedAtTag[1])
+          }
+        }
+
+        return post
+      })
+
+      if (locale === "es") {
+        await Promise.all(
+          batchPosts.map(async (post) => {
+            try {
+              if (typeof window === "undefined") {
+                const fs = await import("fs/promises")
+                const path = await import("path")
+                const matter = (await import("gray-matter")).default
+                const filePath = path.join(
+                  process.cwd(),
+                  "public",
+                  locale,
+                  "nostr",
+                  `${post.id}.md`,
+                )
+                const raw = await fs.readFile(filePath, "utf8")
+                const { data, content } = matter(raw)
+                post.content = content
+                post.translation = data
+                if (data.title) {
+                  post.title = data.title
+                }
+              } else {
+                const res = await fetch(`/api/nostr-translations/${post.id}`)
+                if (res.ok) {
+                  const data = await res.json()
+                  post.content = data.content
+                  post.translation = data.data
+                  if (data.data?.title) {
+                    post.title = data.data.title
+                  }
                 }
               }
+            } catch {
+              // ignore missing translations
             }
-          } catch {
-            // ignore missing translations
-          }
-          processed.push(post)
-        })
-      )
-      posts = processed.filter((p) => p.translation)
+          }),
+        )
+        batchPosts = batchPosts.filter((p) => p.translation)
+      }
+
+      posts.push(...batchPosts)
+
+      posts = Array.from(new Map(posts.map((p) => [p.id, p])).values())
+      posts = posts.filter((p) => !blacklist.has(p.id))
+      posts.sort((a, b) => b.created_at - a.created_at)
+
+      if (limit && posts.length >= limit) {
+        break
+      }
+
+      until = Math.min(...uniqueBatchEvents.map((e) => e.created_at)) - 1
     }
 
-    // Remove any duplicate posts that might come from multiple relays
-    const uniquePosts = Array.from(new Map(posts.map((p) => [p.id, p])).values())
-
-    // Filter out blacklisted posts
-    const filteredPosts = uniquePosts.filter((p) => !blacklist.has(p.id))
-
-    // Sort by creation time (newest first)
-    filteredPosts.sort((a, b) => b.created_at - a.created_at)
-
-    // Limit results
-    const limitedPosts = limit ? filteredPosts.slice(0, limit) : filteredPosts
+    const limitedPosts = limit ? posts.slice(0, limit) : posts
 
     if (typeof window === "undefined" && locale !== "es") {
       await Promise.all(limitedPosts.map((p) => writePostToDisk(p, locale)))
