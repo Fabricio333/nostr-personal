@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation"
-import { cookies } from "next/headers"
 import fs from "fs/promises"
 import path from "path"
 import { marked } from "marked"
@@ -8,6 +7,8 @@ import type { Metadata } from "next"
 import { getSettings } from "@/lib/settings"
 import en from "@/locales/en.json"
 import es from "@/locales/es.json"
+import { getCanonicalUrl } from "@/utils/getCanonicalUrl"
+import { getLocaleFromPath } from "@/utils/getLocaleFromPath"
 
 export const revalidate = 60 * 60 * 24
 
@@ -24,8 +25,7 @@ export async function generateMetadata({
 }: {
   params: { slug: string }
 }): Promise<Metadata> {
-  const cookieStore = cookies()
-  const locale = (cookieStore.get("NEXT_LOCALE")?.value as "en" | "es") || "en"
+  const locale = getLocaleFromPath()
   const filePath = path.join(process.cwd(), "public", locale, "projects", `${params.slug}.md`)
 
   try {
@@ -36,9 +36,14 @@ export async function generateMetadata({
     const shortDescription =
       translations[locale]?.projects?.list?.[params.slug]?.short_description as string | undefined
 
+    const siteUrl = getCanonicalUrl()
+    const url = `${siteUrl}${locale === "es" ? "/es" : ""}/projects/${params.slug}`
     return {
       title: `${data.title as string} - ${siteName}`,
       description: shortDescription || (data.description as string | undefined),
+      alternates: { canonical: url },
+      openGraph: { title: `${data.title as string} - ${siteName}`, description: shortDescription || (data.description as string | undefined), url },
+      twitter: { card: "summary_large_image", title: `${data.title as string} - ${siteName}`, description: shortDescription || (data.description as string | undefined) },
     }
   } catch {
     return {}
@@ -46,8 +51,7 @@ export async function generateMetadata({
 }
 
 export default async function ProjectPage({ params }: { params: { slug: string } }) {
-  const cookieStore = cookies()
-  const locale = (cookieStore.get("NEXT_LOCALE")?.value as "en" | "es") || "en"
+  const locale = getLocaleFromPath()
   const filePath = path.join(process.cwd(), "public", locale, "projects", `${params.slug}.md`)
 
   let markdown: string
