@@ -17,14 +17,23 @@ export async function generateMetadata(): Promise<Metadata> {
   const title = `${t.title || "Blog"} - ${siteName}`
   const description = t.subtitle as string | undefined
   const image = "/profile-picture.png"
+  const ogLocale = locale === "es" ? "es_ES" : "en_US"
   return {
     title,
     description,
-    alternates: { canonical: url },
+    alternates: {
+      canonical: url,
+      languages: {
+        en: `${siteUrl}/blog`,
+        es: `${siteUrl}/es/blog`,
+      },
+    },
     openGraph: {
       title,
       description,
       url,
+      locale: ogLocale,
+      alternateLocale: ogLocale === "es_ES" ? ["en_US"] : ["es_ES"],
       images: [
         { url: image, width: 1200, height: 630, alt: title },
       ],
