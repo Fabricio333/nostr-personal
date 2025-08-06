@@ -9,7 +9,8 @@ import { ThemeProvider } from "@/components/theme-provider"
 // import { Footer } from "@/components/footer"
 // import { Toaster } from "@/components/ui/toaster"
 import { Navbar } from "@/components/navbar"
-import { getSettings, getSiteName } from "@/lib/settings"
+import { getSettings, getSiteName, getOwnerNpub } from "@/lib/settings"
+import { fetchNostrProfile } from "@/lib/nostr"
 import { I18nProvider } from "@/components/locale-provider"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -68,6 +69,19 @@ export async function generateMetadata(): Promise<Metadata> {
   const url = locale === "es" ? `${siteUrl}/es` : siteUrl
   const profileImage = "/profile-picture.png"
 
+  let description = settings.siteDescription
+  const npub = getOwnerNpub()
+  if (npub) {
+    try {
+      const profile = await fetchNostrProfile(npub, locale)
+      if (profile?.about) {
+        description = profile.about.replace(/\s+/g, " ").trim()
+      }
+    } catch {
+      // ignore fetch errors
+    }
+  }
+
   return {
     metadataBase: new URL(siteUrl),
     alternates: {
@@ -78,31 +92,31 @@ export async function generateMetadata(): Promise<Metadata> {
       },
     },
     title: siteName,
-    description: settings.siteDescription,
+    description,
     generator: "v0.dev",
     icons: {
       icon: "/icon.svg",
     },
     openGraph: {
-  title: siteName,
-  description: settings.siteDescription,
-  url,
-  siteName,
-  type: "website",
-  locale: locale === "es" ? "es_ES" : "en_US",
-  images: [
-    {
-      url: profileImage,
-      width: 1200,
-      height: 630,
-      alt: siteName,
+      title: siteName,
+      description,
+      url,
+      siteName,
+      type: "website",
+      locale: locale === "es" ? "es_ES" : "en_US",
+      images: [
+        {
+          url: profileImage,
+          width: 1200,
+          height: 630,
+          alt: siteName,
+        },
+      ],
     },
-  ],
-},
     twitter: {
       card: "summary_large_image",
       title: siteName,
-      description: settings.siteDescription,
+      description,
       images: [profileImage],
     },
   }
