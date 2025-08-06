@@ -4,6 +4,8 @@ import fs from "fs/promises"
 import path from "path"
 import { marked } from "marked"
 import matter from "gray-matter"
+import type { Metadata } from "next"
+import { getSettings } from "@/lib/settings"
 
 export const revalidate = 60 * 60 * 24
 
@@ -13,6 +15,54 @@ export async function generateStaticParams() {
   return files
     .filter((f) => f.endsWith(".md"))
     .map((f) => ({ slug: f.replace(/\.md$/, "") }))
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string }
+}): Promise<Metadata> {
+  const { siteName } = getSettings()
+  const cookieStore = cookies()
+  const locale = (cookieStore.get("NEXT_LOCALE")?.value as "en" | "es") || "en"
+  const filePath = path.join(
+    process.cwd(),
+    "public",
+    locale,
+    "projects",
+    `${params.slug}.md`
+  )
+
+  let title = siteName
+  let description = ""
+  try {
+    const markdown = await fs.readFile(filePath, "utf8")
+    const { data } = matter(markdown)
+    const projectTitle = (data as any).title as string | undefined
+    const projectDescription = (data as any).description as string | undefined
+    if (projectTitle) {
+      title = `${projectTitle} - ${siteName}`
+    }
+    if (projectDescription) {
+      description = projectDescription
+    }
+  } catch {
+    // ignore
+  }
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+    },
+  }
 }
 
 export default async function ProjectPage({ params }: { params: { slug: string } }) {
