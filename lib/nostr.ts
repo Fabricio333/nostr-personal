@@ -324,118 +324,140 @@ export async function fetchNostrPosts(
 
     const currentPool = getPool()
 
-    // Fetch both notes (kind 1) and long-form articles (kind 30023)
-    // When using translated content (Spanish), we need to fetch more events
-    // to account for posts that don't yet have translations available. This
-    // ensures we still return enough translated posts after filtering.
-    const fetchLimit = locale === "es" ? limit * 3 : limit
-    const filters: Filter[] = [
-      {
-        kinds: [1], // Notes
-        authors: [pubkeyHex],
-        limit: Math.ceil(fetchLimit / 2),
-      },
-      {
-        kinds: [30023], // Long-form articles
-        authors: [pubkeyHex],
-        limit: Math.ceil(fetchLimit / 2),
-      },
-    ]
-
-    const allEvents: Event[] = []
-
-    for (const filter of filters) {
-      try {
-        const events = await currentPool.querySync(DEFAULT_RELAYS, filter)
-        allEvents.push(...events)
-      } catch (error) {
-        console.error("Error fetching events with filter:", filter, error)
-      }
-    }
-
     // Get profile for the author
     const profile = await fetchNostrProfile(npub, locale)
 
-    // Convert events to posts
-    let posts: NostrPost[] = allEvents.map((event) => {
-      const post: NostrPost = {
-        id: event.id,
-        pubkey: event.pubkey,
-        created_at: event.created_at,
-        kind: event.kind,
-        tags: event.tags,
-        content: event.content,
-        sig: event.sig,
-        profile,
-        type: event.kind === 30023 ? "article" : "note",
+    // Iteratively fetch events until we have enough posts
+    const posts: NostrPost[] = []
+    const seenIds = new Set<string>()
+    const maxIterations = 5
+    let iterations = 0
+    let until: number | undefined
+
+    while (posts.length < limit && iterations < maxIterations) {
+      const fetchLimit = limit
+      const filters: Filter[] = [
+        {
+          kinds: [1],
+          authors: [pubkeyHex],
+          limit: Math.ceil(fetchLimit / 2),
+          until,
+        },
+        {
+          kinds: [30023],
+          authors: [pubkeyHex],
+          limit: Math.ceil(fetchLimit / 2),
+          until,
+        },
+      ]
+
+      let batchEvents: Event[] = []
+      for (const filter of filters) {
+        try {
+          const events = await currentPool.querySync(DEFAULT_RELAYS, filter)
+          batchEvents.push(...events)
+        } catch (error) {
+          console.error("Error fetching events with filter:", filter, error)
+        }
       }
 
-      // For long-form articles, extract metadata from tags
-      if (event.kind === 30023) {
-        const titleTag = event.tags.find((tag) => tag[0] === "title")
-        const summaryTag = event.tags.find((tag) => tag[0] === "summary")
-        const imageTag = event.tags.find((tag) => tag[0] === "image")
-        const publishedAtTag = event.tags.find((tag) => tag[0] === "published_at")
-
-        if (titleTag && titleTag[1]) {
-          post.title = titleTag[1]
-        }
-        if (summaryTag && summaryTag[1]) {
-          post.summary = summaryTag[1]
-        }
-        if (imageTag && imageTag[1]) {
-          post.image = imageTag[1]
-        }
-        if (publishedAtTag && publishedAtTag[1]) {
-          post.published_at = Number.parseInt(publishedAtTag[1])
-        }
+      if (batchEvents.length === 0) {
+        break
       }
 
-      return post
-    })
+      // Convert events to posts for this batch
+      let batchPosts: NostrPost[] = batchEvents.map((event) => {
+        const post: NostrPost = {
+          id: event.id,
+          pubkey: event.pubkey,
+          created_at: event.created_at,
+          kind: event.kind,
+          tags: event.tags,
+          content: event.content,
+          sig: event.sig,
+          profile,
+          type: event.kind === 30023 ? "article" : "note",
+        }
 
-    // If Spanish locale, attempt to load translations but include all posts
-    if (locale === "es") {
-      const processed: NostrPost[] = []
-      await Promise.all(
-        posts.map(async (post) => {
-          try {
-            if (typeof window === "undefined") {
-              const fs = await import("fs/promises")
-              const path = await import("path")
-              const matter = (await import("gray-matter")).default
-              const filePath = path.join(
-                process.cwd(),
-                "public",
-                locale,
-                "nostr",
-                `${post.id}.md`,
-              )
-              const raw = await fs.readFile(filePath, "utf8")
-              const { data, content } = matter(raw)
-              post.content = content
-              post.translation = data
-              if (data.title) {
-                post.title = data.title
-              }
-            } else {
-              const res = await fetch(`/api/nostr-translations/${post.id}`)
-              if (res.ok) {
-                const data = await res.json()
-                post.content = data.content
-                post.translation = data.data
-                if (data.data?.title) {
-                  post.title = data.data.title
+        if (event.kind === 30023) {
+          const titleTag = event.tags.find((tag) => tag[0] === "title")
+          const summaryTag = event.tags.find((tag) => tag[0] === "summary")
+          const imageTag = event.tags.find((tag) => tag[0] === "image")
+          const publishedAtTag = event.tags.find((tag) => tag[0] === "published_at")
+
+          if (titleTag && titleTag[1]) {
+            post.title = titleTag[1]
+          }
+          if (summaryTag && summaryTag[1]) {
+            post.summary = summaryTag[1]
+          }
+          if (imageTag && imageTag[1]) {
+            post.image = imageTag[1]
+          }
+          if (publishedAtTag && publishedAtTag[1]) {
+            post.published_at = Number.parseInt(publishedAtTag[1])
+          }
+        }
+
+        return post
+      })
+
+      if (locale === "es") {
+        const processed: NostrPost[] = []
+        await Promise.all(
+          batchPosts.map(async (post) => {
+            try {
+              if (typeof window === "undefined") {
+                const fs = await import("fs/promises")
+                const path = await import("path")
+                const matter = (await import("gray-matter")).default
+                const filePath = path.join(
+                  process.cwd(),
+                  "public",
+                  locale,
+                  "nostr",
+                  `${post.id}.md`,
+                )
+                const raw = await fs.readFile(filePath, "utf8")
+                const { data, content } = matter(raw)
+                post.content = content
+                post.translation = data
+                if (data.title) {
+                  post.title = data.title
+                }
+              } else {
+                const res = await fetch(`/api/nostr-translations/${post.id}`)
+                if (res.ok) {
+                  const data = await res.json()
+                  post.content = data.content
+                  post.translation = data.data
+                  if (data.data?.title) {
+                    post.title = data.data.title
+                  }
                 }
               }
+            } catch {
+              // ignore missing translations
             }
-          } catch {
-            // ignore missing translations
-          }
-          processed.push(post)
-        })
+            processed.push(post)
+          })
+        )
+        batchPosts = processed.filter((p) => p.translation)
+      }
+
+      for (const post of batchPosts) {
+        if (!seenIds.has(post.id)) {
+          posts.push(post)
+          seenIds.add(post.id)
+        }
+      }
+
+      const oldest = batchEvents.reduce(
+        (min, ev) => (ev.created_at < min ? ev.created_at : min),
+        batchEvents[0].created_at,
       )
-      posts = processed.filter((p) => p.translation)
+      until = oldest - 1
+      iterations++
     }
 
     // Remove any duplicate posts that might come from multiple relays
