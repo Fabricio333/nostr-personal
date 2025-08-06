@@ -67,6 +67,7 @@ export default function HomePage() {
   const [posts, setPosts] = useState<Post[]>([])
   const [filteredPosts, setFilteredPosts] = useState<Post[]>([])
   const [visibleCount, setVisibleCount] = useState(20)
+  const [hasMoreNostr, setHasMoreNostr] = useState(true)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
@@ -142,6 +143,7 @@ export default function HomePage() {
       setProfile(profileData)
       setPosts(combined)
       setFilteredPosts(combined)
+      setHasMoreNostr(nostrData.length === settings.maxPosts)
     } catch (err) {
       console.error("Error loading data:", err)
       setError(t("home.failed_load"))
@@ -174,8 +176,11 @@ export default function HomePage() {
     }
 
     setFilteredPosts(filtered)
-    setVisibleCount(20)
   }, [posts, searchTerm, selectedType])
+
+  useEffect(() => {
+    setVisibleCount(20)
+  }, [searchTerm, selectedType])
 
   const formatDate = (timestamp: number) => {
     return new Date(timestamp * 1000).toLocaleDateString(locale === "es" ? "es-ES" : "en-US", {
@@ -189,6 +194,63 @@ export default function HomePage() {
     if (content.length <= maxLength) return content
     return content.slice(0, maxLength) + "…"
   }
+
+  const handleShowMore = useCallback(async () => {
+    if (selectedType === "garden") {
+      setVisibleCount((c) => c + 20)
+      return
+    }
+
+    try {
+      const settings = getNostrSettings()
+      const currentNostrCount = posts.filter(
+        (p) => p.type === "nostr" || p.type === "article",
+      ).length
+      const newLimit = currentNostrCount + 20
+      const nostrData = await fetchNostrPosts(
+        settings.ownerNpub,
+        newLimit,
+        locale,
+        {
+          noteIds: settings.noteEventIds,
+          articleIds: settings.articleEventIds,
+        },
+      )
+
+      const nostrPosts: Post[] = nostrData.map((p: NostrPost) => ({
+        id: p.id,
+        content: p.content,
+        title: p.title,
+        summary: p.summary,
+        published_at: p.published_at,
+        created_at: p.created_at,
+        type: p.type === "note" ? "nostr" : "article",
+        translation: p.translation,
+        image: p.image,
+      }))
+
+      const gardenPosts = posts.filter((p) => p.type === "garden")
+      let combined = [...nostrPosts, ...gardenPosts]
+
+      if (locale === "es") {
+        combined = combined.filter(
+          (post) => post.type === "garden" || post.translation,
+        )
+      }
+
+      combined.sort((a, b) => {
+        const aDate = a.published_at ?? a.created_at
+        const bDate = b.published_at ?? b.created_at
+        return bDate - aDate
+      })
+
+      setPosts(combined)
+      setHasMoreNostr(nostrData.length === newLimit)
+      setVisibleCount((c) => c + 20)
+    } catch (err) {
+      console.error("Error loading more posts:", err)
+    }
+  }, [selectedType, posts, locale])
 
   const visiblePosts = filteredPosts.slice(0, visibleCount)
 
@@ -448,9 +510,9 @@ export default function HomePage() {
             })
           )}
         </div>
-        {visibleCount < filteredPosts.length && (
+        {(visibleCount < filteredPosts.length || (selectedType !== "garden" && hasMoreNostr)) && (
           <div className="mt-6 flex justify-center">
-            <Button onClick={() => setVisibleCount((c) => c + 20)} variant="outline">
+            <Button onClick={handleShowMore} variant="outline">
               {t("show_more")}
             </Button>
           </div>
