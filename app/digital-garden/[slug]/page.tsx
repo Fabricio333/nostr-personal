@@ -22,11 +22,7 @@ export async function generateMetadata({
   const siteName = await getSiteName()
   const cookieStore = cookies()
   const locale = (cookieStore.get('NEXT_LOCALE')?.value || 'en') as 'en' | 'es'
-  const t = getT(locale)
-  const gardenTitle =
-    locale === 'es'
-      ? `El ${t('navbar.garden')} de ${siteName}`
-      : `${siteName}'s ${t('navbar.garden')}`
+  const gardenTitle = `${siteName}'s ${translations.en.navbar.garden}`
   const note = await getNote(params.slug, locale)
   if (!note) {
     return { title: gardenTitle }
