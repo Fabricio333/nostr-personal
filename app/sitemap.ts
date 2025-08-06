@@ -4,28 +4,60 @@ import { fetchNostrPosts } from "@/lib/nostr"
 import { getAllNotes } from "@/lib/digital-garden"
 import fs from "fs/promises"
 import path from "path"
-import { getCanonicalUrl } from "@/utils/getCanonicalUrl"
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const siteUrl = getCanonicalUrl()
-  const now = new Date()
-  const staticPaths = ["", "/blog", "/projects", "/resume", "/digital-garden"]
-  const routes: MetadataRoute.Sitemap = []
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://fabri.lat"
+  const routes: MetadataRoute.Sitemap = [
+    {
+      url: siteUrl,
+      lastModified: new Date(),
+      alternates: { languages: { es: `${siteUrl}/es` } },
+    },
+    {
+      url: `${siteUrl}/blog`,
+      lastModified: new Date(),
+      alternates: { languages: { es: `${siteUrl}/es/blog` } },
+    },
+    {
+      url: `${siteUrl}/projects`,
+      lastModified: new Date(),
+      alternates: { languages: { es: `${siteUrl}/es/projects` } },
+    },
+    {
+      url: `${siteUrl}/resume`,
+      lastModified: new Date(),
+      alternates: { languages: { es: `${siteUrl}/es/resume` } },
+    },
+    {
+      url: `${siteUrl}/digital-garden`,
+      lastModified: new Date(),
+      alternates: { languages: { es: `${siteUrl}/es/digital-garden` } },
+    },
+  ]
 
-  staticPaths.forEach((p) => {
-    const enUrl = `${siteUrl}${p}`
-    const esUrl = `${siteUrl}/es${p}`
-    routes.push({
-      url: enUrl,
-      lastModified: now,
-      alternates: { languages: { es: esUrl } },
-    })
-    routes.push({
-      url: esUrl,
-      lastModified: now,
-      alternates: { languages: { en: enUrl } },
-    })
-  })
+  routes.push(
+    { url: `${siteUrl}/es`, lastModified: new Date(), alternates: { languages: { en: siteUrl } } },
+    {
+      url: `${siteUrl}/es/blog`,
+      lastModified: new Date(),
+      alternates: { languages: { en: `${siteUrl}/blog` } },
+    },
+    {
+      url: `${siteUrl}/es/projects`,
+      lastModified: new Date(),
+      alternates: { languages: { en: `${siteUrl}/projects` } },
+    },
+    {
+      url: `${siteUrl}/es/resume`,
+      lastModified: new Date(),
+      alternates: { languages: { en: `${siteUrl}/resume` } },
+    },
+    {
+      url: `${siteUrl}/es/digital-garden`,
+      lastModified: new Date(),
+      alternates: { languages: { en: `${siteUrl}/digital-garden` } },
+    },
+  )
 
   try {
     const settings = getNostrSettings()
@@ -33,7 +65,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const [postsEn, postsEs] = await Promise.all([
         fetchNostrPosts(
           settings.ownerNpub,
-          undefined,
+          settings.maxPosts || 50,
           "en",
           {
             noteIds: settings.noteEventIds,
@@ -42,7 +74,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         ),
         fetchNostrPosts(
           settings.ownerNpub,
-          undefined,
+          settings.maxPosts || 50,
           "es",
           {
             noteIds: settings.noteEventIds,
@@ -50,11 +82,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           },
         ),
       ])
-      const blacklist = new Set(settings.blacklistEventIds || [])
-      const filteredEn = postsEn.filter((p) => !blacklist.has(p.id))
-      const filteredEs = postsEs.filter((p) => !blacklist.has(p.id))
-      const esMap = new Map(filteredEs.map((p) => [p.id, p]))
-      filteredEn.forEach((post) => {
+      const esMap = new Map(postsEs.map((p) => [p.id, p]))
+      postsEn.forEach((post) => {
         const lastModified = new Date((post.published_at || post.created_at) * 1000)
         routes.push({
           url: `${siteUrl}/blog/${post.id}`,
@@ -64,7 +93,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             : {}),
         })
       })
-      filteredEs.forEach((post) => {
+      postsEs.forEach((post) => {
         routes.push({
           url: `${siteUrl}/es/blog/${post.id}`,
           lastModified: new Date((post.published_at || post.created_at) * 1000),

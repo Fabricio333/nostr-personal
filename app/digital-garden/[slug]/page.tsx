@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import { marked } from 'marked'
 import { getNote } from '@/lib/digital-garden'
 import { getSiteName } from '@/lib/settings'
@@ -9,7 +9,6 @@ import { Badge } from '@/components/ui/badge'
 import { slugify } from '@/lib/slugify'
 import en from '@/locales/en.json'
 import es from '@/locales/es.json'
-import { getCanonicalUrl } from '@/utils/getCanonicalUrl'
 
 const translations = { en, es } as const
 
@@ -32,7 +31,13 @@ export async function generateMetadata({
   if (!note) {
     return { title: gardenTitle }
   }
-  const siteUrl = getCanonicalUrl()
+  const headersList = headers()
+  const host =
+    headersList.get('x-forwarded-host') ||
+    headersList.get('host') ||
+    'localhost:3000'
+  const protocol = headersList.get('x-forwarded-proto') || 'https'
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`
   const url =
     locale === 'es'
       ? `${siteUrl}/es/digital-garden/${params.slug}`

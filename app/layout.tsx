@@ -1,6 +1,6 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next"
-import { getLocaleFromPath } from "@/utils/getLocaleFromPath"
+import { cookies, headers } from "next/headers"
 import { Inter } from "next/font/google"
 import Script from "next/script"
 import "./globals.css"
@@ -12,7 +12,6 @@ import { Navbar } from "@/components/navbar"
 import { getSettings, getSiteName, getOwnerNpub } from "@/lib/settings"
 import { fetchNostrProfile } from "@/lib/nostr"
 import { I18nProvider } from "@/components/locale-provider"
-import { getCanonicalUrl } from "@/utils/getCanonicalUrl"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -22,12 +21,51 @@ export const viewport: Viewport = {
   initialScale: 1,
 }
 
+const SPANISH_COUNTRIES = new Set([
+  "AR",
+  "BO",
+  "CL",
+  "CO",
+  "CR",
+  "CU",
+  "DO",
+  "EC",
+  "ES",
+  "GQ",
+  "GT",
+  "HN",
+  "MX",
+  "NI",
+  "PA",
+  "PE",
+  "PR",
+  "PY",
+  "SV",
+  "UY",
+  "VE",
+])
+
+function detectLocale(): "en" | "es" {
+  const cookieStore = cookies()
+  let locale = cookieStore.get("NEXT_LOCALE")?.value as "en" | "es" | undefined
+  if (!locale) {
+    const country = headers().get("x-vercel-ip-country")?.toUpperCase() || ""
+    locale = SPANISH_COUNTRIES.has(country) ? "es" : "en"
+  }
+  return locale
+}
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = getSettings()
   const siteName = await getSiteName()
-  const locale = getLocaleFromPath()
-  const siteUrl = getCanonicalUrl()
+  const locale = detectLocale()
+  const headersList = headers()
+  const host = headersList.get("x-forwarded-host") ||
+    headersList.get("host") ||
+    "localhost:3000"
+  const protocol = headersList.get("x-forwarded-proto") || "https"
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`
   const url = locale === "es" ? `${siteUrl}/es` : siteUrl
   const profileImage = "/profile-picture.png"
 
@@ -47,6 +85,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     metadataBase: new URL(siteUrl),
     alternates: {
+      canonical: url,
       languages: {
         en: siteUrl,
         es: `${siteUrl}/es`,
@@ -89,7 +128,7 @@ export default async function RootLayout({
   children: React.ReactNode
 }) {
   const siteName = await getSiteName()
-  const locale = getLocaleFromPath()
+  const locale = detectLocale()
   return (
     <html lang={locale} suppressHydrationWarning>
       <body className={`${inter.className} w-full`}>
