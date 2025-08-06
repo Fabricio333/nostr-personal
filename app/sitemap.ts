@@ -66,7 +66,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const [postsEn, postsEs] = await Promise.all([
         fetchNostrPosts(
           settings.ownerNpub,
-          settings.maxPosts || 50,
+          undefined,
           "en",
           {
             noteIds: settings.noteEventIds,
@@ -75,7 +75,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         ),
         fetchNostrPosts(
           settings.ownerNpub,
-          settings.maxPosts || 50,
+          undefined,
           "es",
           {
             noteIds: settings.noteEventIds,
@@ -83,8 +83,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           },
         ),
       ])
-      const esMap = new Map(postsEs.map((p) => [p.id, p]))
-      postsEn.forEach((post) => {
+      const blacklist = new Set(settings.blacklistEventIds || [])
+      const filteredEn = postsEn.filter((p) => !blacklist.has(p.id))
+      const filteredEs = postsEs.filter((p) => !blacklist.has(p.id))
+      const esMap = new Map(filteredEs.map((p) => [p.id, p]))
+      filteredEn.forEach((post) => {
         const lastModified = new Date((post.published_at || post.created_at) * 1000)
         routes.push({
           url: `${siteUrl}/blog/${post.id}`,
@@ -94,7 +97,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             : {}),
         })
       })
-      postsEs.forEach((post) => {
+      filteredEs.forEach((post) => {
         routes.push({
           url: `${siteUrl}/es/blog/${post.id}`,
           lastModified: new Date((post.published_at || post.created_at) * 1000),

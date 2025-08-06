@@ -257,7 +257,7 @@ export async function fetchNostrProfile(
 
 export async function fetchNostrPosts(
   npub: string,
-  limit = 50,
+  limit?: number,
   locale = "en",
   options: FetchPostsOptions = {},
 ): Promise<NostrPost[]> {
@@ -273,12 +273,13 @@ export async function fetchNostrPosts(
       validPosts = validPosts.filter((p) => p.translation)
     }
     validPosts.sort((a, b) => b.created_at - a.created_at)
-    return validPosts.slice(0, limit)
+    return limit ? validPosts.slice(0, limit) : validPosts
   }
 
   try {
 
-    const cacheKey = getCacheKey("posts", `${npub}:${limit}:${locale}`)
+    const limitKey = limit ?? "all"
+    const cacheKey = getCacheKey("posts", `${npub}:${limitKey}:${locale}`)
     const useCache = locale !== "es"
 
     // Check cache first (skip for Spanish to avoid stale translations)
@@ -299,7 +300,7 @@ export async function fetchNostrPosts(
     if (typeof window === "undefined" && locale !== "es") {
       const diskPosts = await readPostsFromDisk(locale)
       if (diskPosts && diskPosts.length > 0) {
-        return diskPosts.slice(0, limit)
+        return limit ? diskPosts.slice(0, limit) : diskPosts
       }
     }
 
@@ -328,17 +329,21 @@ export async function fetchNostrPosts(
     // When using translated content (Spanish), we need to fetch more events
     // to account for posts that don't yet have translations available. This
     // ensures we still return enough translated posts after filtering.
-    const fetchLimit = locale === "es" ? limit * 3 : limit
+    const fetchLimit = limit ? (locale === "es" ? limit * 3 : limit) : undefined
     const filters: Filter[] = [
       {
         kinds: [1], // Notes
         authors: [pubkeyHex],
-        limit: Math.ceil(fetchLimit / 2),
+        ...(fetchLimit
+          ? { limit: Math.ceil(fetchLimit / 2) }
+          : {}),
       },
       {
         kinds: [30023], // Long-form articles
         authors: [pubkeyHex],
-        limit: Math.ceil(fetchLimit / 2),
+        ...(fetchLimit
+          ? { limit: Math.ceil(fetchLimit / 2) }
+          : {}),
       },
     ]
 
@@ -445,7 +450,7 @@ export async function fetchNostrPosts(
     uniquePosts.sort((a, b) => b.created_at - a.created_at)
 
     // Limit results
-    const limitedPosts = uniquePosts.slice(0, limit)
+    const limitedPosts = limit ? uniquePosts.slice(0, limit) : uniquePosts
 
     if (typeof window === "undefined" && locale !== "es") {
       await Promise.all(limitedPosts.map((p) => writePostToDisk(p, locale)))
