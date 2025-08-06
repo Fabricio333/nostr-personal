@@ -26,7 +26,10 @@ export async function generateMetadata(): Promise<Metadata> {
   const t = getT(locale)
   const siteUrl = getCanonicalUrl()
   const url = locale === 'es' ? `${siteUrl}/es/digital-garden` : `${siteUrl}/digital-garden`
-  const title = `${siteName}'s ${t('navbar.garden')}`
+  const title =
+    locale === 'es'
+      ? `El ${t('navbar.garden')} de ${siteName}`
+      : `${siteName}'s ${t('navbar.garden')}`
   return {
     title,
     alternates: {
@@ -67,7 +70,9 @@ export default async function DigitalGardenPage({
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="mb-8 text-center text-4xl font-bold">
-        {siteName}&apos;s {t('navbar.garden')}
+        {locale === 'es'
+          ? `El ${t('navbar.garden')} de ${siteName}`
+          : `${siteName}'s ${t('navbar.garden')}`}
       </h1>
       <div className="mb-4 text-center">
         <Link
