@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Search, FileText, MessageSquare, Calendar, RefreshCw } from "lucide-react"
+import ShareStoryButton from "@/components/share-story-button"
 import { fetchNostrPosts } from "@/lib/nostr"
 import { getNostrSettings } from "@/lib/nostr-settings"
 import Link from "next/link"
@@ -269,6 +270,11 @@ export default function BlogPage() {
           ) : (
             visiblePosts.map((post) => {
               const imageUrl = post.image || extractImageUrl(post.content)
+              const tagline =
+                post.summary ||
+                post.content.split("\n").find((l) => l.trim()) || ""
+              const titleText =
+                post.title || truncateContent(post.content, 60)
               return (
                 <Link
                   key={post.id}
@@ -291,7 +297,7 @@ export default function BlogPage() {
                       />
                     )}
                     <CardHeader>
-                      <div className="flex items-center justify-between mb-2">
+                      <div className="mb-2 flex items-center justify-between">
                         <Badge
                           variant="secondary"
                           className={cn(
@@ -333,11 +339,16 @@ export default function BlogPage() {
                       )}
                     </CardHeader>
                     <CardContent>
-                      <div className="prose prose-slate dark:prose-invert max-w-none w-full break-words">
+                      <div className="prose prose-slate dark:prose-invert w-full max-w-none break-words">
                         <p className="text-slate-700 dark:text-slate-300 leading-relaxed break-all overflow-hidden line-clamp-3">
                           {truncateContent(post.content)}
                         </p>
                       </div>
+                      <ShareStoryButton
+                        title={titleText}
+                        tagline={tagline}
+                        className="mt-4"
+                      />
                     </CardContent>
                   </Card>
                 </Link>
