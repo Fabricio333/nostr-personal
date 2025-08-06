@@ -71,7 +71,7 @@
     "note": "Nota"
   },
   "projects": {
-    "title": "Proyectos",
+    "title": "Proyectos de {{ownerName}}",
     "subtitle": "Una colección de mi trabajo, que muestra diversas tecnologías y enfoques para resolver problemas.",
     "github": "GitHub",
     "live_demo": "Demo en vivo",

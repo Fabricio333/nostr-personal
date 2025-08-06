@@ -71,7 +71,7 @@
     "note": "Note"
   },
   "projects": {
-    "title": "Projects",
+    "title": "{{ownerName}}'s projects",
     "subtitle": "A collection of my work, showcasing various technologies and problem-solving approaches.",
     "github": "GitHub",
     "live_demo": "Live Demo",
