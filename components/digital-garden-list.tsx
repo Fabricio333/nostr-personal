@@ -5,12 +5,14 @@ import { useState } from "react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import ShareStoryButton from "@/components/share-story-button"
 import { useI18n } from "@/components/locale-provider"
 
 interface Note {
   slug: string
   title: string
   tags: string[]
+  content: string
 }
 
 export default function DigitalGardenList({
@@ -27,38 +29,43 @@ export default function DigitalGardenList({
   return (
     <>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {visibleNotes.map((note) => (
-          <Link
-            key={note.slug}
-            href={
-              locale === "es"
-                ? `/es/digital-garden/${note.slug}`
-                : `/digital-garden/${note.slug}`
-            }
-            className="block"
-          >
-            <Card className="h-full transition-colors hover:bg-muted">
-              <CardHeader>
-                <CardTitle>{note.title}</CardTitle>
-              </CardHeader>
-              {note.tags.length > 0 && (
-                <CardContent className="pt-0">
-                  <div className="flex flex-wrap gap-2">
-                    {note.tags.map((tag) => (
-                      <Badge
-                        key={tag}
-                        variant="secondary"
-                        className="bg-green-100 text-green-700"
-                      >
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
+        {visibleNotes.map((note) => {
+          const firstLine =
+            note.content.split("\n").find((l) => l.trim()) || ""
+          return (
+            <Link
+              key={note.slug}
+              href={
+                locale === "es"
+                  ? `/es/digital-garden/${note.slug}`
+                  : `/digital-garden/${note.slug}`
+              }
+              className="block"
+            >
+              <Card className="h-full transition-colors hover:bg-muted">
+                <CardHeader>
+                  <CardTitle>{note.title}</CardTitle>
+                </CardHeader>
+                <CardContent className="flex flex-col gap-2 pt-0">
+                  {note.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {note.tags.map((tag) => (
+                        <Badge
+                          key={tag}
+                          variant="secondary"
+                          className="bg-green-100 text-green-700"
+                        >
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                  <ShareStoryButton title={note.title} tagline={firstLine} />
                 </CardContent>
-              )}
-            </Card>
-          </Link>
-        ))}
+              </Card>
+            </Link>
+          )
+        })}
       </div>
       {visibleCount < notes.length && (
         <div className="mt-6 flex justify-center">
