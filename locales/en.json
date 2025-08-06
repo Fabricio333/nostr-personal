@@ -73,6 +73,10 @@
   "projects": {
     "title": "{{ownerName}}'s projects",
     "subtitle": "A collection of my work, showcasing various technologies and problem-solving approaches.",
+    "metadata": {
+      "title": "Fabricio's Projects",
+      "description": "A collection of my work, showcasing various technologies and problem-solving approaches"
+    },
     "github": "GitHub",
     "live_demo": "Live Demo",
     "no_projects": "No projects to display yet. Check back soon!",
