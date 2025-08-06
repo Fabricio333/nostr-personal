@@ -22,17 +22,13 @@ export async function generateMetadata(): Promise<Metadata> {
   const siteName = await getSiteName()
   const cookieStore = cookies()
   const locale = (cookieStore.get('NEXT_LOCALE')?.value || 'en') as 'en' | 'es'
-  const t = getT(locale)
   const headersList = headers()
   const host =
     headersList.get('x-forwarded-host') || headersList.get('host') || 'localhost:3000'
   const protocol = headersList.get('x-forwarded-proto') || 'https'
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`
   const url = locale === 'es' ? `${siteUrl}/es/digital-garden` : `${siteUrl}/digital-garden`
-  const title =
-    locale === 'es'
-      ? `El ${t('navbar.garden')} de ${siteName}`
-      : `${siteName}'s ${t('navbar.garden')}`
+  const title = `${siteName}'s ${translations.en.navbar.garden}`
   return {
     title,
     alternates: {
@@ -65,6 +61,7 @@ export default async function DigitalGardenPage({
     getAllNotes(locale),
     getSiteName(),
   ])
+  const gardenTitle = `${siteName}'s ${translations.en.navbar.garden}`
   const allTags = Array.from(new Set(notes.flatMap((n) => n.tags))).sort()
   const activeTag = searchParams.tag
   const filteredNotes = activeTag
@@ -72,11 +69,7 @@ export default async function DigitalGardenPage({
     : notes
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="mb-8 text-center text-4xl font-bold">
-        {locale === 'es'
-          ? `El ${t('navbar.garden')} de ${siteName}`
-          : `${siteName}'s ${t('navbar.garden')}`}
-      </h1>
+      <h1 className="mb-8 text-center text-4xl font-bold">{gardenTitle}</h1>
       <div className="mb-4 text-center">
         <Link
           href={locale === 'es' ? '/es/digital-garden/graph' : '/digital-garden/graph'}
