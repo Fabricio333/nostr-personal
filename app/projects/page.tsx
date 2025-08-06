@@ -8,9 +8,13 @@ import { Github, ExternalLink } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useI18n } from "@/components/locale-provider"
+import { getSettings } from "@/lib/settings"
 
 export default function ProjectsPage() {
   const { t } = useI18n()
+  const { siteName } = getSettings()
+  const title = t("projects.title").replace("{{ownerName}}", siteName)
+
   const projects = [
     {
       id: "1",
@@ -71,9 +75,7 @@ export default function ProjectsPage() {
 
   return (
     <div className="container mx-auto px-4 py-4">
-      <h1 className="text-3xl font-bold mb-4 text-center">
-        {t("projects.title")}
-      </h1>
+      <h1 className="text-3xl font-bold mb-4 text-center">{title}</h1>
       <p className="text-lg text-muted-foreground text-center mb-6">
         {t("projects.subtitle")}
       </p>
