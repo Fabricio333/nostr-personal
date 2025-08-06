@@ -1,4 +1,5 @@
 import { SimplePool, type Event, type Filter, nip19 } from "nostr-tools"
+import { getNostrSettings } from "@/lib/nostr-settings"
 
 // Default relays
 const DEFAULT_RELAYS = [
@@ -263,6 +264,8 @@ export async function fetchNostrPosts(
 ): Promise<NostrPost[]> {
   const { noteIds = [], articleIds = [] } = options
   const specificIds = [...noteIds, ...articleIds].filter(Boolean)
+  const settings = getNostrSettings()
+  const blacklist = new Set(settings.blacklistEventIds || [])
 
   if (specificIds.length > 0) {
     const posts = await Promise.all(
@@ -272,6 +275,7 @@ export async function fetchNostrPosts(
     if (locale === "es") {
       validPosts = validPosts.filter((p) => p.translation)
     }
+    validPosts = validPosts.filter((p) => !blacklist.has(p.id))
     validPosts.sort((a, b) => b.created_at - a.created_at)
     return limit ? validPosts.slice(0, limit) : validPosts
   }
@@ -292,7 +296,7 @@ export async function fetchNostrPosts(
         }
       }
       if (cached) {
-        return cached
+        return cached.filter((p: NostrPost) => !blacklist.has(p.id))
       }
     }
 
@@ -300,7 +304,10 @@ export async function fetchNostrPosts(
     if (typeof window === "undefined" && locale !== "es") {
       const diskPosts = await readPostsFromDisk(locale)
       if (diskPosts && diskPosts.length > 0) {
-        return limit ? diskPosts.slice(0, limit) : diskPosts
+        const filteredDiskPosts = diskPosts.filter((p) => !blacklist.has(p.id))
+        return limit
+          ? filteredDiskPosts.slice(0, limit)
+          : filteredDiskPosts
       }
     }
 
@@ -446,11 +453,14 @@ export async function fetchNostrPosts(
     // Remove any duplicate posts that might come from multiple relays
     const uniquePosts = Array.from(new Map(posts.map((p) => [p.id, p])).values())
 
+    // Filter out blacklisted posts
+    const filteredPosts = uniquePosts.filter((p) => !blacklist.has(p.id))
+
     // Sort by creation time (newest first)
-    uniquePosts.sort((a, b) => b.created_at - a.created_at)
+    filteredPosts.sort((a, b) => b.created_at - a.created_at)
 
     // Limit results
-    const limitedPosts = limit ? uniquePosts.slice(0, limit) : uniquePosts
+    const limitedPosts = limit ? filteredPosts.slice(0, limit) : filteredPosts
 
     if (typeof window === "undefined" && locale !== "es") {
       await Promise.all(limitedPosts.map((p) => writePostToDisk(p, locale)))
@@ -481,6 +491,11 @@ export async function fetchNostrPost(
       } catch {
         // ignore decode errors and use id as-is
       }
+    }
+
+    const settings = getNostrSettings()
+    if (settings.blacklistEventIds?.includes(eventId)) {
+      return null
     }
 
     if (typeof window === "undefined" && locale !== "es") {
