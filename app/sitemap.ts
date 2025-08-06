@@ -4,9 +4,10 @@ import { fetchNostrPosts } from "@/lib/nostr"
 import { getAllNotes } from "@/lib/digital-garden"
 import fs from "fs/promises"
 import path from "path"
+import { getCanonicalUrl } from "@/utils/getCanonicalUrl"
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://fabri.lat"
+  const siteUrl = getCanonicalUrl()
   const routes: MetadataRoute.Sitemap = [
     {
       url: siteUrl,
