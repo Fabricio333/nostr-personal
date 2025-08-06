@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation'
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { cookies } from 'next/headers'
 import { marked } from 'marked'
@@ -15,6 +16,23 @@ export const revalidate = 60 * 60 * 24
 function getT(locale: keyof typeof translations) {
   return (key: string) =>
     key.split('.').reduce((o: any, k) => (o ? o[k] : undefined), translations[locale]) || key
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string }
+}): Promise<Metadata> {
+  const locale = (cookies().get('NEXT_LOCALE')?.value || 'en') as 'en' | 'es'
+  const note = await getNote(params.slug, locale)
+  const suffix = locale === 'es' ? 'Jardin de Fabricio' : "Fabricio's Garden"
+  const baseTitle = note?.title || params.slug
+  const title = `${baseTitle} - ${suffix}`
+  return {
+    title,
+    openGraph: { title },
+    twitter: { title },
+  }
 }
 
 export default async function DigitalGardenNotePage({ params }: { params: { slug: string } }) {
