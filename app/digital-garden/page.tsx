@@ -3,12 +3,7 @@ import type { Metadata } from 'next'
 import { cookies, headers } from 'next/headers'
 import { getAllNotes } from '@/lib/digital-garden'
 import { getSiteName } from '@/lib/settings'
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from '@/components/ui/card'
+import DigitalGardenList from '@/components/digital-garden-list'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import en from '@/locales/en.json'
@@ -119,40 +114,7 @@ export default async function DigitalGardenPage({
           ))}
         </div>
       )}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {filteredNotes.map((note) => (
-          <Link
-            key={note.slug}
-            href={
-              locale === 'es'
-                ? `/es/digital-garden/${note.slug}`
-                : `/digital-garden/${note.slug}`
-            }
-            className="block"
-          >
-            <Card className="h-full transition-colors hover:bg-muted">
-              <CardHeader>
-                <CardTitle>{note.title}</CardTitle>
-              </CardHeader>
-              {note.tags.length > 0 && (
-                <CardContent className="pt-0">
-                  <div className="flex flex-wrap gap-2">
-                    {note.tags.map((tag) => (
-                      <Badge
-                        key={tag}
-                        variant="secondary"
-                        className="bg-green-100 text-green-700"
-                      >
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                </CardContent>
-              )}
-            </Card>
-          </Link>
-        ))}
-      </div>
+      <DigitalGardenList notes={filteredNotes} locale={locale} />
     </div>
   )
 }
