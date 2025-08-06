@@ -73,15 +73,28 @@ export async function generateMetadata({
       locale === "es" && post.translation
         ? `${siteUrl}/es/blog/${post.id}`
         : `${siteUrl}/blog/${post.id}`
+    const languageAlternates = post.translation
+      ? {
+          en: `${siteUrl}/blog/${post.id}`,
+          es: `${siteUrl}/es/blog/${post.id}`,
+        }
+      : {
+          en: `${siteUrl}/blog/${post.id}`,
+        }
+    const ogLocale = locale === "es" ? "es_ES" : "en_US"
     return {
       title,
       description,
-      alternates: { canonical: url },
+      alternates: { canonical: url, languages: languageAlternates },
       openGraph: {
         title,
         description,
         url,
         type: "article",
+        locale: ogLocale,
+        ...(post.translation
+          ? { alternateLocale: ogLocale === "es_ES" ? ["en_US"] : ["es_ES"] }
+          : {}),
       },
     }
   } catch {
