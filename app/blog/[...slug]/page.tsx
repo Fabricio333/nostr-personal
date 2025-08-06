@@ -11,6 +11,7 @@ import { getNostrSettings } from "@/lib/nostr-settings"
 import { marked } from "marked" // For Markdown rendering
 import { nip19 } from "nostr-tools"
 import { isImageUrl } from "@/lib/utils"
+import { getCanonicalUrl } from "@/utils/getCanonicalUrl"
 
 export const revalidate = 60 * 60 * 24
 
@@ -52,7 +53,6 @@ export async function generateMetadata({
   params: { slug: string[] }
   searchParams: { [key: string]: string | string[] | undefined }
 }): Promise<Metadata> {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://example.com"
   try {
     const slug = params.slug
     const id = slug[0]
@@ -69,18 +69,15 @@ export async function generateMetadata({
     }
     const title = post.title || `${post.content.slice(0, 60)}…`
     const description = post.summary || post.content.slice(0, 160)
-    const url =
-      locale === "es" && post.translation
-        ? `${siteUrl}/es/blog/${post.id}`
-        : `${siteUrl}/blog/${post.id}`
+    const canonicalUrl = getCanonicalUrl(`/blog/${post.id}`)
     return {
       title,
       description,
-      alternates: { canonical: url },
+      alternates: { canonical: canonicalUrl },
       openGraph: {
         title,
         description,
-        url,
+        url: canonicalUrl,
         type: "article",
       },
     }
