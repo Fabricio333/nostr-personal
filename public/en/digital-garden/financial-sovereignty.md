@@ -1,9 +1,16 @@
 ---
 title: Financial Sovereignty
-date: 2025-11-14
-tags: [biohacking, economics, bitcoin]
+date: 2025-08-06
+tags:
+  - biohacking
+  - economics
+  - bitcoin
+last_revision: 2025-08-06
 ---
+Financial sovereignty is the ability to control your wealth without relying on banks or governments and in a more spiritual way, is related to being able to be free to use our time freely, without worrying about having or not money. 
 
-Ability to control your wealth without relying on banks or governments. Achieved with hard money like [[Bitcoin]], your own keys, and personal custody.
+Related notes:
+- [[time-is-money]]
+- [[money-is-time]]
+- [[fiat-as-distraction]] to understand more about the spiritual sovereignty side
 
-📎 [[Personal Decentralization]] · [[Fiat is the Enemy]] · [[Key Ownership]]
