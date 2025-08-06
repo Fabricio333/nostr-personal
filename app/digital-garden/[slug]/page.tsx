@@ -1,8 +1,10 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { cookies } from 'next/headers'
+import type { Metadata } from 'next'
+import { cookies, headers } from 'next/headers'
 import { marked } from 'marked'
 import { getNote } from '@/lib/digital-garden'
+import { getSiteName } from '@/lib/settings'
 import { Badge } from '@/components/ui/badge'
 import { slugify } from '@/lib/slugify'
 import en from '@/locales/en.json'
@@ -11,6 +13,57 @@ import es from '@/locales/es.json'
 const translations = { en, es } as const
 
 export const revalidate = 60 * 60 * 24
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string }
+}): Promise<Metadata> {
+  const siteName = await getSiteName()
+  const gardenTitle = `${siteName}'s Garden`
+  const cookieStore = cookies()
+  const locale = (cookieStore.get('NEXT_LOCALE')?.value || 'en') as 'en' | 'es'
+  const note = await getNote(params.slug, locale)
+  if (!note) {
+    return { title: gardenTitle }
+  }
+  const headersList = headers()
+  const host =
+    headersList.get('x-forwarded-host') ||
+    headersList.get('host') ||
+    'localhost:3000'
+  const protocol = headersList.get('x-forwarded-proto') || 'https'
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`
+  const url =
+    locale === 'es'
+      ? `${siteUrl}/es/digital-garden/${params.slug}`
+      : `${siteUrl}/digital-garden/${params.slug}`
+  const title = `${note.title} – ${gardenTitle}`
+  const description = note.content
+    .replace(/\[\[([^\]]+)\]\]/g, '$1')
+    .replace(/\s+/g, ' ')
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: url,
+      languages: {
+        en: `${siteUrl}/digital-garden/${params.slug}`,
+        es: `${siteUrl}/es/digital-garden/${params.slug}`,
+      },
+    },
+    openGraph: {
+      title,
+      description,
+      url,
+      type: 'article',
+    },
+    twitter: {
+      title,
+      description,
+    },
+  }
+}
 
 function getT(locale: keyof typeof translations) {
   return (key: string) =>
