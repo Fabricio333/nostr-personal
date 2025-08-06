@@ -73,6 +73,10 @@
   "projects": {
     "title": "Proyectos de {{ownerName}}",
     "subtitle": "Una colección de mi trabajo, que muestra diversas tecnologías y enfoques para resolver problemas.",
+    "metadata": {
+      "title": "Proyectos de Fabricio",
+      "description": "Una colección de mi trabajo, que muestra diversas tecnologías y enfoques para resolver problemas."
+    },
     "github": "GitHub",
     "live_demo": "Demo en vivo",
     "no_projects": "No hay proyectos para mostrar todavía. ¡Vuelve pronto!",
