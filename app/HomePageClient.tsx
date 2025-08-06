@@ -261,42 +261,44 @@ export default function HomePageClient() {
       <div className="container mx-auto px-4 py-8">
         {/* Profile Section */}
         {profile && (
-          <Card className="mb-8 border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:shadow-xl transition-all duration-300">
-            <CardContent className="p-8">
-              <div className="flex flex-col md:flex-row items-center md:items-center gap-8">
-                <Avatar className="h-48 w-48 border-4 border-white dark:border-slate-700 shadow-lg">
-                  <AvatarImage
-                    src={profile.picture || "/placeholder.svg"}
-                    alt={profile.name || profile.display_name || "Profile"}
-                    className="object-cover"
-                  />
-                  <AvatarFallback className="text-2xl font-bold bg-gradient-to-br from-blue-500 to-purple-600 text-white">
-                    {(profile.name || profile.display_name || "U")[0].toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1 text-center md:text-left">
-                  <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-slate-900 to-slate-600 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
-                  {profile.display_name || profile.name || t("home.anonymous")}
-                  </h1>
-                  {profile.about && (
-                    <div className="text-slate-600 dark:text-slate-300 mb-4 leading-relaxed prose prose-slate dark:prose-invert max-w-none">
-                      <p className="whitespace-pre-line">{profile.about}</p>
-                    </div>
-                  )}
-                  <div className="flex flex-wrap gap-4 justify-center md:justify-start">
-                    {profile.website && (
-                      <Button variant="outline" size="sm" asChild>
-                        <a href={profile.website} target="_blank" rel="noopener noreferrer">
-                          <ExternalLink className="h-4 w-4 mr-2" />
-                          {t("home.website")}
-                        </a>
-                      </Button>
+          <Link href="/resume" className="group block">
+            <Card className="mb-8 border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm transition-all duration-300 group-hover:shadow-xl group-hover:-translate-y-1">
+              <CardContent className="p-8">
+                <div className="flex flex-col md:flex-row items-center md:items-center gap-8">
+                  <Avatar className="h-48 w-48 border-4 border-white dark:border-slate-700 shadow-lg">
+                    <AvatarImage
+                      src={profile.picture || "/placeholder.svg"}
+                      alt={profile.name || profile.display_name || "Profile"}
+                      className="object-cover"
+                    />
+                    <AvatarFallback className="text-2xl font-bold bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+                      {(profile.name || profile.display_name || "U")[0].toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 text-center md:text-left">
+                    <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-slate-900 to-slate-600 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
+                      {profile.display_name || profile.name || t("home.anonymous")}
+                    </h1>
+                    {profile.about && (
+                      <div className="text-slate-600 dark:text-slate-300 mb-4 leading-relaxed prose prose-slate dark:prose-invert max-w-none">
+                        <p className="whitespace-pre-line">{profile.about}</p>
+                      </div>
                     )}
+                    <div className="flex flex-wrap gap-4 justify-center md:justify-start">
+                      {profile.website && (
+                        <Button variant="outline" size="sm" asChild>
+                          <a href={profile.website} target="_blank" rel="noopener noreferrer">
+                            <ExternalLink className="h-4 w-4 mr-2" />
+                            {t("home.website")}
+                          </a>
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </Link>
         )}
 
         {/* Posts */}
