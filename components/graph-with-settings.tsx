@@ -36,19 +36,6 @@ interface Settings {
   hiddenTags: string[]
 }
 
-const defaultSettings: Settings = {
-  showArrows: false,
-  textFadeThreshold: 1,
-  nodeSize: 8,
-  linkWidth: 1,
-  centerForce: 0.1,
-  chargeForce: -200,
-  linkForce: 1,
-  linkDistance: 100,
-  tagColors: {},
-  hiddenTags: [],
-}
-
 export default function GraphWithSettings({
   data,
   tags,
@@ -56,7 +43,27 @@ export default function GraphWithSettings({
   data: GraphData
   tags: string[]
 }) {
-  const [settings, setSettings] = useState<Settings>(defaultSettings)
+  const createDefaultSettings = (): Settings => {
+    const palette = d3.schemeCategory10
+    const tagColors: Record<string, string> = {}
+    tags.forEach((tag, i) => {
+      tagColors[tag] = palette[i % palette.length]
+    })
+    return {
+      showArrows: false,
+      textFadeThreshold: 1,
+      nodeSize: 8,
+      linkWidth: 1,
+      centerForce: 0.1,
+      chargeForce: -200,
+      linkForce: 1,
+      linkDistance: 100,
+      tagColors,
+      hiddenTags: [],
+    }
+  }
+
+  const [settings, setSettings] = useState<Settings>(createDefaultSettings())
   const [displayData, setDisplayData] = useState<GraphData>(data)
   const timers = useRef<number[]>([])
   const { t } = useI18n()
@@ -93,7 +100,7 @@ export default function GraphWithSettings({
   }, [settings])
 
   const resetSettings = () => {
-    setSettings(defaultSettings)
+    setSettings(createDefaultSettings())
     localStorage.removeItem('graphSettings')
   }
 

@@ -42,7 +42,7 @@ export default function WikiGraph({
     svg.selectAll('*').remove()
 
     const isDark = resolvedTheme === 'dark'
-    const linkColor = isDark ? '#4b5563' : '#94a3b8'
+    const themeLinkColor = isDark ? '#94a3b8' : '#475569'
     const nodeDefault = isDark ? '#60a5fa' : '#1f77b4'
     const textColor = isDark ? '#fff' : '#000'
 
@@ -75,7 +75,7 @@ export default function WikiGraph({
         .attr('orient', 'auto')
         .append('path')
         .attr('d', 'M0,-5L10,0L0,5')
-        .attr('fill', linkColor)
+        .attr('fill', themeLinkColor)
     }
 
     const linkForce = d3
@@ -109,7 +109,7 @@ export default function WikiGraph({
             ? nodes.find((n) => n.id === d.target)
             : (d.target as any)
         const tag = src?.tags[0] || tgt?.tags[0]
-        return adjustColor(settings.tagColors[tag] || linkColor)
+        return adjustColor(settings.tagColors[tag] || themeLinkColor)
       })
 
     if (settings.showArrows) {
