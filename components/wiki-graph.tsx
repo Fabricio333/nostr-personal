@@ -26,6 +26,7 @@ export default function WikiGraph({ data }: { data: GraphData }) {
     const linkColor = isDark ? '#555' : '#999'
     const nodeColor = isDark ? '#60a5fa' : '#1f77b4'
     const textColor = isDark ? '#fff' : '#000'
+    const highlightColor = isDark ? '#fbbf24' : '#d97706'
 
     const simulation = d3
       .forceSimulation(data.nodes as any)
@@ -44,6 +45,7 @@ export default function WikiGraph({ data }: { data: GraphData }) {
       .data(data.links)
       .enter()
       .append('line')
+      .attr('stroke-width', 1.5)
 
     const node = svg
       .append('g')
@@ -53,8 +55,9 @@ export default function WikiGraph({ data }: { data: GraphData }) {
       .data(data.nodes)
       .enter()
       .append('circle')
-      .attr('r', 8)
+      .attr('r', 10)
       .attr('fill', nodeColor)
+      .style('cursor', 'pointer')
 
     const label = svg
       .append('g')
@@ -63,31 +66,48 @@ export default function WikiGraph({ data }: { data: GraphData }) {
       .enter()
       .append('text')
       .text((d) => d.title)
-      .attr('font-size', 10)
+      .attr('font-size', 12)
       .attr('dx', 12)
       .attr('dy', '0.35em')
       .attr('fill', textColor)
+      .style('cursor', 'pointer')
       .on('mouseover', (event, d: any) => {
         node
           .filter((n: any) => n.id === d.id)
           .transition()
           .duration(200)
-          .attr('r', 12)
+          .attr('r', 14)
+        link
+          .filter(
+            (l: any) => l.source.id === d.id || l.target.id === d.id,
+          )
+          .transition()
+          .duration(200)
+          .attr('stroke', highlightColor)
+          .attr('stroke-width', 2.5)
         d3.select(event.currentTarget)
           .transition()
           .duration(200)
-          .attr('font-size', 14)
+          .attr('font-size', 16)
       })
       .on('mouseout', (event, d: any) => {
         node
           .filter((n: any) => n.id === d.id)
           .transition()
           .duration(200)
-          .attr('r', 8)
+          .attr('r', 10)
+        link
+          .filter(
+            (l: any) => l.source.id === d.id || l.target.id === d.id,
+          )
+          .transition()
+          .duration(200)
+          .attr('stroke', linkColor)
+          .attr('stroke-width', 1.5)
         d3.select(event.currentTarget)
           .transition()
           .duration(200)
-          .attr('font-size', 10)
+          .attr('font-size', 12)
       })
 
     node
@@ -99,23 +119,39 @@ export default function WikiGraph({ data }: { data: GraphData }) {
         d3.select(event.currentTarget)
           .transition()
           .duration(200)
-          .attr('r', 12)
+          .attr('r', 14)
         label
           .filter((l: any) => l.id === d.id)
           .transition()
           .duration(200)
-          .attr('font-size', 14)
+          .attr('font-size', 16)
+        link
+          .filter(
+            (l: any) => l.source.id === d.id || l.target.id === d.id,
+          )
+          .transition()
+          .duration(200)
+          .attr('stroke', highlightColor)
+          .attr('stroke-width', 2.5)
       })
       .on('mouseout', (event, d: any) => {
         d3.select(event.currentTarget)
           .transition()
           .duration(200)
-          .attr('r', 8)
+          .attr('r', 10)
         label
           .filter((l: any) => l.id === d.id)
           .transition()
           .duration(200)
-          .attr('font-size', 10)
+          .attr('font-size', 12)
+        link
+          .filter(
+            (l: any) => l.source.id === d.id || l.target.id === d.id,
+          )
+          .transition()
+          .duration(200)
+          .attr('stroke', linkColor)
+          .attr('stroke-width', 1.5)
       })
       .call(
         d3

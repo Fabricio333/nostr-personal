@@ -1,5 +1,6 @@
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
+import { Button } from '@/components/ui/button'
 import { cookies, headers } from 'next/headers'
 import type { Metadata } from 'next'
 import { getAllNotes } from '@/lib/digital-garden'
@@ -76,13 +77,12 @@ export default async function DigitalGardenGraphPage() {
     <div className="container mx-auto px-4 py-8">
       <h1 className="mb-4 text-center text-3xl font-bold">{t('digital_garden.garden_graph')}</h1>
       <WikiGraph data={{ nodes, links }} />
-      <div className="mt-4 text-center">
-        <Link
-          href={locale === 'es' ? '/es/digital-garden' : '/digital-garden'}
-          className="text-blue-600 hover:underline"
-        >
-          {t('digital_garden.back')}
-        </Link>
+      <div className="mt-4 flex justify-center">
+        <Button asChild variant="outline">
+          <Link href={locale === 'es' ? '/es/digital-garden' : '/digital-garden'}>
+            {t('digital_garden.back')}
+          </Link>
+        </Button>
       </div>
     </div>
   )

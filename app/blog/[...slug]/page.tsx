@@ -179,13 +179,14 @@ export default async function BlogPostPage({
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
         <div className="container mx-auto px-4 py-8">
           <div className="mb-4">
-            <Link
-              href={locale === "es" ? "/es/blog" : "/blog"}
-              className="text-blue-600 hover:underline"
-              prefetch={false}
-            >
-              ← Back to Blog
-            </Link>
+            <Button asChild variant="outline" size="sm">
+              <Link
+                href={locale === "es" ? "/es/blog" : "/blog"}
+                prefetch={false}
+              >
+                {locale === "es" ? "← Volver al Blog" : "← Back to Blog"}
+              </Link>
+            </Button>
           </div>
           <Card className="mx-auto max-w-3xl border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm break-words">
             {post.image && (

@@ -1,10 +1,12 @@
 import { notFound } from "next/navigation"
 import { cookies } from "next/headers"
+import Link from "next/link"
 import fs from "fs/promises"
 import path from "path"
 import { marked } from "marked"
 import matter from "gray-matter"
 import type { Metadata } from "next"
+import { Button } from "@/components/ui/button"
 import { getSettings } from "@/lib/settings"
 import en from "@/locales/en.json"
 import es from "@/locales/es.json"
@@ -103,6 +105,13 @@ export default async function ProjectPage({ params }: { params: { slug: string }
         )}
         <div dangerouslySetInnerHTML={{ __html: html }} />
       </article>
+      <div className="mt-8">
+        <Button asChild variant="outline">
+          <Link href={locale === "es" ? "/es/projects" : "/projects"}>
+            {locale === "es" ? "← Volver a Proyectos" : "← Back to Projects"}
+          </Link>
+        </Button>
+      </div>
     </div>
   )
 }
