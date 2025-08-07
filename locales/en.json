@@ -23,6 +23,10 @@
     "garden": "🌱 Garden"
   },
   "contact": {
+    "metadata": {
+      "title": "Contact - Fabricio",
+      "description": "Get in touch with Fabricio using the form or send a secure Nostr DM."
+    },
     "configuration_error_title": "Configuration Error",
     "configuration_error_description": "No Nostr public key configured. Please contact the site administrator.",
     "message_sent_title": "Message Sent Successfully!",

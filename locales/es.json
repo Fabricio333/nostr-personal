@@ -23,6 +23,10 @@
     "garden": "🌱 Jardín"
   },
   "contact": {
+    "metadata": {
+      "title": "Contacto - Fabricio",
+      "description": "Envíale un mensaje a Fabricio de forma segura vía Nostr o correo."
+    },
     "configuration_error_title": "Error de configuración",
     "configuration_error_description": "No hay una clave pública de Nostr configurada. Por favor contacte al administrador del sitio.",
     "message_sent_title": "¡Mensaje enviado con éxito!",
