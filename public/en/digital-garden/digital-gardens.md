@@ -1,10 +1,13 @@
 ---
 title: Digital Gardens
-date: 2025-04-20
-tags: [writing, knowledge]
+date: 2025-08-07
+tags:
+  - mind
+last_revision: 2025-08-07
+published: true
 ---
+A digital garden is a digital [[second-brain]] which is a personal space where we can leave notes in a organized that does not necessarily mean a perfectly ordered library but a dynamic and growing set of notes, writings, thoughts that are interconnected to each other.
 
-A digital garden is a personal space on the web where notes grow over time.
-Ideas are connected with [[wikilinks]] and refined instead of being frozen as finished posts.
-
-📎 [[Publish Without Platforms]] · [[Key Ownership]]
+Current most used tools to do this are:
+- Notion
+- Obsidian.md

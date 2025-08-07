@@ -6,6 +6,7 @@ tags:
   - economics
   - bitcoin
 last_revision: 2025-08-06
+published: true
 ---
 Financial sovereignty is the ability to control your wealth without relying on banks or governments and in a more spiritual way, is related to being able to be free to use our time freely, without worrying about having or not money. 
 

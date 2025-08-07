@@ -1,9 +1,11 @@
 ---
-title: Publish Without Platforms
+title: Publishing Without Platforms
 date: 2025-04-13
-tags: [tech]
+tags:
+  - tech
+last_revision: 2025-08-07
+published: true
 ---
+Using [[open-source-software]], apps and protocols like [[nostr]] we can write and publish without needing permission of others, and depending less on third parties infrastructure. 
 
-Writing online without relying on Substack or Medium. Use open tools like [[Nostr]], [[Next.js]], or Git to control content.
-
-📎 [[Personal Decentralization]] · [[Sovereign Technology]] · [[Digital Identity]]
+In a more spiritual sense, being a bit more independent.

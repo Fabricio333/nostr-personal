@@ -5,6 +5,7 @@ tags:
   - tech
   - biohacking
 last_revision: 2025-08-06
+published: true
 ---
 Automatized calendar assistants, smart AI reminders or habit trackers apps or more tech savvy things like brain scanners for reading signals about our thought process and changing our mental patterns. All these things, can help us to achieve higher physical and mental performance but most importantly help us to achieve higher levels of satisfaction with our daily lives. 
 

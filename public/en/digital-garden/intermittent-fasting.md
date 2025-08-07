@@ -1,9 +1,10 @@
 ---
 title: Intermittent Fasting
 date: 2025-01-09
-tags: [nutrition]
+tags:
+  - nutrition
+last_revision: 2025-08-07
+published: true
 ---
 
-Practice of eating within specific time windows. Improves insulin sensitivity, mental clarity, and energy. Ideal complement to [[Biohacking]].
-
-📎 [[Flexible Metabolism]] · [[Carnivore Diet]] · [[Ancestral Health]]
+It is the practice of eating within specific time windows with a long gap between meals, it s said to improve insulin sensitivity, mental clarity, and energy, also it is really useful because it allows to cook less quantity of meals and thus, save time.

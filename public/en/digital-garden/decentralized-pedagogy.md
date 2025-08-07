@@ -5,6 +5,7 @@ tags:
   - education
   - tech
 last_revision: 2025-08-06
+published: true
 ---
 The most powerful ways to teach Bitcoin and sovereignty are using memes, games, and tools to create self motivated learning.
 
