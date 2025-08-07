@@ -12,7 +12,7 @@ import matter from "gray-matter"
 export const revalidate = 60 * 60 * 24
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { siteName } = getSettings()
+  const { siteName, facebookAppId } = getSettings()
   const cookieStore = cookies()
   const locale = (cookieStore.get("NEXT_LOCALE")?.value as "en" | "es") || "en"
   const dirPath = path.join(process.cwd(), "public", locale, "resume")
@@ -60,6 +60,7 @@ export async function generateMetadata(): Promise<Metadata> {
           alt: title,
         },
       ],
+      appId: facebookAppId,
     },
     twitter: {
       card: "summary_large_image",

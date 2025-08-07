@@ -107,6 +107,7 @@ export async function generateMetadata(): Promise<Metadata> {
           alt: siteName,
         },
       ],
+      appId: settings.facebookAppId,
     },
     twitter: {
       card: "summary_large_image",
