@@ -16,6 +16,7 @@ import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
 import { useI18n } from '@/components/locale-provider'
+import * as d3 from 'd3'
 
 interface GraphData {
   nodes: { id: string; title: string; tags: string[] }[]
@@ -73,6 +74,19 @@ export default function GraphWithSettings({
   useEffect(() => {
     setDisplayData(data)
   }, [data])
+
+  useEffect(() => {
+    setSettings((s) => {
+      const palette = d3.schemeCategory10
+      const tagColors = { ...s.tagColors }
+      tags.forEach((tag, i) => {
+        if (!tagColors[tag]) {
+          tagColors[tag] = palette[i % palette.length]
+        }
+      })
+      return { ...s, tagColors }
+    })
+  }, [tags])
 
   useEffect(() => {
     localStorage.setItem('graphSettings', JSON.stringify(settings))
@@ -182,12 +196,12 @@ export default function GraphWithSettings({
               <div className="space-y-2">
                 <Label>{t('digital_garden.repel_force')}</Label>
                 <Slider
-                  value={[settings.chargeForce]}
-                  min={-500}
-                  max={0}
+                  value={[-settings.chargeForce]}
+                  min={0}
+                  max={500}
                   step={10}
                   onValueChange={([v]) =>
-                    setSettings((s) => ({ ...s, chargeForce: v }))
+                    setSettings((s) => ({ ...s, chargeForce: -v }))
                   }
                 />
               </div>

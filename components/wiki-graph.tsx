@@ -42,9 +42,15 @@ export default function WikiGraph({
     svg.selectAll('*').remove()
 
     const isDark = resolvedTheme === 'dark'
-    const linkColor = isDark ? '#555' : '#999'
+    const linkColor = isDark ? '#4b5563' : '#94a3b8'
     const nodeDefault = isDark ? '#60a5fa' : '#1f77b4'
     const textColor = isDark ? '#fff' : '#000'
+
+    const adjustColor = (color: string) => {
+      const c = d3.color(color)
+      if (!c) return color
+      return (isDark ? c.brighter(1) : c.darker(1)).formatHex()
+    }
 
     const nodes = data.nodes.filter(
       (n) => !settings.hiddenTags.some((t) => n.tags.includes(t)),
@@ -72,16 +78,15 @@ export default function WikiGraph({
         .attr('fill', linkColor)
     }
 
+    const linkForce = d3
+      .forceLink(links as any)
+      .id((d: any) => d.id)
+      .distance(settings.linkDistance)
+      .strength(settings.linkForce)
+
     const simulation = d3
       .forceSimulation(nodes as any)
-      .force(
-        'link',
-        d3
-          .forceLink(links as any)
-          .id((d: any) => d.id)
-          .distance(settings.linkDistance)
-          .strength(settings.linkForce),
-      )
+      .force('link', linkForce)
       .force('charge', d3.forceManyBody().strength(settings.chargeForce))
       .force('x', d3.forceX(width / 2).strength(settings.centerForce))
       .force('y', d3.forceY(height / 2).strength(settings.centerForce))
@@ -99,8 +104,12 @@ export default function WikiGraph({
           typeof d.source === 'string'
             ? nodes.find((n) => n.id === d.source)
             : (d.source as any)
-        const tag = src?.tags[0]
-        return settings.tagColors[tag] || linkColor
+        const tgt =
+          typeof d.target === 'string'
+            ? nodes.find((n) => n.id === d.target)
+            : (d.target as any)
+        const tag = src?.tags[0] || tgt?.tags[0]
+        return adjustColor(settings.tagColors[tag] || linkColor)
       })
 
     if (settings.showArrows) {
