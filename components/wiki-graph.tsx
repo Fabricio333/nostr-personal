@@ -55,9 +55,67 @@ export default function WikiGraph({ data }: { data: GraphData }) {
       .append('circle')
       .attr('r', 8)
       .attr('fill', nodeColor)
+
+    const label = svg
+      .append('g')
+      .selectAll('text')
+      .data(data.nodes)
+      .enter()
+      .append('text')
+      .text((d) => d.title)
+      .attr('font-size', 10)
+      .attr('dx', 12)
+      .attr('dy', '0.35em')
+      .attr('fill', textColor)
+      .on('mouseover', (event, d: any) => {
+        node
+          .filter((n: any) => n.id === d.id)
+          .transition()
+          .duration(200)
+          .attr('r', 12)
+        d3.select(event.currentTarget)
+          .transition()
+          .duration(200)
+          .attr('font-size', 14)
+      })
+      .on('mouseout', (event, d: any) => {
+        node
+          .filter((n: any) => n.id === d.id)
+          .transition()
+          .duration(200)
+          .attr('r', 8)
+        d3.select(event.currentTarget)
+          .transition()
+          .duration(200)
+          .attr('font-size', 10)
+      })
+
+    node
       .on('click', (_event, d: any) => {
         const base = locale === 'es' ? '/es/digital-garden' : '/digital-garden'
         window.location.href = `${base}/${d.id}`
+      })
+      .on('mouseover', (event, d: any) => {
+        d3.select(event.currentTarget)
+          .transition()
+          .duration(200)
+          .attr('r', 12)
+        label
+          .filter((l: any) => l.id === d.id)
+          .transition()
+          .duration(200)
+          .attr('font-size', 14)
+      })
+      .on('mouseout', (event, d: any) => {
+        d3.select(event.currentTarget)
+          .transition()
+          .duration(200)
+          .attr('r', 8)
+        label
+          .filter((l: any) => l.id === d.id)
+          .transition()
+          .duration(200)
+          .attr('font-size', 10)
       })
       .call(
         d3
@@ -77,18 +135,6 @@ export default function WikiGraph({ data }: { data: GraphData }) {
             d.fy = null
           }),
       )
-
-    const label = svg
-      .append('g')
-      .selectAll('text')
-      .data(data.nodes)
-      .enter()
-      .append('text')
-      .text((d) => d.title)
-      .attr('font-size', 10)
-      .attr('dx', 12)
-      .attr('dy', '0.35em')
-      .attr('fill', textColor)
 
     simulation.on('tick', () => {
       link
