@@ -96,6 +96,7 @@
     "graph_view": "Graph View",
     "all": "All",
     "garden_graph": "Garden Graph",
+    "local_graph": "Local Graph",
     "back": "\u2190 Back to Garden"
   },
   "show_more": "Show more"
