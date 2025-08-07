@@ -96,7 +96,20 @@
     "graph_view": "Graph View",
     "all": "All",
     "garden_graph": "Garden Graph",
-    "back": "\u2190 Back to Garden"
+    "back": "\u2190 Back to Garden",
+    "settings": "Settings",
+    "graph_settings": "Graph Settings",
+    "show_arrows": "Show arrows",
+    "text_fade": "Text fade threshold",
+    "node_size": "Node size",
+    "link_thickness": "Link thickness",
+    "animate": "Animate",
+    "reset": "Reset",
+    "center_force": "Center force",
+    "repel_force": "Repel force",
+    "link_force": "Link force",
+    "link_distance": "Link distance",
+    "tag_colors": "Tag colors"
   },
   "show_more": "Show more"
 }

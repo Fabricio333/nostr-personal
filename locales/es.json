@@ -96,7 +96,20 @@
     "graph_view": "Vista de Grafo",
     "all": "Todo",
     "garden_graph": "Grafo del Jardín",
-    "back": "\u2190 Volver al Jardín"
+    "back": "\u2190 Volver al Jardín",
+    "settings": "Ajustes",
+    "graph_settings": "Configuración del Grafo",
+    "show_arrows": "Mostrar flechas",
+    "text_fade": "Umbral de desvanecimiento de texto",
+    "node_size": "Tamaño de nodo",
+    "link_thickness": "Grosor de enlace",
+    "animate": "Animar",
+    "reset": "Reiniciar",
+    "center_force": "Fuerza central",
+    "repel_force": "Fuerza de repulsión",
+    "link_force": "Fuerza del enlace",
+    "link_distance": "Distancia del enlace",
+    "tag_colors": "Colores por etiqueta"
   },
   "show_more": "Mostrar más"
 }

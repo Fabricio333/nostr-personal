@@ -55,13 +55,13 @@ function getT(locale: keyof typeof translations) {
     key.split('.').reduce((o: any, k) => (o ? o[k] : undefined), translations[locale]) || key
 }
 
-const WikiGraph = dynamic(() => import('@/components/wiki-graph'), { ssr: false })
+const GraphWithSettings = dynamic(() => import('@/components/graph-with-settings'), { ssr: false })
 
 export default async function DigitalGardenGraphPage() {
   const locale = (cookies().get('NEXT_LOCALE')?.value || 'en') as 'en' | 'es'
   const t = getT(locale)
   const notes = await getAllNotes(locale)
-  const nodes = notes.map((n) => ({ id: n.slug, title: n.title }))
+  const nodes = notes.map((n) => ({ id: n.slug, title: n.title, tags: n.tags }))
   const links: { source: string; target: string }[] = []
   const linkRegex = /\[\[([^\]]+)\]\]/g
   for (const note of notes) {
@@ -73,10 +73,11 @@ export default async function DigitalGardenGraphPage() {
       }
     }
   }
+  const allTags = Array.from(new Set(notes.flatMap((n) => n.tags))).sort()
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="mb-4 text-center text-3xl font-bold">{t('digital_garden.garden_graph')}</h1>
-      <WikiGraph data={{ nodes, links }} />
+      <GraphWithSettings data={{ nodes, links }} tags={allTags} />
       <div className="mt-4 text-center">
         <Link
           href={locale === 'es' ? '/es/digital-garden' : '/digital-garden'}
