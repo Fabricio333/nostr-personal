@@ -63,14 +63,21 @@ export default async function DigitalGardenGraphPage() {
   const t = getT(locale)
   const notes = await getAllNotes(locale)
   const nodes = notes.map((n) => ({ id: n.slug, title: n.title, tags: n.tags }))
+  const nodeIds = new Set(nodes.map((n) => n.id))
+  const linkSet = new Set<string>()
   const links: { source: string; target: string }[] = []
   const linkRegex = /\[\[([^\]]+)\]\]/g
   for (const note of notes) {
     let match: RegExpExecArray | null
     while ((match = linkRegex.exec(note.content)) !== null) {
-      const target = slugify(match[1])
-      if (nodes.find((n) => n.id === target)) {
-        links.push({ source: note.slug, target })
+      const rawTarget = match[1].split('|')[0].split('#')[0].trim()
+      const target = slugify(rawTarget)
+      if (nodeIds.has(target)) {
+        const key = [note.slug, target].sort().join('|')
+        if (!linkSet.has(key)) {
+          links.push({ source: note.slug, target })
+          linkSet.add(key)
+        }
       }
     }
   }
