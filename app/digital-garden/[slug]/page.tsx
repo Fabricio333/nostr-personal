@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { Button } from '@/components/ui/button'
 import type { Metadata } from 'next'
 import { cookies, headers } from 'next/headers'
 import { marked } from 'marked'
@@ -122,12 +123,11 @@ export default async function DigitalGardenNotePage({ params }: { params: { slug
         <div dangerouslySetInnerHTML={{ __html: html }} />
       </article>
       <div className="mt-8">
-        <Link
-          href={locale === 'es' ? '/es/digital-garden' : '/digital-garden'}
-          className="text-blue-600 hover:underline"
-        >
-          {t('digital_garden.back')}
-        </Link>
+        <Button asChild variant="outline">
+          <Link href={locale === 'es' ? '/es/digital-garden' : '/digital-garden'}>
+            {t('digital_garden.back')}
+          </Link>
+        </Button>
       </div>
     </div>
   )

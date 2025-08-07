@@ -5,6 +5,8 @@ import path from "path"
 import { marked } from "marked"
 import matter from "gray-matter"
 import type { Metadata } from "next"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
 import { getSettings } from "@/lib/settings"
 import en from "@/locales/en.json"
 import es from "@/locales/es.json"
@@ -71,6 +73,8 @@ export default async function ProjectPage({ params }: { params: { slug: string }
     website: locale === "es" ? "Sitio web" : "Website",
   }
 
+  const backText = locale === "es" ? "← Volver a Proyectos" : "← Back to Projects"
+
   return (
     <div className="container mx-auto max-w-3xl px-4 py-8">
       <article className="prose dark:prose-invert">
@@ -103,6 +107,11 @@ export default async function ProjectPage({ params }: { params: { slug: string }
         )}
         <div dangerouslySetInnerHTML={{ __html: html }} />
       </article>
+      <div className="mt-8">
+        <Button asChild variant="outline">
+          <Link href={locale === 'es' ? '/es/projects' : '/projects'}>{backText}</Link>
+        </Button>
+      </div>
     </div>
   )
 }

@@ -88,13 +88,20 @@ export default function WikiGraph({
 
     const link = g
       .append('g')
-      .attr('stroke', linkColor)
       .attr('stroke-opacity', 0.6)
       .selectAll('line')
       .data(links)
       .enter()
       .append('line')
       .attr('stroke-width', settings.linkWidth)
+      .attr('stroke', (d: any) => {
+        const src =
+          typeof d.source === 'string'
+            ? nodes.find((n) => n.id === d.source)
+            : (d.source as any)
+        const tag = src?.tags[0]
+        return settings.tagColors[tag] || linkColor
+      })
 
     if (settings.showArrows) {
       link.attr('marker-end', 'url(#arrow)')
