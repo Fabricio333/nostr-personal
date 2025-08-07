@@ -238,6 +238,6 @@ export default function WikiGraph({
     }
   }, [data, resolvedTheme, locale, settings])
 
-  return <svg ref={ref} className="h-[600px] w-full"></svg>
+  return <svg ref={ref} className="h-[500px] w-full"></svg>
 }
 
