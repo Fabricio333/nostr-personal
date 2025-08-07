@@ -25,6 +25,7 @@ export default function WikiGraph({ data }: { data: GraphData }) {
     const isDark = resolvedTheme === 'dark'
     const linkColor = isDark ? '#555' : '#999'
     const nodeColor = isDark ? '#60a5fa' : '#1f77b4'
+    const highlightColor = isDark ? '#93c5fd' : '#3b82f6'
     const textColor = isDark ? '#fff' : '#000'
 
     const simulation = d3
@@ -39,6 +40,7 @@ export default function WikiGraph({ data }: { data: GraphData }) {
     const link = svg
       .append('g')
       .attr('stroke', linkColor)
+      .attr('stroke-width', 1.5)
       .attr('stroke-opacity', 0.6)
       .selectAll('line')
       .data(data.links)
@@ -53,8 +55,15 @@ export default function WikiGraph({ data }: { data: GraphData }) {
       .data(data.nodes)
       .enter()
       .append('circle')
-      .attr('r', 8)
+      .attr('r', 10)
       .attr('fill', nodeColor)
+      .style('cursor', 'pointer')
+      .on('mouseover', function () {
+        d3.select(this).attr('fill', highlightColor)
+      })
+      .on('mouseout', function () {
+        d3.select(this).attr('fill', nodeColor)
+      })
       .on('click', (_event, d: any) => {
         const base = locale === 'es' ? '/es/digital-garden' : '/digital-garden'
         window.location.href = `${base}/${d.id}`
@@ -109,5 +118,5 @@ export default function WikiGraph({ data }: { data: GraphData }) {
     }
   }, [data, resolvedTheme, locale])
 
-  return <svg ref={ref} className="h-[600px] w-full"></svg>
+  return <svg ref={ref} className="h-[600px] w-full rounded-lg border bg-card"></svg>
 }
