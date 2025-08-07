@@ -5,6 +5,7 @@ import { marked } from 'marked'
 import { getAllNotes, getNote } from '@/lib/digital-garden'
 import { getSiteName } from '@/lib/settings'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { slugify } from '@/lib/slugify'
 import MissingNote from '@/components/MissingNote'
 import en from '@/locales/en.json'
@@ -119,13 +120,12 @@ export default async function DigitalGardenNotePage({ params }: { params: { slug
         )}
         <div dangerouslySetInnerHTML={{ __html: html }} />
       </article>
-      <div className="mt-8">
-        <Link
-          href={locale === 'es' ? '/es/digital-garden' : '/digital-garden'}
-          className="text-blue-600 hover:underline"
-        >
-          {t('digital_garden.back')}
-        </Link>
+      <div className="mt-8 flex justify-center">
+        <Button asChild variant="outline">
+          <Link href={locale === 'es' ? '/es/digital-garden' : '/digital-garden'}>
+            {t('digital_garden.back')}
+          </Link>
+        </Button>
       </div>
     </div>
   )
