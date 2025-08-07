@@ -3,6 +3,7 @@ export interface Settings {
   showLifestyle: boolean;
   siteName: string;
   siteDescription: string;
+  facebookAppId?: string;
   contactEmail: string;
   socialLinks: {
     twitter: string;

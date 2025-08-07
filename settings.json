@@ -4,6 +4,7 @@
     "showLifestyle": true,
     "siteName": "Fabricio Acosta",
     "siteDescription": "A personal blog powered by Nostr",
+    "facebookAppId": "1234567890",
     "contactEmail": "",
     "socialLinks": {
       "twitter": "",
