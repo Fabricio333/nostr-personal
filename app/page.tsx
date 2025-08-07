@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { cn, extractImageUrl } from "@/lib/utils"
+import { slugify } from "@/lib/slugify"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -188,6 +189,22 @@ export default function HomePage() {
   const truncateContent = (content: string, maxLength = 300) => {
     if (content.length <= maxLength) return content
     return content.slice(0, maxLength) + "…"
+  }
+
+  const renderContent = (content: string) => {
+    const escapeHtml = (unsafe: string) =>
+      unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;")
+    const base = locale === "es" ? "/es/digital-garden" : "/digital-garden"
+    const escaped = escapeHtml(content)
+    return escaped.replace(/\[\[([^\]]+)\]\]/g, (_match, p1) => {
+      const slug = slugify(p1)
+      return `<a href="${base}/${slug}" class="text-blue-600 underline">${p1}</a>`
+    })
   }
 
   const visiblePosts = filteredPosts.slice(0, visibleCount)
@@ -437,9 +454,12 @@ export default function HomePage() {
                     </CardHeader>
                     <CardContent>
                       <div className="prose prose-slate dark:prose-invert max-w-none w-full">
-                        <p className="text-slate-700 dark:text-slate-300 leading-relaxed break-words overflow-hidden line-clamp-3">
-                          {truncateContent(post.content)}
-                        </p>
+                        <p
+                          className="text-slate-700 dark:text-slate-300 leading-relaxed break-words overflow-hidden line-clamp-3"
+                          dangerouslySetInnerHTML={{
+                            __html: renderContent(truncateContent(post.content)),
+                          }}
+                        />
                       </div>
                     </CardContent>
                   </Card>
