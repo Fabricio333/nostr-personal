@@ -40,6 +40,7 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       title,
       url,
+      type: 'website',
       images: ['/digital-garden.png'],
     },
     twitter: {
