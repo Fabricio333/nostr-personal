@@ -1,12 +1,12 @@
-import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { cookies, headers } from 'next/headers'
 import { marked } from 'marked'
-import { getNote } from '@/lib/digital-garden'
+import { getAllNotes, getNote } from '@/lib/digital-garden'
 import { getSiteName } from '@/lib/settings'
 import { Badge } from '@/components/ui/badge'
 import { slugify } from '@/lib/slugify'
+import MissingNote from '@/components/MissingNote'
 import en from '@/locales/en.json'
 import es from '@/locales/es.json'
 
@@ -25,7 +25,7 @@ export async function generateMetadata({
   const gardenTitle = `${siteName}'s ${translations.en.navbar.garden}`
   const note = await getNote(params.slug, locale)
   if (!note) {
-    return { title: gardenTitle }
+    return { title: gardenTitle, robots: { index: false, follow: true } }
   }
   const headersList = headers()
   const host =
@@ -73,13 +73,20 @@ function getT(locale: keyof typeof translations) {
 export default async function DigitalGardenNotePage({ params }: { params: { slug: string } }) {
   const locale = (cookies().get('NEXT_LOCALE')?.value || 'en') as 'en' | 'es'
   const t = getT(locale)
-  const note = await getNote(params.slug, locale)
+  const [note, notes] = await Promise.all([
+    getNote(params.slug, locale),
+    getAllNotes(locale),
+  ])
   if (!note) {
-    notFound()
+    return <MissingNote slug={params.slug} locale={locale} />
   }
+  const existingSlugs = new Set(notes.map((n) => n.slug))
   let content = note.content.replace(/\[\[([^\]]+)\]\]/g, (_match, p1) => {
     const slug = slugify(p1)
     const base = locale === 'es' ? '/es/digital-garden' : '/digital-garden'
+    if (!existingSlugs.has(slug)) {
+      return `<span class="wikilink-missing">[[${p1}]]</span>`
+    }
     return `[${p1}](${base}/${slug})`
   })
   const renderer = new marked.Renderer()
