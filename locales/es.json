@@ -104,6 +104,7 @@
     "node_size": "Tamaño de nodo",
     "link_thickness": "Grosor de enlace",
     "animate": "Animar",
+    "reset": "Reiniciar",
     "center_force": "Fuerza central",
     "repel_force": "Fuerza de repulsión",
     "link_force": "Fuerza del enlace",

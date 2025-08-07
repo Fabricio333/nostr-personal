@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import WikiGraph from '@/components/wiki-graph'
 import { Button } from '@/components/ui/button'
 import {
@@ -56,7 +56,8 @@ export default function GraphWithSettings({
   tags: string[]
 }) {
   const [settings, setSettings] = useState<Settings>(defaultSettings)
-  const [refresh, setRefresh] = useState(0)
+  const [displayData, setDisplayData] = useState<GraphData>(data)
+  const timers = useRef<number[]>([])
   const { t } = useI18n()
 
   useEffect(() => {
@@ -70,8 +71,36 @@ export default function GraphWithSettings({
   }, [])
 
   useEffect(() => {
+    setDisplayData(data)
+  }, [data])
+
+  useEffect(() => {
     localStorage.setItem('graphSettings', JSON.stringify(settings))
   }, [settings])
+
+  const resetSettings = () => {
+    setSettings(defaultSettings)
+    localStorage.removeItem('graphSettings')
+  }
+
+  const animateGraph = () => {
+    timers.current.forEach(clearTimeout)
+    timers.current = []
+    setDisplayData({ nodes: [], links: [] })
+    data.nodes.forEach((node, i) => {
+      const timer = window.setTimeout(() => {
+        setDisplayData((prev) => {
+          const newNodes = [...prev.nodes, node]
+          const nodeIds = new Set(newNodes.map((n) => n.id))
+          const newLinks = data.links.filter(
+            (l) => nodeIds.has(l.source) && nodeIds.has(l.target),
+          )
+          return { nodes: newNodes, links: newLinks }
+        })
+      }, i * 200)
+      timers.current.push(timer)
+    })
+  }
 
   return (
     <div>
@@ -130,12 +159,12 @@ export default function GraphWithSettings({
                   }
                 />
               </div>
-              <div className="flex justify-between">
-                <Button
-                  variant="outline"
-                  onClick={() => setRefresh((r) => r + 1)}
-                >
+              <div className="flex justify-between space-x-2">
+                <Button variant="outline" onClick={animateGraph}>
                   {t('digital_garden.animate')}
+                </Button>
+                <Button variant="outline" onClick={resetSettings}>
+                  {t('digital_garden.reset')}
                 </Button>
               </div>
               <div className="space-y-2">
@@ -223,7 +252,7 @@ export default function GraphWithSettings({
           </SheetContent>
         </Sheet>
       </div>
-      <WikiGraph key={refresh} data={data} settings={settings} />
+      <WikiGraph data={displayData} settings={settings} />
     </div>
   )
 }

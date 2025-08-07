@@ -104,6 +104,7 @@
     "node_size": "Node size",
     "link_thickness": "Link thickness",
     "animate": "Animate",
+    "reset": "Reset",
     "center_force": "Center force",
     "repel_force": "Repel force",
     "link_force": "Link force",
