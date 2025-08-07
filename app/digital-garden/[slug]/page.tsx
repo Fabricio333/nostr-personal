@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { cookies, headers } from 'next/headers'
+import dynamic from 'next/dynamic'
 import { marked } from 'marked'
 import { getAllNotes, getNote } from '@/lib/digital-garden'
 import { getSiteName } from '@/lib/settings'
@@ -11,6 +12,8 @@ import en from '@/locales/en.json'
 import es from '@/locales/es.json'
 
 const translations = { en, es } as const
+
+const WikiGraph = dynamic(() => import('@/components/wiki-graph'), { ssr: false })
 
 export const revalidate = 60 * 60 * 24
 
@@ -80,7 +83,10 @@ export default async function DigitalGardenNotePage({ params }: { params: { slug
   if (!note) {
     return <MissingNote slug={params.slug} locale={locale} />
   }
-  const existingSlugs = new Set(notes.map((n) => n.slug))
+  const slugToTitle = new Map(notes.map((n) => [n.slug, n.title]))
+  const existingSlugs = new Set(slugToTitle.keys())
+  const extractLinks = (content: string) =>
+    Array.from(content.matchAll(/\[\[([^\]]+)\]\]/g)).map((m) => slugify(m[1]))
   let content = note.content.replace(/\[\[([^\]]+)\]\]/g, (_match, p1) => {
     const slug = slugify(p1)
     const base = locale === 'es' ? '/es/digital-garden' : '/digital-garden'
@@ -100,6 +106,29 @@ export default async function DigitalGardenNotePage({ params }: { params: { slug
     return originalImage(href, title, text)
   }
   const html = marked.parse(content, { renderer })
+
+  const nodes = [{ id: note.slug, title: note.title }]
+  const links: { source: string; target: string }[] = []
+  const neighbors = new Set<string>()
+
+  for (const target of extractLinks(note.content)) {
+    if (slugToTitle.has(target)) {
+      nodes.push({ id: target, title: slugToTitle.get(target)! })
+      links.push({ source: note.slug, target })
+      neighbors.add(target)
+    }
+  }
+
+  for (const n of notes) {
+    if (n.slug === note.slug) continue
+    if (extractLinks(n.content).includes(note.slug)) {
+      if (!neighbors.has(n.slug)) {
+        nodes.push({ id: n.slug, title: n.title })
+        neighbors.add(n.slug)
+      }
+      links.push({ source: n.slug, target: note.slug })
+    }
+  }
   return (
     <div className="container mx-auto max-w-3xl px-4 py-8">
       <article className="prose dark:prose-invert [&_img]:h-auto">
@@ -119,6 +148,12 @@ export default async function DigitalGardenNotePage({ params }: { params: { slug
         )}
         <div dangerouslySetInnerHTML={{ __html: html }} />
       </article>
+      <div className="mt-8">
+        <h2 className="mb-4 text-center text-2xl font-bold">
+          {t('digital_garden.local_graph')}
+        </h2>
+        <WikiGraph data={{ nodes, links }} />
+      </div>
       <div className="mt-8">
         <Link
           href={locale === 'es' ? '/es/digital-garden' : '/digital-garden'}
