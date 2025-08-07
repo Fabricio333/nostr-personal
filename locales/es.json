@@ -96,6 +96,7 @@
     "graph_view": "Vista de Grafo",
     "all": "Todo",
     "garden_graph": "Grafo del Jardín",
+    "local_graph": "Grafo Local",
     "back": "\u2190 Volver al Jardín"
   },
   "show_more": "Mostrar más"
