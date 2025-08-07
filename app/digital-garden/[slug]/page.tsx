@@ -57,10 +57,12 @@ export async function generateMetadata({
       description,
       url,
       type: 'article',
+      images: ['/digital-garden.png'],
     },
     twitter: {
       title,
       description,
+      images: ['/digital-garden.png'],
     },
   }
 }

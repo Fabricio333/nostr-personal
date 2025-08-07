@@ -1,12 +1,53 @@
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
+import type { Metadata } from 'next'
 import { getAllNotes } from '@/lib/digital-garden'
+import { getSiteName } from '@/lib/settings'
 import { slugify } from '@/lib/slugify'
 import en from '@/locales/en.json'
 import es from '@/locales/es.json'
 
 const translations = { en, es } as const
+
+export const revalidate = 60 * 60 * 24
+
+export async function generateMetadata(): Promise<Metadata> {
+  const siteName = await getSiteName()
+  const cookieStore = cookies()
+  const locale = (cookieStore.get('NEXT_LOCALE')?.value || 'en') as 'en' | 'es'
+  const headersList = headers()
+  const host =
+    headersList.get('x-forwarded-host') ||
+    headersList.get('host') ||
+    'localhost:3000'
+  const protocol = headersList.get('x-forwarded-proto') || 'https'
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`
+  const url =
+    locale === 'es'
+      ? `${siteUrl}/es/digital-garden/graph`
+      : `${siteUrl}/digital-garden/graph`
+  const title = `${siteName}'s ${translations.en.navbar.garden} – ${translations[locale].digital_garden.garden_graph}`
+  return {
+    title,
+    alternates: {
+      canonical: url,
+      languages: {
+        en: `${siteUrl}/digital-garden/graph`,
+        es: `${siteUrl}/es/digital-garden/graph`,
+      },
+    },
+    openGraph: {
+      title,
+      url,
+      images: ['/digital-garden.png'],
+    },
+    twitter: {
+      title,
+      images: ['/digital-garden.png'],
+    },
+  }
+}
 
 function getT(locale: keyof typeof translations) {
   return (key: string) =>
