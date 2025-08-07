@@ -66,6 +66,7 @@ export default async function DigitalGardenGraphPage() {
   const links: { source: string; target: string }[] = []
   const linkRegex = /\[\[([^\]]+)\]\]/g
   for (const note of notes) {
+    linkRegex.lastIndex = 0
     let match: RegExpExecArray | null
     while ((match = linkRegex.exec(note.content)) !== null) {
       const target = slugify(match[1])
