@@ -26,9 +26,11 @@ interface Settings {
 export default function WikiGraph({
   data,
   settings,
+  height = 500,
 }: {
   data: GraphData
   settings: Settings
+  height?: number
 }) {
   const ref = useRef<SVGSVGElement>(null)
   const { resolvedTheme } = useTheme()
@@ -37,8 +39,8 @@ export default function WikiGraph({
   useEffect(() => {
     const svg = d3.select(ref.current)
     const width = ref.current?.clientWidth || 800
-    const height = 500
-    svg.attr('viewBox', `0 0 ${width} ${height}`)
+    const h = height
+    svg.attr('viewBox', `0 0 ${width} ${h}`)
     svg.selectAll('*').remove()
 
     const isDark = resolvedTheme === 'dark'
@@ -245,8 +247,8 @@ export default function WikiGraph({
     return () => {
       simulation.stop()
     }
-  }, [data, resolvedTheme, locale, settings])
+  }, [data, resolvedTheme, locale, settings, height])
 
-  return <svg ref={ref} className="h-[500px] w-full"></svg>
+  return <svg ref={ref} style={{ height }} className="w-full"></svg>
 }
 
