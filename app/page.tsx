@@ -22,6 +22,7 @@ import { fetchNostrProfile, fetchNostrPosts } from "@/lib/nostr"
 import { getNostrSettings } from "@/lib/nostr-settings"
 import Link from "next/link"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 import { useI18n } from "@/components/locale-provider"
 
 interface NostrProfile {
@@ -64,6 +65,7 @@ interface Post {
 }
 
 export default function HomePage() {
+  const router = useRouter()
   const [profile, setProfile] = useState<NostrProfile | null>(null)
   const [posts, setPosts] = useState<Post[]>([])
   const [filteredPosts, setFilteredPosts] = useState<Post[]>([])
@@ -278,7 +280,10 @@ export default function HomePage() {
       <div className="container mx-auto px-4 py-8">
         {/* Profile Section */}
         {profile && (
-          <Card className="mb-8 border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:shadow-xl transition-all duration-300">
+          <Card
+            onClick={() => router.push("/resume")}
+            className="mb-8 border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:shadow-xl transition-all duration-300 cursor-pointer"
+          >
             <CardContent className="p-8">
               <div className="flex flex-col md:flex-row items-center md:items-center gap-8">
                 <Avatar className="h-48 w-48 border-4 border-white dark:border-slate-700 shadow-lg">
@@ -303,7 +308,12 @@ export default function HomePage() {
                   <div className="flex flex-wrap gap-4 justify-center md:justify-start">
                     {profile.website && (
                       <Button variant="outline" size="sm" asChild>
-                        <a href={profile.website} target="_blank" rel="noopener noreferrer">
+                        <a
+                          href={profile.website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           <ExternalLink className="h-4 w-4 mr-2" />
                           {t("home.website")}
                         </a>
