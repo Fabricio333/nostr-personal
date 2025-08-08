@@ -114,10 +114,26 @@ export default async function DigitalGardenNotePage({ params }: { params: { slug
       return { id: n.slug, title: n.title, tags: n.tags }
     }),
   ]
-  const graphLinks = [
-    ...Array.from(outgoing).map((target) => ({ source: note.slug, target })),
-    ...Array.from(incoming).map((source) => ({ source, target: note.slug })),
-  ]
+
+  const nodeSet = new Set(graphNodes.map((n) => n.id))
+  const graphLinks: { source: string; target: string }[] = []
+  const seen = new Set<string>()
+  const linkRegex = /\[\[([^\]]+)\]\]/g
+  for (const n of notes) {
+    if (!nodeSet.has(n.slug)) continue
+    linkRegex.lastIndex = 0
+    let m: RegExpExecArray | null
+    while ((m = linkRegex.exec(n.content)) !== null) {
+      const target = slugify(m[1])
+      if (nodeSet.has(target) && target !== n.slug) {
+        const key = `${n.slug}->${target}`
+        if (!seen.has(key)) {
+          seen.add(key)
+          graphLinks.push({ source: n.slug, target })
+        }
+      }
+    }
+  }
   let content = note.content.replace(/\[\[([^\]]+)\]\]/g, (_match, p1) => {
     const slug = slugify(p1)
     const base = locale === 'es' ? '/es/digital-garden' : '/digital-garden'
