@@ -8,6 +8,7 @@ import { getSiteName } from '@/lib/settings'
 import { Badge } from '@/components/ui/badge'
 import { slugify } from '@/lib/slugify'
 import MissingNote from '@/components/MissingNote'
+import LocalGraph from '@/components/local-graph'
 import en from '@/locales/en.json'
 import es from '@/locales/es.json'
 
@@ -84,6 +85,55 @@ export default async function DigitalGardenNotePage({ params }: { params: { slug
     return <MissingNote slug={params.slug} locale={locale} />
   }
   const existingSlugs = new Set(notes.map((n) => n.slug))
+  const outgoing = new Set<string>()
+  const linkPattern = /\[\[([^\]]+)\]\]/g
+  let match: RegExpExecArray | null
+  while ((match = linkPattern.exec(note.content)) !== null) {
+    const slug = slugify(match[1])
+    if (existingSlugs.has(slug)) {
+      outgoing.add(slug)
+    }
+  }
+  const incoming = new Set<string>()
+  for (const other of notes) {
+    if (other.slug === note.slug) continue
+    const regex = /\[\[([^\]]+)\]\]/g
+    let m: RegExpExecArray | null
+    while ((m = regex.exec(other.content)) !== null) {
+      if (slugify(m[1]) === note.slug) {
+        incoming.add(other.slug)
+        break
+      }
+    }
+  }
+  const neighbors = Array.from(new Set([...outgoing, ...incoming]))
+  const graphNodes = [
+    { id: note.slug, title: note.title, tags: note.tags },
+    ...neighbors.map((slug) => {
+      const n = notes.find((nn) => nn.slug === slug)!
+      return { id: n.slug, title: n.title, tags: n.tags }
+    }),
+  ]
+
+  const nodeSet = new Set(graphNodes.map((n) => n.id))
+  const graphLinks: { source: string; target: string }[] = []
+  const seen = new Set<string>()
+  const linkRegex = /\[\[([^\]]+)\]\]/g
+  for (const n of notes) {
+    if (!nodeSet.has(n.slug)) continue
+    linkRegex.lastIndex = 0
+    let m: RegExpExecArray | null
+    while ((m = linkRegex.exec(n.content)) !== null) {
+      const target = slugify(m[1])
+      if (nodeSet.has(target) && target !== n.slug) {
+        const key = `${n.slug}->${target}`
+        if (!seen.has(key)) {
+          seen.add(key)
+          graphLinks.push({ source: n.slug, target })
+        }
+      }
+    }
+  }
   let content = note.content.replace(/\[\[([^\]]+)\]\]/g, (_match, p1) => {
     const slug = slugify(p1)
     const base = locale === 'es' ? '/es/digital-garden' : '/digital-garden'
@@ -122,6 +172,11 @@ export default async function DigitalGardenNotePage({ params }: { params: { slug
         )}
         <div dangerouslySetInnerHTML={{ __html: html }} />
       </article>
+      {graphNodes.length > 1 && (
+        <div className="mt-8">
+          <LocalGraph data={{ nodes: graphNodes, links: graphLinks }} />
+        </div>
+      )}
       <div className="mt-8">
         <Button asChild variant="outline">
           <Link href={locale === 'es' ? '/es/digital-garden' : '/digital-garden'}>
