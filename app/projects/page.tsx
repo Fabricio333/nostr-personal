@@ -28,7 +28,7 @@ export default function ProjectsPage() {
       ],
       tags: ["Nostr", "Next.js", "Digital Garden"],
       github: "https://github.com/Fabricio333/nostr-personal",
-      emoji: "🧠",
+      emoji: "🧘🏼‍♂️",
       emojiClass: "text-7xl",
       link: "/projects/nostrpersonal",
     },
