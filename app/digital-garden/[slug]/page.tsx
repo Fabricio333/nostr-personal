@@ -84,9 +84,10 @@ export default async function DigitalGardenNotePage({ params }: { params: { slug
   if (!note) {
     return <MissingNote slug={params.slug} locale={locale} />
   }
+  const noteSlug = params.slug
   const existingSlugs = new Set(notes.map((n) => n.slug))
   const localNodes: { id: string; title: string; tags: string[] }[] = [
-    { id: note.slug, title: note.title, tags: note.tags },
+    { id: noteSlug, title: note.title, tags: note.tags },
   ]
   const localLinks: { source: string; target: string }[] = []
   const linkRegex = /\[\[([^\]]+)\]\]/g
@@ -98,16 +99,16 @@ export default async function DigitalGardenNotePage({ params }: { params: { slug
       if (!localNodes.some((n) => n.id === targetSlug)) {
         localNodes.push({ id: target.slug, title: target.title, tags: target.tags })
       }
-      localLinks.push({ source: note.slug, target: targetSlug })
+      localLinks.push({ source: noteSlug, target: targetSlug })
     }
   }
   for (const other of notes) {
-    if (other.slug === note.slug) continue
+    if (other.slug === noteSlug) continue
     const otherRegex = /\[\[([^\]]+)\]\]/g
     let m: RegExpExecArray | null
     while ((m = otherRegex.exec(other.content)) !== null) {
       const targetSlug = slugify(m[1])
-      if (targetSlug === note.slug) {
+      if (targetSlug === noteSlug) {
         if (!localNodes.some((n) => n.id === other.slug)) {
           localNodes.push({
             id: other.slug,
@@ -115,7 +116,7 @@ export default async function DigitalGardenNotePage({ params }: { params: { slug
             tags: other.tags,
           })
         }
-        localLinks.push({ source: other.slug, target: note.slug })
+        localLinks.push({ source: other.slug, target: noteSlug })
         break
       }
     }
