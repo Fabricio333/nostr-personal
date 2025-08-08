@@ -17,6 +17,22 @@ export default function ProjectsPage() {
 
   const projects = [
     {
+      id: "0",
+      title: "Nostr Personal",
+      shortDescription: t("projects.list.nostrpersonal.short_description"),
+      description: "Personal website and Nostr client acting as a second brain and digital garden.",
+      responsibilities: [
+        "Developed a Nostr-powered blog and second brain with multilingual support.",
+        "Implemented a digital garden with interlinked Markdown notes.",
+        "Integrated portfolio, resume, and lifestyle features into a unified site.",
+      ],
+      tags: ["Nostr", "Next.js", "Digital Garden"],
+      github: "https://github.com/Fabricio333/nostr-personal",
+      emoji: "🧠",
+      emojiClass: "text-7xl",
+      link: "/projects/nostrpersonal",
+    },
+    {
       id: "1",
       title: "WeAreBitcoin.org",
       shortDescription: t("projects.list.wearebitcoin.short_description"),

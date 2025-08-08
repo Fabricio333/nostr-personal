@@ -93,6 +93,9 @@
       },
       "passwordmanagerweb": {
         "short_description": "Gestor de contraseñas determinista con copia de seguridad descentralizada en Nostr."
+      },
+      "nostrpersonal": {
+        "short_description": "Sitio personal y cliente Nostr que combina un segundo cerebro y un jardín digital."
       }
     }
   },
