@@ -93,6 +93,9 @@
       },
       "passwordmanagerweb": {
         "short_description": "Deterministic password vault with decentralized Nostr backup."
+      },
+      "nostrpersonal": {
+        "short_description": "Personal website and Nostr client combining a second brain and digital garden."
       }
     }
   },
