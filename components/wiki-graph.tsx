@@ -26,9 +26,11 @@ interface Settings {
 export default function WikiGraph({
   data,
   settings,
+  height = 600,
 }: {
   data: GraphData
   settings: Settings
+  height?: number
 }) {
   const ref = useRef<SVGSVGElement>(null)
   const { resolvedTheme } = useTheme()
@@ -37,7 +39,6 @@ export default function WikiGraph({
   useEffect(() => {
     const svg = d3.select(ref.current)
     const width = ref.current?.clientWidth || 800
-    const height = 600
     svg.attr('viewBox', `0 0 ${width} ${height}`)
     svg.selectAll('*').remove()
 
@@ -236,8 +237,8 @@ export default function WikiGraph({
     return () => {
       simulation.stop()
     }
-  }, [data, resolvedTheme, locale, settings])
+  }, [data, resolvedTheme, locale, settings, height])
 
-  return <svg ref={ref} className="h-[600px] w-full"></svg>
+  return <svg ref={ref} className="w-full" style={{ height }}></svg>
 }
 
