@@ -29,8 +29,10 @@ export async function generateMetadata(): Promise<Metadata> {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`
   const url = locale === 'es' ? `${siteUrl}/es/digital-garden` : `${siteUrl}/digital-garden`
   const title = `${siteName}'s ${translations.en.navbar.garden}`
+  const description = translations[locale].digital_garden.metadata.description
   return {
     title,
+    description,
     alternates: {
       canonical: url,
       languages: {
@@ -40,12 +42,14 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     openGraph: {
       title,
+      description,
       url,
       type: 'website',
       images: ['/digital-garden.png'],
     },
     twitter: {
       title,
+      description,
       images: ['/digital-garden.png'],
     },
   }

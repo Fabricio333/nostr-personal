@@ -97,6 +97,9 @@
     }
   },
   "digital_garden": {
+    "metadata": {
+      "description": "Explora el jardín digital en constante crecimiento de Fabricio: notas interconectadas sobre tecnología, Bitcoin y más."
+    },
     "graph_view": "Vista de Grafo",
     "all": "Todo",
     "garden_graph": "Grafo del Jardín",
