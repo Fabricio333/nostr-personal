@@ -37,7 +37,7 @@ export default function WikiGraph({
   useEffect(() => {
     const svg = d3.select(ref.current)
     const width = ref.current?.clientWidth || 800
-    const height = 600
+    const height = 500
     svg.attr('viewBox', `0 0 ${width} ${height}`)
     svg.selectAll('*').remove()
 
@@ -52,13 +52,22 @@ export default function WikiGraph({
       return (isDark ? c.brighter(1) : c.darker(1)).formatHex()
     }
 
-    const nodes = data.nodes.filter(
-      (n) => !settings.hiddenTags.some((t) => n.tags.includes(t)),
-    )
+    const nodes = data.nodes
+      .filter((n) => !settings.hiddenTags.some((t) => n.tags.includes(t)))
+      .map((n) => ({ ...n }))
     const nodeIds = new Set(nodes.map((n) => n.id))
-    const links = data.links.filter(
-      (l) => nodeIds.has(l.source) && nodeIds.has(l.target),
-    )
+    const links = data.links
+      .map((l) => ({
+        source:
+          typeof l.source === 'string'
+            ? l.source
+            : (l.source as any).id,
+        target:
+          typeof l.target === 'string'
+            ? l.target
+            : (l.target as any).id,
+      }))
+      .filter((l) => nodeIds.has(l.source) && nodeIds.has(l.target))
 
     const g = svg.append('g')
 
@@ -238,6 +247,6 @@ export default function WikiGraph({
     }
   }, [data, resolvedTheme, locale, settings])
 
-  return <svg ref={ref} className="h-[600px] w-full"></svg>
+  return <svg ref={ref} className="h-[500px] w-full"></svg>
 }
 
