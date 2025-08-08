@@ -8,6 +8,7 @@ import { getSiteName } from '@/lib/settings'
 import { Badge } from '@/components/ui/badge'
 import { slugify } from '@/lib/slugify'
 import MissingNote from '@/components/MissingNote'
+import LocalGraph from '@/components/local-graph'
 import en from '@/locales/en.json'
 import es from '@/locales/es.json'
 
@@ -84,6 +85,41 @@ export default async function DigitalGardenNotePage({ params }: { params: { slug
     return <MissingNote slug={params.slug} locale={locale} />
   }
   const existingSlugs = new Set(notes.map((n) => n.slug))
+  const localNodes: { id: string; title: string; tags: string[] }[] = [
+    { id: note.slug, title: note.title, tags: note.tags },
+  ]
+  const localLinks: { source: string; target: string }[] = []
+  const linkRegex = /\[\[([^\]]+)\]\]/g
+  let match: RegExpExecArray | null
+  while ((match = linkRegex.exec(note.content)) !== null) {
+    const targetSlug = slugify(match[1])
+    const target = notes.find((n) => n.slug === targetSlug)
+    if (target) {
+      if (!localNodes.some((n) => n.id === targetSlug)) {
+        localNodes.push({ id: target.slug, title: target.title, tags: target.tags })
+      }
+      localLinks.push({ source: note.slug, target: targetSlug })
+    }
+  }
+  for (const other of notes) {
+    if (other.slug === note.slug) continue
+    const otherRegex = /\[\[([^\]]+)\]\]/g
+    let m: RegExpExecArray | null
+    while ((m = otherRegex.exec(other.content)) !== null) {
+      const targetSlug = slugify(m[1])
+      if (targetSlug === note.slug) {
+        if (!localNodes.some((n) => n.id === other.slug)) {
+          localNodes.push({
+            id: other.slug,
+            title: other.title,
+            tags: other.tags,
+          })
+        }
+        localLinks.push({ source: other.slug, target: note.slug })
+        break
+      }
+    }
+  }
   let content = note.content.replace(/\[\[([^\]]+)\]\]/g, (_match, p1) => {
     const slug = slugify(p1)
     const base = locale === 'es' ? '/es/digital-garden' : '/digital-garden'
@@ -106,6 +142,9 @@ export default async function DigitalGardenNotePage({ params }: { params: { slug
   return (
     <div className="container mx-auto max-w-3xl px-4 py-8">
       <article className="prose dark:prose-invert [&_img]:h-auto">
+        <div className="float-right ml-4 h-48 w-48">
+          <LocalGraph nodes={localNodes} links={localLinks} />
+        </div>
         <h1>{note.title}</h1>
         {note.tags.length > 0 && (
           <div className="mb-4 flex flex-wrap gap-2">
