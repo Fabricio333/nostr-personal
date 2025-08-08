@@ -45,6 +45,7 @@
     "d3": "latest",
     "embla-carousel-react": "latest",
     "gray-matter": "^4.0.3",
+    "html-to-image": "^1.11.13",
     "input-otp": "latest",
     "lucide-react": "^0.454.0",
     "marked": "latest",
