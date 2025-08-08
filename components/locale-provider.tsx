@@ -48,10 +48,19 @@ export function I18nProvider({
     if (typeof window !== "undefined") {
       const stored = localStorage.getItem("locale")
       if (stored === "en" || stored === "es") {
-        setLocale(stored as Locale)
+        const path = window.location.pathname
+        const segment = path.split("/")[1]
+        const pathLocale = segment === "en" || segment === "es" ? segment : null
+        const currentLocale = pathLocale ?? initialLocale
+
+        if (!pathLocale || stored === pathLocale) {
+          if (stored !== currentLocale) {
+            setLocale(stored as Locale)
+          }
+        }
       }
     }
-  }, [])
+  }, [initialLocale])
 
   useEffect(() => {
     if (typeof window !== "undefined") {
