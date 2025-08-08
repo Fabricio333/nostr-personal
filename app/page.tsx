@@ -67,7 +67,7 @@ export default function HomePage() {
   const [profile, setProfile] = useState<NostrProfile | null>(null)
   const [posts, setPosts] = useState<Post[]>([])
   const [filteredPosts, setFilteredPosts] = useState<Post[]>([])
-  const [visibleCount, setVisibleCount] = useState(20)
+  const [visibleCount, setVisibleCount] = useState(10)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
@@ -175,7 +175,7 @@ export default function HomePage() {
     }
 
     setFilteredPosts(filtered)
-    setVisibleCount(20)
+    setVisibleCount(10)
   }, [posts, searchTerm, selectedType])
 
   const formatDate = (timestamp: number) => {
@@ -470,7 +470,16 @@ export default function HomePage() {
         </div>
         {visibleCount < filteredPosts.length && (
           <div className="mt-6 flex justify-center">
-            <Button onClick={() => setVisibleCount((c) => c + 20)} variant="outline">
+            <Button
+              onClick={() => setVisibleCount((c) => c + 10)}
+              variant="outline"
+              className={cn(
+                selectedType === "nostr" && "border-purple-500 text-purple-500",
+                selectedType === "article" && "border-orange-500 text-orange-500",
+                selectedType === "garden" && "border-green-500 text-green-500",
+                selectedType === "all" && "border-blue-500 text-blue-500"
+              )}
+            >
               {t("show_more")}
             </Button>
           </div>
