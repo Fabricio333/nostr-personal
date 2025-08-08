@@ -97,6 +97,9 @@
     }
   },
   "digital_garden": {
+    "metadata": {
+      "description": "Explore Fabricio's evolving digital garden—interlinked notes on tech, Bitcoin and more."
+    },
     "graph_view": "Graph View",
     "all": "All",
     "garden_graph": "Garden Graph",
